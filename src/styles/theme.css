@@ -1,0 +1,129 @@
+:root {
+  /* Light mode variables */
+  --light-primary-color: #000000;
+  --light-secondary-color: #ffffff;
+  --light-background-color: #ffffff;
+  --light-text-color: #000000;
+
+  /* Dark mode variables */
+  --dark-primary-color: #ffffff;
+  --dark-secondary-color: #1a1a1a;
+  --dark-background-color: #121212;
+  --dark-text-color: #ffffff;
+}
+
+/* Light mode styles */
+:root {
+  --primary-color: var(--light-primary-color);
+  --secondary-color: var(--light-secondary-color);
+  --background-color: var(--light-background-color);
+  --text-color: var(--light-text-color);
+}
+
+/* Dark mode styles */
+.dark {
+  --primary-color: var(--dark-primary-color);
+  --secondary-color: var(--dark-secondary-color);
+  --background-color: var(--dark-background-color);
+  --text-color: var(--dark-text-color);
+}
+
+/* Primary color utilities */
+.bg-primary {
+  background-color: var(--primary-color);
+}
+
+.text-primary {
+  color: var(--primary-color);
+}
+
+.border-primary {
+  border-color: var(--primary-color);
+}
+
+.hover\:bg-primary:hover {
+  background-color: var(--primary-color);
+}
+
+.hover\:text-primary:hover {
+  color: var(--primary-color);
+}
+
+/* Secondary color utilities */
+.bg-secondary {
+  background-color: var(--secondary-color);
+}
+
+.text-secondary {
+  color: var(--secondary-color);
+}
+
+.border-secondary {
+  border-color: var(--secondary-color);
+}
+
+.hover\:bg-secondary:hover {
+  background-color: var(--secondary-color);
+}
+
+.hover\:text-secondary:hover {
+  color: var(--secondary-color);
+}
+
+/* Background color utilities */
+.bg-background {
+  background-color: var(--background-color);
+}
+
+.text-text {
+  color: var(--text-color);
+}
+
+/* Button styles */
+.btn-primary {
+  background-color: var(--primary-color);
+  color: var(--secondary-color);
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+.btn-secondary {
+  background-color: var(--secondary-color);
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+}
+
+.btn-secondary:hover {
+  background-color: var(--primary-color);
+  color: var(--secondary-color);
+}
+
+/* Link styles */
+.link-primary {
+  color: var(--primary-color);
+}
+
+.link-primary:hover {
+  opacity: 0.8;
+}
+
+/* Card styles */
+.card-primary {
+  border: 1px solid var(--primary-color);
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+/* Input styles */
+.input-primary:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(var(--primary-color), 0.1);
+}
+
+/* Base styles */
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+} 
