@@ -5,99 +5,99 @@
 ![Vite](https://img.shields.io/badge/Vite-5.4.2-purple)
 ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.4.1-38B2AC)
 
-A modern web application built with React, TypeScript, and Vite, featuring a beautiful UI powered by TailwindCSS and shadcn/ui components.
+Uma aplicação web moderna construída com React, TypeScript e Vite, apresentando uma interface bonita e moderna utilizando TailwindCSS e componentes shadcn/ui.
 
-## 🚀 Features
+## 🚀 Funcionalidades
 
-- ⚡️ Lightning fast development with Vite
-- 🎨 Modern UI with TailwindCSS and shadcn/ui
-- 🔒 Type-safe development with TypeScript
-- 📱 Responsive design
-- 🔄 State management with Jotai
-- 📝 Form handling with React Hook Form and Zod validation
-- 🎯 Routing with React Router
-- 🔔 Toast notifications with React Hot Toast
-- 🎯 ESLint for code quality
+- ⚡️ Desenvolvimento ultrarrápido com Vite
+- 🎨 Interface moderna com TailwindCSS e shadcn/ui
+- 🔒 Desenvolvimento com tipagem forte usando TypeScript
+- 📱 Design responsivo
+- 🔄 Gerenciamento de estado com Jotai
+- 📝 Manipulação de formulários com React Hook Form e validação Zod
+- 🎯 Roteamento com React Router
+- 🔔 Notificações toast com React Hot Toast
+- 🎯 ESLint para qualidade do código
 
-## 📋 Prerequisites
+## 📋 Pré-requisitos
 
-- Node.js (Latest LTS version recommended)
-- npm or yarn
+- Node.js (Versão LTS mais recente recomendada)
+- npm ou yarn
 
-## 🛠️ Installation
+## 🛠️ Instalação
 
-1. Clone the repository:
+1. Clone o repositório:
 ```bash
-git clone [your-repository-url]
+git clone [url-do-seu-repositorio]
 cd catalog-web-client
 ```
 
-2. Install dependencies:
+2. Instale as dependências:
 ```bash
 npm install
-# or
+# ou
 yarn install
 ```
 
-3. Start the development server:
+3. Inicie o servidor de desenvolvimento:
 ```bash
 npm run dev
-# or
+# ou
 yarn dev
 ```
 
-The application will be available at `http://localhost:5173`
+A aplicação estará disponível em `http://localhost:5173`
 
-## 🏗️ Available Scripts
+## 🏗️ Scripts Disponíveis
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
+- `npm run dev` - Inicia o servidor de desenvolvimento
+- `npm run build` - Cria build para produção
+- `npm run preview` - Visualiza o build de produção
+- `npm run lint` - Executa o ESLint
 
-## 🛠️ Tech Stack
+## 🛠️ Stack Tecnológica
 
-- **Frontend Framework:** React 18
-- **Build Tool:** Vite
-- **Language:** TypeScript
-- **Styling:** TailwindCSS
-- **UI Components:** shadcn/ui
-- **State Management:** Jotai
-- **Form Handling:** React Hook Form + Zod
-- **Routing:** React Router
-- **HTTP Client:** Axios
-- **Notifications:** React Hot Toast
+- **Framework Frontend:** React 18
+- **Ferramenta de Build:** Vite
+- **Linguagem:** TypeScript
+- **Estilização:** TailwindCSS
+- **Componentes UI:** shadcn/ui
+- **Gerenciamento de Estado:** Jotai
+- **Manipulação de Formulários:** React Hook Form + Zod
+- **Roteamento:** React Router
+- **Cliente HTTP:** Axios
+- **Notificações:** React Hot Toast
 
-## 📁 Project Structure
+## 📁 Estrutura do Projeto
 
 ```
 catalog-web-client/
-├── src/               # Source files
-├── public/            # Static files
-├── index.html         # Entry HTML file
-├── vite.config.ts     # Vite configuration
-├── tailwind.config.js # TailwindCSS configuration
-├── tsconfig.json      # TypeScript configuration
-└── package.json       # Project dependencies and scripts
+├── src/               # Arquivos fonte
+├── public/            # Arquivos estáticos
+├── index.html         # Arquivo HTML principal
+├── vite.config.ts     # Configuração do Vite
+├── tailwind.config.js # Configuração do TailwindCSS
+├── tsconfig.json      # Configuração do TypeScript
+└── package.json       # Dependências e scripts do projeto
 ```
 
-## 🤝 Contributing
+## 🤝 Como Contribuir
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+1. Faça um fork do repositório
+2. Crie sua branch de feature (`git checkout -b feature/nova-feature`)
+3. Faça commit das suas alterações (`git commit -m 'Adiciona nova feature'`)
+4. Faça push para a branch (`git push origin feature/nova-feature`)
+5. Abra um Pull Request
 
-## 📝 License
+## 📝 Licença
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+Este projeto está licenciado sob a Licença MIT - veja o arquivo LICENSE para mais detalhes.
 
-## 👥 Authors
+## 👥 Autores
 
-- Your Name - Initial work
+- Seu Nome - Trabalho inicial
 
-## 🙏 Acknowledgments
+## 🙏 Agradecimentos
 
 - [Vite](https://vitejs.dev/)
 - [React](https://reactjs.org/)
