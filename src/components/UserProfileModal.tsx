@@ -14,7 +14,7 @@ import { z } from 'zod';
 import { api } from '../api';
 import { useAtom } from 'jotai';
 import { userAtom } from '../store/user';
-import toast from 'react-hot-toast';
+import {toast} from 'react-toastify';
 
 interface UserProfileModalProps {
   isOpen: boolean;

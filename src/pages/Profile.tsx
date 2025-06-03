@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { api } from '../api';
 import { useAtom } from 'jotai';
 import { userAtom } from '../store/user';
-import toast from 'react-hot-toast';
+import {toast} from 'react-toastify';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';

@@ -4,6 +4,9 @@ import { cartAtom, removeFromCartAtom, updateQuantityAtom } from '../store/cart'
 import { Button } from './ui/button';
 import { Trash } from 'lucide-react';
 import { Enterprise } from '../types/enterprise';
+import { api } from '../api';
+import { toast } from 'react-toastify';
+import { authAtom } from '../store/auth';
 
 interface CartProps {
   enterprise: Enterprise | null;
@@ -13,29 +16,37 @@ export const Cart: React.FC<CartProps> = ({ enterprise }: CartProps) => {
   const [cart] = useAtom(cartAtom);
   const [, removeFromCart] = useAtom(removeFromCartAtom);
   const [, updateQuantity] = useAtom(updateQuantityAtom);
+  const [auth] = useAtom(authAtom);
 
-  const total = cart.reduce((sum, item) => {
-    return sum + (item.selectedPrice.value * item.quantity);
+  const currentCart = cart;
+  const items = currentCart?.items || [];
+
+  const total = items.reduce((sum, item) => {
+    return sum + (item.price.value * item.quantity);
   }, 0);
 
-
-
   const generateOrderText = () => {
-    const items = cart.map(item => 
-      `${item.quantity}x ${item.product.title} - ${item.selectedPrice.name} (R$ ${item.selectedPrice.value})`
+    const itemsText = items.map(item =>
+      `${item.quantity}x ${item.product.title} - ${item.price.name} (R$ ${item.price.value})`
     ).join('\n');
-    
-    return `*Pedido:*\n\n${items}\n\n*Total: R$ ${total.toFixed(2)}*`;
+
+    return `*Pedido:*\n\n${itemsText}\n\n*Total: R$ ${total.toFixed(2)}*`;
   };
 
   const handleSendOrder = () => {
+ 
+    if(!auth.isAuthenticated){
+      toast.error('Você precisa estar logado para enviar um pedido!');
+      return;
+    }
+    
     const enterprisePhone = enterprise?.phones.find(phone => phone.is_whatsapp)?.phone;
     console.log(enterprisePhone);
     const text = encodeURIComponent(generateOrderText());
     window.open(`https://wa.me/${enterprisePhone}?text=${text}`, '_blank');
   };
 
-  if (cart.length === 0) {
+  if (!currentCart || items.length === 0) {
     return (
       <div className="p-4 text-center text-gray-500">
         Seu carrinho está vazio
@@ -43,31 +54,61 @@ export const Cart: React.FC<CartProps> = ({ enterprise }: CartProps) => {
     );
   }
 
+  const handleUpdateQuantity = async (productId: string, priceId: string, quantity: number, id_item_cart: string) => {
+    try {
+      if (quantity < 0) {
+        toast.error('A quantidade não pode ser negativa!');
+        return;
+      }
+
+      if (quantity === 0) {
+        await api.delete(`/cart/delete-item/${id_item_cart}`);
+      } else {
+        await api.patch('/cart/update-quantity', {
+          id_item_cart: id_item_cart,
+          id_user: currentCart.id_user,
+          id_product: productId,
+          id_price: priceId,
+          quantity: quantity
+        })
+      }
+
+      updateQuantity({ productId, priceId, quantity, id_item_cart });
+    } catch (error) {
+      toast.error('Erro ao atualizar quantidade do produto!');
+    }
+  }
+
+  const handleRemoveFromCart = async (id_item_cart: string, productId: string, priceId: string) => {
+    try {
+      await api.delete(`/cart/delete-item/${id_item_cart}`);
+      removeFromCart(productId, priceId, id_item_cart);
+    } catch (error) {
+      toast.error('Erro ao remover produto do carrinho!');
+    }
+  }
+  console.log(items);
   return (
     <div className="p-4">
       <h2 className="text-2xl font-bold mb-4">Carrinho</h2>
       <div className="space-y-2">
-        {cart.map((item) => (
-          <div key={`${item.product.id_product}-${item.selectedPrice.id_price}`} className="flex items-center gap-4 p-4 bg-white rounded-lg shadow">
-            <img
-              src={item.product.photo_library.find(img => img.is_default)?.location || item.product.photo_library[0]?.location}
+        {items.map((item) => (
+          <div key={`${item.product.id_product}-${item.price.id_price}`} className="flex items-center gap-4 p-4 bg-white rounded-lg shadow">
+            {/* <img
+              src={item.product.photo_library.find(img => img.is_default)?.location ?? "https://placehold.co/600x400"}
               alt={item.product.title}
               className="w-20 h-20 object-cover rounded"
-            />
+            /> */}
             <div className="flex-1">
-              <h3 className="font-semibold">{item.product.title}</h3>
-              <p className="text-sm text-gray-600">{item.selectedPrice.name}</p>
-              <p className="text-sm font-medium">${item.selectedPrice.value}</p>
+              <h3 className="font-semibold">{item.product.title.substring(0, 20)}...</h3>
+              <p className="text-sm text-gray-600">{item.price.name}</p>
+              <p className="text-sm font-medium">R$ {item.price.value}</p>
             </div>
             <div className="flex items-center gap-1">
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => updateQuantity({
-                  productId: item.product.id_product,
-                  priceId: item.selectedPrice.id_price,
-                  quantity: item.quantity - 1
-                })}
+                onClick={() => handleUpdateQuantity(item.product.id_product, item.price.id_price, item.quantity - 1, item.id_item_cart)}
               >
                 -
               </Button>
@@ -75,11 +116,7 @@ export const Cart: React.FC<CartProps> = ({ enterprise }: CartProps) => {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => updateQuantity({
-                  productId: item.product.id_product,
-                  priceId: item.selectedPrice.id_price,
-                  quantity: item.quantity + 1
-                })}
+                onClick={() => handleUpdateQuantity(item.product.id_product, item.price.id_price, item.quantity + 1, item.id_item_cart)}
               >
                 +
               </Button>
@@ -87,7 +124,7 @@ export const Cart: React.FC<CartProps> = ({ enterprise }: CartProps) => {
             <Button
               variant="destructive"
               size="sm"
-              onClick={() => removeFromCart(item.product.id_product, item.selectedPrice.id_price)}
+              onClick={() => handleRemoveFromCart(item.id_item_cart, item.product.id_product, item.price.id_price)}
             >
               <Trash className="w-5 h-5" />
             </Button>
@@ -99,7 +136,7 @@ export const Cart: React.FC<CartProps> = ({ enterprise }: CartProps) => {
           <span className="text-lg font-semibold">Total:</span>
           <span className="text-xl font-bold">R$ {total.toFixed(2)}</span>
         </div>
-        <Button 
+        <Button
           className="w-full mt-4 text-white"
           onClick={handleSendOrder}
         >

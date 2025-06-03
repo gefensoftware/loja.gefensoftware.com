@@ -56,6 +56,23 @@ type EnterpriseTheme = {
   updatedAt: string;
 };
 
+export interface ScheduleTimeSlot {
+  id: string;
+  open_time: string;
+  close_time: string;
+  is_closed: boolean;
+}
+
+
+export type BusinessDay = {
+  id_business_day: string;
+  day_of_week: string;
+  is_closed: boolean;
+  business_hours: ScheduleTimeSlot[];
+  is_open: boolean;
+}
+
+
 export type Enterprise = {
   id_enterprise: string;
   id_address: string;
@@ -71,4 +88,5 @@ export type Enterprise = {
   emails: EnterpriseEmail[];
   phones: EnterprisePhone[];
   theme: EnterpriseTheme;
+  business_days: BusinessDay[];
 };

@@ -8,13 +8,13 @@ import { ProductCard } from './ProductCard';
 export const ProductList: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const { id_enterprise } = useParams();
+  const { name_store } = useParams();
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const { data } = await api.get(`/product/enterprise/${id_enterprise}`);
+        const { data } = await api.get(`/product/${name_store}`);
         setProducts(data);
       } catch (error) {
         console.error('Error fetching products:', error);
@@ -24,7 +24,7 @@ export const ProductList: React.FC = () => {
     };
 
     fetchProducts();
-  }, [id_enterprise]);
+  }, [name_store]);
 
   if (loading) {
     return <ProductSkeleton />;

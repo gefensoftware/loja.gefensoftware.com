@@ -19,12 +19,12 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
   onClose,
 }) => {
   const [categories, setCategories] = useState<Category[]>([]);
-  const { id_enterprise } = useParams();
+  const { name_store } = useParams();
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const { data } = await api.get(`/category/enterprise/${id_enterprise}`);
+        const { data } = await api.get(`/category/enterprise/${name_store}`);
         setCategories(data);
       } catch (error) {
         console.error('Error fetching categories:', error);
@@ -32,7 +32,7 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
     };
 
     fetchCategories();
-  }, [id_enterprise]);
+  }, [name_store]);
 
   return (
     <>

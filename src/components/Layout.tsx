@@ -4,10 +4,10 @@ import { Card, CardContent } from './ui/card';
 import { Button } from './ui/button';
 import { Menu, User, LogOut, ShoppingCart, X } from 'lucide-react';
 import { api } from '../api';
-import { Enterprise } from '../types/enterprise';
+import {  Enterprise } from '../types/enterprise';
 import Products from '../pages/Products';
 import AuthModal from './AuthModal';
-import { Toaster } from 'react-hot-toast';
+
 import { useAtom } from 'jotai';
 import { authAtom } from '../store/auth';
 import { userAtom } from '../store/user';
@@ -30,16 +30,22 @@ const Layout = () => {
   const [cart] = useAtom(cartAtom);
   const [isScrolled, setIsScrolled] = useState(false);
   const navigate = useNavigate();
-  const {id_enterprise} = useParams();
+  const {name_store} = useParams();
 
   const getEnterprise = async() => {
-    const {data} = await api.get(`/enterprise/${id_enterprise}`);
+    const {data} = await api.get(`/enterprise/${name_store}`);
     setEnterprise(data);
   }
 
   useEffect(() => {
     getEnterprise();
-  }, [id_enterprise]);
+    
+
+  }, [name_store]);
+
+  useEffect(() => {
+    document.title = `loja | ${enterprise?.name}`;
+  }, [enterprise]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -71,11 +77,26 @@ const Layout = () => {
     setUser(null);
   };
 
-  const cartItemsCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const cartItemsCount = cart.items.length;
+  const currentDay = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+  const currentDayBusinessHours = enterprise?.business_days.find(day => day.day_of_week === currentDay.toLowerCase() && !day.is_closed);
+  
+  const isOpen = !!currentDayBusinessHours?.business_hours.find(day => {
+    const now = new Date();
+    const currentTime = now.getHours() * 60 + now.getMinutes();
+    
+    const [openHours, openMinutes] = day.open_time.split(':').map(Number);
+    const [closeHours, closeMinutes] = day.close_time.split(':').map(Number);
+    
+    const openTimeInMinutes = openHours * 60 + openMinutes;
+    const closeTimeInMinutes = closeHours * 60 + closeMinutes;
+    
+    return currentTime >= openTimeInMinutes && currentTime <= closeTimeInMinutes;
+  });
+
 
   return (
     <div className="min-h-screen bg-background">
-      <Toaster position="top-right" />
       {enterprise?.banner && (
         <Card className={`rounded-none border-0 transition-all duration-300 ${isScrolled ? 'h-24' : 'h-48'}`}>
           <CardContent className="p-0">
@@ -97,14 +118,17 @@ const Layout = () => {
                 <img
                   src={enterprise.logo.location}
                   alt="Enterprise Logo"
-                  className="rounded-full w-24 h-24"
+                  className="rounded-full w-24 h-24 max-md:w-12 max-md:h-12"
                 />
               )}
               <span className="ml-2 text-xl font-semibold text-foreground">
-                {enterprise?.name_fantasy}
+                {enterprise?.name}
+              </span>
+              <span className="text-sm text-muted-foreground ml-2 text-green-500 font-bold">
+                {isOpen ? `Aberto` : 'Fechado'}
               </span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 max-md:hidden">
               <Button
                 variant="ghost"
                 size="icon"
@@ -156,7 +180,7 @@ const Layout = () => {
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
       
       {/* Cart Sidebar - Desktop */}
-      <div className={`hidden lg:block fixed inset-y-0 right-0 w-96 bg-background shadow-lg transform transition-transform duration-300 ease-in-out ${isCartOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+      <div className={`hidden lg:block z-50 fixed inset-y-0 right-0 w-96 bg-background shadow-lg transform transition-transform duration-300 ease-in-out ${isCartOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         <div className="h-full flex flex-col">
           <div className="p-4 border-b flex justify-between items-center">
             <h2 className="text-xl font-semibold">Carrinho</h2>

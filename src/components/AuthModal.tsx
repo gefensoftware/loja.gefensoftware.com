@@ -14,9 +14,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { api } from '../api';
 import { useAtom } from 'jotai';
-import { authAtom, UserType } from '../store/auth';
+import { authAtom } from '../store/auth';
 import { userAtom } from '../store/user';
-import toast from 'react-hot-toast';
+import {toast} from 'react-toastify';
 
 interface AuthModalProps {
   isOpen: boolean;

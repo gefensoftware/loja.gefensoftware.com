@@ -10,16 +10,22 @@ import { useEffect } from 'react';
 import { api } from './api';
 import './styles/theme.css'
 import { userAtom } from './store/user';
-
+import 'react-toastify/dist/ReactToastify.css';
+import { cartAtom } from './store/cart';
 
 function App() {
 
   const [auth, setAuth] = useAtom(authAtom);
   const [_, setUser] = useAtom(userAtom);
-
+  const [__, setCart] = useAtom(cartAtom);
   useEffect(() => {
     api.get('/auth/me').then((res) => {
       setUser(res.data);
+      setCart(res.data.cart[0] || {
+        id_cart: null,
+        id_user: res.data.id_user,
+        items: []
+      });
     }).catch(() => {
       setAuth({
         access_token: null,
@@ -32,10 +38,10 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/enterprise/:id_enterprise" element={<Layout />}>
-          <Route path="/enterprise/:id_enterprise" element={<Products />} />
+        <Route path="/:name_store" element={<Layout />}>
+          <Route path="/:name_store" element={<Products />} />
         </Route>
-        <Route path="/enterprise/:id_enterprise/product/:id_product" element={<ProductDetail />} />
+        <Route path="/:name_store/product/:id_product" element={<ProductDetail />} />
         <Route path="/profile" element={<Profile />} />
       </Routes>
     </BrowserRouter>

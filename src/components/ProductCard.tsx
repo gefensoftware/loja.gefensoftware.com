@@ -24,15 +24,23 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-4 flex flex-col">
+    <div className="bg-white rounded-lg shadow-md p-4 flex flex-col relative">
       <img
-        src={product.photo_library.find(img => img.is_default)?.location || product.photo_library[0]?.location}
+        src={product.photo_library.find(img => img.is_default)?.location ?? "https://placehold.co/600x400"}
         alt={product.title}
         className="w-full h-48 object-cover rounded-md mb-4"
       />
+      {product.type === 'service' ? (
+          <div className="bg-primary text-white px-2 py-1 rounded-md text-sm absolute top-2 right-2">
+            Serviço
+          </div>
+        ) : (
+          <div className="bg-primary text-white px-2 py-1 rounded-md text-sm absolute top-2 right-2">
+            Produto
+          </div>
+        )}
       <h3 className="text-lg font-semibold mb-2">{product.title}</h3>
       <p className="text-gray-600 mb-2 line-clamp-2">{product.description}</p>
-      
       <div className="mt-auto">
         <div className="mb-4">
           <Select
@@ -58,7 +66,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           onClick={handleAddToCart}
           className="w-full"
         >
-          Add to Cart
+          Adicionar ao carrinho
         </Button>
         
       </div>

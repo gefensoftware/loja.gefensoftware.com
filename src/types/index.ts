@@ -18,6 +18,8 @@ export interface Product {
   details_point: string[];
   id_service?: string;
   service?: Product;
+  type: string;
+  status: "active" | "inactive" | "paused"
 }
 
 export type Prices = {

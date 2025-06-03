@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { Category, Product } from '../types';
 import { api } from '../api';
 import { productsAtom } from '../store/products';
 import { useAtom } from 'jotai';
@@ -8,7 +7,7 @@ import { CategorySidebar } from '../components/CategorySidebar';
 import { Header } from '../components/Header';
 
 const Products = () => {
-  const { id_enterprise } = useParams();
+  const { name_store } = useParams();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [products, setProducts] = useAtom(productsAtom);
   const [loading, setLoading] = useState(true);
@@ -18,7 +17,7 @@ const Products = () => {
 
   useEffect(() => {
     const fetchCategories = async () => {
-      const { data } = await api.get(`/category/enterprise/${id_enterprise}`);
+      const { data } = await api.get(`/category/enterprise/${name_store}`);
       setCategories(data);
     };
 
@@ -29,7 +28,11 @@ const Products = () => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const { data } = await api.get(`/product/enterprise/${id_enterprise}`);
+        const { data } = await api.get(`/product/enterprise/${name_store}`, {
+          params: {
+            status: "active,paused"
+          }
+        });
         setProducts(data);
       } catch (error) {
         console.error('Error fetching products:', error);
@@ -40,7 +43,7 @@ const Products = () => {
 
     const fetchEnterprise = async () => {
       try {
-        const { data } = await api.get(`/enterprise/${id_enterprise}`);
+        const { data } = await api.get(`/enterprise/${name_store}`);
         setEnterprise(data);
       } catch (error) {
         console.error('Error fetching enterprise:', error);
@@ -85,8 +88,8 @@ const Products = () => {
           </button>
           {categories.map((category) => (
             <button key={category.id_category}
-            onClick={() => setSelectedCategory(category.id_category)}
-            className={`
+              onClick={() => setSelectedCategory(category.id_category)}
+              className={`
               px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 border border-gray-300
               ${selectedCategory === category.id_category ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}
             `}
@@ -98,15 +101,24 @@ const Products = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mx-2">
           {filteredProducts.map((product) => (
-            <Link 
-              to={`/enterprise/${id_enterprise}/product/${product.id_product}`}
-              key={product.id_product} 
-              className="bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition-shadow duration-300"
+            <Link
+              to={product.status === "active" ? `/${name_store}/product/${product.id_product}` : `/${name_store}`}
+              key={product.id_product}
+              className={`bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition-shadow duration-300 relative ${product.status === "paused" ? "opacity-50" : ""}`} 
             >
+              {product.type === 'service' ? (
+                <div className="bg-green-600 text-white px-2 py-1  text-sm absolute top-2 right-2 z-10 rounded-full">
+                  Serviço
+                </div>
+              ) : (
+                <div className="bg-sky-600 text-white px-2 py-1  text-sm absolute top-2 right-2 z-10 rounded-full">
+                  Produto
+                </div>
+              )}
               {product.photo_library && (
                 <div className="relative h-48 overflow-hidden">
                   <img
-                    src={product.photo_library.find(photo => photo.is_default)?.location}
+                    src={product.photo_library.find(photo => photo.is_default)?.location ?? "https://placehold.co/600x400"}
                     alt={product.title}
                     className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-300"
                   />
@@ -117,7 +129,7 @@ const Products = () => {
                 <p className="text-gray-600 mt-2">{product.description}</p>
                 {product.is_budget ? (
                   <p className="text-lg font-bold mt-4 text-primary">Orçamento</p>
-                ): (
+                ) : (
                   <p className="text-lg font-bold mt-4 text-primary">R${product.price[0].value}</p>
                 )}
               </div>
