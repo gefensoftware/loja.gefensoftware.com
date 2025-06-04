@@ -1,8 +1,9 @@
 import axios from "axios";
 
 export const api = axios.create({
-  baseURL: "http://localhost:3003"
+  baseURL: "https://7ger1x52bl.execute-api.sa-east-1.amazonaws.com/prod"
 })
+
 
 api.interceptors.request.use((config) => {
   const auth = JSON.parse(localStorage.getItem('auth') || '{}');
