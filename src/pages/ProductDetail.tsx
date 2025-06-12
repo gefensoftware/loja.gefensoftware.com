@@ -12,7 +12,6 @@ import { Checkbox } from '../components/ui/checkbox';
 import { Textarea } from '../components/ui/textarea';
 import AuthModal from '../components/AuthModal';
 import { userAtom } from '../store/user';
-import { enterprisesAtom } from '../store/atoms/enterprises';
 import { Enterprise } from '../types/enterprise';
 import { toast } from 'react-toastify';
 
