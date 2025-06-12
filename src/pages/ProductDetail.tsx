@@ -312,7 +312,7 @@ const ProductDetail = () => {
                           </Button>
                         </div>
                       ) : (
-                        <div className="flex gap-4">
+                        <div className="flex gap-4 max-md:flex-col">
                           <Button
                             onClick={handleAddToCart}
                             className="flex-1 text-white"
