@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { Outlet, useParams, useSearchParams, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Outlet, useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent } from './ui/card';
 import { Button } from './ui/button';
 import { Menu, User, LogOut, ShoppingCart, X } from 'lucide-react';
 import { api } from '../api';
-import {  Enterprise } from '../types/enterprise';
-import Products from '../pages/Products';
+import { Enterprise } from '../types/enterprise';
 import AuthModal from './AuthModal';
 
 import { useAtom } from 'jotai';
@@ -18,7 +17,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
-import { Header } from './Header';
 import { Cart } from './Cart';
 
 const Layout = () => {
@@ -26,20 +24,20 @@ const Layout = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [auth, setAuth] = useAtom(authAtom);
-  const [user, setUser] = useAtom(userAtom);
+  const [_, setUser] = useAtom(userAtom);
   const [cart] = useAtom(cartAtom);
   const [isScrolled, setIsScrolled] = useState(false);
   const navigate = useNavigate();
-  const {name_store} = useParams();
+  const { name_store } = useParams();
 
-  const getEnterprise = async() => {
-    const {data} = await api.get(`/enterprise/${name_store}`);
+  const getEnterprise = async () => {
+    const { data } = await api.get(`/enterprise/${name_store}`);
     setEnterprise(data);
   }
 
   useEffect(() => {
     getEnterprise();
-    
+
 
   }, [name_store]);
 
@@ -80,17 +78,17 @@ const Layout = () => {
   const cartItemsCount = cart.items.length;
   const currentDay = new Date().toLocaleDateString('en-US', { weekday: 'long' });
   const currentDayBusinessHours = enterprise?.business_days.find(day => day.day_of_week === currentDay.toLowerCase() && !day.is_closed);
-  
+
   const isOpen = !!currentDayBusinessHours?.business_hours.find(day => {
     const now = new Date();
     const currentTime = now.getHours() * 60 + now.getMinutes();
-    
+
     const [openHours, openMinutes] = day.open_time.split(':').map(Number);
     const [closeHours, closeMinutes] = day.close_time.split(':').map(Number);
-    
+
     const openTimeInMinutes = openHours * 60 + openMinutes;
     const closeTimeInMinutes = closeHours * 60 + closeMinutes;
-    
+
     return currentTime >= openTimeInMinutes && currentTime <= closeTimeInMinutes;
   });
 
@@ -112,21 +110,29 @@ const Layout = () => {
       )}
       <nav className="bg-background border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              {enterprise?.logo && (
-                <img
-                  src={enterprise.logo.location}
-                  alt="Enterprise Logo"
-                  className="rounded-full w-24 h-24 max-md:w-12 max-md:h-12"
-                />
-              )}
-              <span className="ml-2 text-xl font-semibold text-foreground">
-                {enterprise?.name}
-              </span>
-              <span className="text-sm text-muted-foreground ml-2 text-green-500 font-bold">
-                {isOpen ? `Aberto` : 'Fechado'}
-              </span>
+          <div className="flex justify-between h-16 items-center">
+            <div className="w-full flex items-center gap-4 justify-between">
+              <div
+                className="flex items-center"
+              >
+                {enterprise?.logo && (
+
+                  <img
+                    src={enterprise.logo.location}
+                    alt="Enterprise Logo"
+                    className="rounded-full w-24 h-24 max-md:w-12 max-md:h-12"
+                  />
+                )}
+                <span className="ml-2 text-xl font-semibold text-foreground">
+                  {enterprise?.name}
+                </span>
+              </div>
+                <button className={`border-2 border-green-500 text-green-500 px-4 py-2 rounded-md ${isOpen ? ' border-green-500' : 'border-red-500'}`}>
+                  <span className={`text-sm   font-bold ${isOpen ? 'text-green-500' : 'text-red-500'}`}>
+                    {isOpen ? `Aberto` : 'Fechado'}
+                  </span>
+                </button>
+
             </div>
             <div className="flex items-center gap-2 max-md:hidden">
               <Button
@@ -161,9 +167,9 @@ const Layout = () => {
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={() => setIsAuthModalOpen(true)}
                   className="text-foreground hover:bg-primary/10"
                 >
@@ -178,7 +184,7 @@ const Layout = () => {
         <Outlet />
       </main>
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
-      
+
       {/* Cart Sidebar - Desktop */}
       <div className={`hidden lg:block z-50 fixed inset-y-0 right-0 w-96 bg-background shadow-lg transform transition-transform duration-300 ease-in-out ${isCartOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         <div className="h-full flex flex-col">
@@ -194,7 +200,7 @@ const Layout = () => {
             </Button>
           </div>
           <div className="flex-1 overflow-y-auto">
-            <Cart 
+            <Cart
               enterprise={enterprise}
             />
           </div>
