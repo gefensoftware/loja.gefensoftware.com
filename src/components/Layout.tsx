@@ -18,6 +18,7 @@ import {
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 import { Cart } from './Cart';
+import { openStoreAtom } from '../store/open-store';
 
 const Layout = () => {
   const [enterprise, setEnterprise] = useState<Enterprise | null>(null);
@@ -76,21 +77,26 @@ const Layout = () => {
   };
 
   const cartItemsCount = cart.items.length;
-  const currentDay = new Date().toLocaleDateString('en-US', { weekday: 'long' });
-  const currentDayBusinessHours = enterprise?.business_days.find(day => day.day_of_week === currentDay.toLowerCase() && !day.is_closed);
+  const [isOpen, setIsOpen] = useAtom(openStoreAtom);
 
-  const isOpen = !!currentDayBusinessHours?.business_hours.find(day => {
-    const now = new Date();
-    const currentTime = now.getHours() * 60 + now.getMinutes();
+  useEffect(() => {
+    const currentDay = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+    const currentDayBusinessHours = enterprise?.business_days.find(day => day.day_of_week === currentDay.toLowerCase() && !day.is_closed);
 
-    const [openHours, openMinutes] = day.open_time.split(':').map(Number);
-    const [closeHours, closeMinutes] = day.close_time.split(':').map(Number);
+    const isOpen = !!currentDayBusinessHours?.business_hours.find(day => {
+      const now = new Date();
+      const currentTime = now.getHours() * 60 + now.getMinutes();
 
-    const openTimeInMinutes = openHours * 60 + openMinutes;
-    const closeTimeInMinutes = closeHours * 60 + closeMinutes;
+      const [openHours, openMinutes] = day.open_time.split(':').map(Number);
+      const [closeHours, closeMinutes] = day.close_time.split(':').map(Number);
 
-    return currentTime >= openTimeInMinutes && currentTime <= closeTimeInMinutes;
-  });
+      const openTimeInMinutes = openHours * 60 + openMinutes;
+      const closeTimeInMinutes = closeHours * 60 + closeMinutes;
+
+      return currentTime >= openTimeInMinutes && currentTime <= closeTimeInMinutes;
+    });
+    setIsOpen(isOpen);
+  }, [enterprise]);
 
 
   return (
@@ -127,11 +133,11 @@ const Layout = () => {
                   {enterprise?.name}
                 </span>
               </div>
-                <button className={`border-2 border-green-500 text-green-500 px-4 py-2 rounded-md ${isOpen ? ' border-green-500' : 'border-red-500'}`}>
-                  <span className={`text-sm   font-bold ${isOpen ? 'text-green-500' : 'text-red-500'}`}>
-                    {isOpen ? `Aberto` : 'Fechado'}
-                  </span>
-                </button>
+              <button className={`border-2 border-green-500 text-green-500 px-4 py-2 rounded-md ${isOpen ? ' border-green-500' : 'border-red-500'}`}>
+                <span className={`text-sm   font-bold ${isOpen ? 'text-green-500' : 'text-red-500'}`}>
+                  {isOpen ? `Aberto` : 'Fechado'}
+                </span>
+              </button>
 
             </div>
             <div className="flex items-center gap-2 max-md:hidden">

@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   Dialog,
   DialogContent,
@@ -53,7 +52,7 @@ const UserProfileModal = ({ isOpen, onClose }: UserProfileModalProps) => {
 
   const onSubmit = async (data: ProfileFormData) => {
     try {
-      const { data: updatedUser } = await api.put(`/user/${user?.id}`, data);
+      const { data: updatedUser } = await api.put(`/user/${user?.id_user}`, data);
       setUser(updatedUser);
       onClose();
       toast.success('Perfil atualizado com sucesso!');

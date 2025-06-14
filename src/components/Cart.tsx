@@ -1,12 +1,12 @@
 import React from 'react';
 import { useAtom } from 'jotai';
-import { cartAtom, removeFromCartAtom, updateQuantityAtom } from '../store/cart';
+import { cartAtom, updateQuantityAtom } from '../store/cart';
 import { Button } from './ui/button';
-import { Trash } from 'lucide-react';
 import { Enterprise } from '../types/enterprise';
 import { api } from '../api';
 import { toast } from 'react-toastify';
 import { authAtom } from '../store/auth';
+import { openStoreAtom } from '../store/open-store';
 
 interface CartProps {
   enterprise: Enterprise | null;
@@ -14,9 +14,9 @@ interface CartProps {
 
 export const Cart: React.FC<CartProps> = ({ enterprise }: CartProps) => {
   const [cart] = useAtom(cartAtom);
-  const [, removeFromCart] = useAtom(removeFromCartAtom);
   const [, updateQuantity] = useAtom(updateQuantityAtom);
   const [auth] = useAtom(authAtom);
+  const [openStore] = useAtom(openStoreAtom);
 
   const currentCart = cart;
   const items = currentCart?.items || [];
@@ -34,7 +34,11 @@ export const Cart: React.FC<CartProps> = ({ enterprise }: CartProps) => {
   };
 
   const handleSendOrder = () => {
- 
+    if (!openStore) {
+      toast.error('A loja está fechada!');
+      return;
+    }
+
     if(!auth.isAuthenticated){
       toast.error('Você precisa estar logado para enviar um pedido!');
       return;
@@ -79,14 +83,7 @@ export const Cart: React.FC<CartProps> = ({ enterprise }: CartProps) => {
     }
   }
 
-  const handleRemoveFromCart = async (id_item_cart: string, productId: string, priceId: string) => {
-    try {
-      await api.delete(`/cart/delete-item/${id_item_cart}`);
-      removeFromCart(productId, priceId, id_item_cart);
-    } catch (error) {
-      toast.error('Erro ao remover produto do carrinho!');
-    }
-  }
+
   console.log(items);
   return (
     <div className="p-4">
@@ -94,11 +91,11 @@ export const Cart: React.FC<CartProps> = ({ enterprise }: CartProps) => {
       <div className="space-y-2">
         {items.map((item) => (
           <div key={`${item.product.id_product}-${item.price.id_price}`} className="flex items-center gap-4 p-4 bg-white rounded-lg shadow">
-            {/* <img
+            <img
               src={item.product.photo_library.find(img => img.is_default)?.location ?? "https://placehold.co/600x400"}
               alt={item.product.title}
               className="w-20 h-20 object-cover rounded"
-            /> */}
+            />
             <div className="flex-1">
               <h3 className="font-semibold">{item.product.title.substring(0, 20)}...</h3>
               <p className="text-sm text-gray-600">{item.price.name}</p>
@@ -112,7 +109,7 @@ export const Cart: React.FC<CartProps> = ({ enterprise }: CartProps) => {
               >
                 -
               </Button>
-              <span className="w-8 text-center">{item.quantity}</span>
+              <span className="w-4 text-center">{item.quantity}</span>
               <Button
                 variant="outline"
                 size="sm"
@@ -121,13 +118,13 @@ export const Cart: React.FC<CartProps> = ({ enterprise }: CartProps) => {
                 +
               </Button>
             </div>
-            <Button
+            {/* <Button
               variant="destructive"
               size="sm"
               onClick={() => handleRemoveFromCart(item.id_item_cart, item.product.id_product, item.price.id_price)}
             >
               <Trash className="w-5 h-5" />
-            </Button>
+            </Button> */}
           </div>
         ))}
       </div>

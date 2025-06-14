@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Card } from './ui/card';
-import { Outlet, useParams, useSearchParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from './ui/button';
 import { Menu, User, LogOut, ShoppingCart, X } from 'lucide-react';
 import { api } from '../api';
 import { Enterprise } from '../types/enterprise';
-import Products from '../pages/Products';
 import AuthModal from './AuthModal';
 
 import { useAtom } from 'jotai';
@@ -28,17 +26,15 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({
   onMenuClick,
-  enterpriseName,
-  enterpriseLogo,
 }) => {
   const [isAtTop, setIsAtTop] = useState(true);
   const [enterprise, setEnterprise] = useState<Enterprise | null>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [auth, setAuth] = useAtom(authAtom);
-  const [user, setUser] = useAtom(userAtom);
+  const [_, setUser] = useAtom(userAtom);
   const [cart] = useAtom(cartAtom);
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [__, setIsScrolled] = useState(false);
   const navigate = useNavigate();
   const { name_store } = useParams();
   const cartItemsCount = cart.items.length;
@@ -98,62 +94,66 @@ export const Header: React.FC<HeaderProps> = ({
   }, []);
 
   return (
-    <div className={`fixed top-0 z-30 w-full border-b bg-background/95 md:hidden border-none ${!isAtTop ? 'backdrop-blur supports-[backdrop-filter]:bg-background/60' : 'bg-black/60'} bg-black/60 duration-300 transition-all`}>
-      <div className="w-full container flex h-12 items-center justify-between">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={onMenuClick}
-          className="mr-4 text-primary"
-        >
-          <Menu className="h-5 w-5 text-white" />
-        </Button>
-        <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
-
-        <div className="flex items-center gap-2">
+    <>
+      <div className={`fixed top-0 z-30 w-full border-b bg-background/95 md:hidden border-none ${!isAtTop ? 'backdrop-blur supports-[backdrop-filter]:bg-background/60' : 'bg-black/60'} bg-black/60 duration-300 transition-all`}>
+        <div className="w-full container flex h-12 items-center justify-between">
           <Button
             variant="ghost"
             size="icon"
-            className="text-foreground hover:bg-primary/10 relative"
-            onClick={() => setIsCartOpen(true)}
+            onClick={onMenuClick}
+            className="mr-4 text-primary"
           >
-            <ShoppingCart className="h-5 w-5 text-white" />
-            {cartItemsCount > 0 && (
-              <span className="absolute text-white -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                {cartItemsCount}
-              </span>
-            )}
+            <Menu className="h-5 w-5 text-white" />
           </Button>
-          {auth.isAuthenticated ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-foreground hover:bg-primary/10">
-                  <User className="h-5 w-5 text-white" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="bg-background border-primary/20">
-                <DropdownMenuItem onClick={() => navigate(`/profile`)} className="text-foreground hover:bg-primary/10">
-                  <User className="mr-2 h-4 w-4" />
-                  <span>Configurar Perfil</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleLogout} className="text-foreground hover:bg-primary/10">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Sair</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
+          <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
+
+          <div className="flex items-center gap-2">
             <Button
               variant="ghost"
-              size="sm"
-              onClick={() => setIsAuthModalOpen(true)}
-              className="text-foreground hover:bg-primary/10 text-white"
+              size="icon"
+              className="text-foreground hover:bg-primary/10 relative"
+              onClick={() => setIsCartOpen(true)}
             >
-              Login
+              <ShoppingCart className="h-5 w-5 text-white" />
+              {cartItemsCount > 0 && (
+                <span className="absolute text-white -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {cartItemsCount}
+                </span>
+              )}
             </Button>
-          )}
+            {auth.isAuthenticated ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="text-foreground hover:bg-primary/10">
+                    <User className="h-5 w-5 text-white" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="bg-background border-primary/20">
+                  <DropdownMenuItem onClick={() => navigate(`/profile`)} className="text-foreground hover:bg-primary/10">
+                    <User className="mr-2 h-4 w-4" />
+                    <span>Configurar Perfil</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleLogout} className="text-foreground hover:bg-primary/10">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Sair</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsAuthModalOpen(true)}
+                className="text-foreground hover:bg-primary/10 text-white"
+              >
+                Login
+              </Button>
+            )}
+          </div>
         </div>
-        <div className={`lg:hidden fixed inset-0 bg-background z-50 transform transition-transform duration-300 ease-in-out ${isCartOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+
+      </div>
+      <div className={`lg:hidden fixed inset-0 bg-background z-[999] transform transition-transform duration-300 ease-in-out ${isCartOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         <div className="h-full flex flex-col">
           <div className="p-4 border-b flex justify-between items-center">
             <h2 className="text-xl font-semibold">
@@ -175,7 +175,7 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
       </div>
-      </div>
-    </div>
+
+    </>
   );
 }; 
