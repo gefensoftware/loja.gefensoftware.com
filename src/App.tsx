@@ -2,9 +2,9 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import Products from './pages/Products';
 import Profile from './pages/Profile';
+import CartPage from './pages/Cart';
 import { useAtom } from 'jotai';
 import { authAtom } from './store/auth';
-import { Navigate } from 'react-router-dom';
 import ProductDetail from './pages/ProductDetail';
 import { useEffect } from 'react';
 import { api } from './api';
@@ -42,7 +42,8 @@ function App() {
           <Route path="/:name_store" element={<Products />} />
         </Route>
         <Route path="/:name_store/product/:id_product" element={<ProductDetail />} />
-        <Route path="/profile" element={<Profile />} />
+        <Route path="/:name_store/profile" element={<Profile />} />
+        <Route path="/:name_store/cart" element={<CartPage />} />
       </Routes>
     </BrowserRouter>
   );

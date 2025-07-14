@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, X, MessageCircle, ChevronLeft, ChevronRight, ShoppingCart } from 'lucide-react';
+import { ArrowLeft, X, MessageCircle, ChevronLeft, ChevronRight, ShoppingCart, Calendar } from 'lucide-react';
 import { Product, Prices, Category } from '../types';
 import { api } from '../api';
 import { useAtom } from 'jotai';
@@ -14,6 +14,22 @@ import AuthModal from '../components/AuthModal';
 import { userAtom } from '../store/user';
 import { Enterprise } from '../types/enterprise';
 import { toast } from 'react-toastify';
+import { Calendar as BigCalendar, dateFnsLocalizer } from 'react-big-calendar';
+import { format, parse, startOfWeek, getDay } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import 'react-big-calendar/lib/css/react-big-calendar.css';
+
+const locales = {
+  'pt-BR': ptBR,
+}
+
+const localizer = dateFnsLocalizer({
+  format,
+  parse,
+  startOfWeek,
+  getDay,
+  locales,
+})
 
 const ProductDetail = () => {
   const { id_product, name_store } = useParams();
@@ -32,6 +48,30 @@ const ProductDetail = () => {
   const [enterprise, setEnterprise] = useState<Enterprise | null>(null);
   const [category, setCategory] = useState<Category | null>(null);
   const [cart] = useAtom(cartAtom);
+  const [showScheduleModal, setShowScheduleModal] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [showTimeModal, setShowTimeModal] = useState(false);
+  const [selectedDay, setSelectedDay] = useState<Date | null>(null);
+  const [availableTimes, setAvailableTimes] = useState<string[]>([]);
+
+  const [events, setEvents] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      const { data } = await api.get(`/event/enterprise/${name_store}`);
+
+      const formattedEvents = data.map((event: any) => ({
+        ...event,
+        start: new Date(event.start),
+        end: new Date(event.end),
+        client: event.user,
+        service: event.product
+      }));
+
+      setEvents(formattedEvents);
+    }
+    fetchEvents();
+  }, [id_product]);
 
   useEffect(() => {
 
@@ -114,23 +154,23 @@ const ProductDetail = () => {
 
     if (!product || !selectedPrice) return;
 
-   try {
-   const { data } = await api.post('/cart/add-item', {
-      id_cart: cart.id_cart,
-      id_user: user!.id_user,
-      id_product: product.id_product,
-      id_price: selectedPrice.id_price,
-      quantity: 1
-    })
+    try {
+      const { data } = await api.post('/cart/add-item', {
+        id_cart: cart.id_cart,
+        id_user: user!.id_user,
+        id_product: product.id_product,
+        id_price: selectedPrice.id_price,
+        quantity: 1
+      })
 
-    addToCart({ product, price: selectedPrice, id_item_cart: data.id_item_cart });
-    toast.success('Produto adicionado ao carrinho!', {
+      addToCart({ product, price: selectedPrice, id_item_cart: data.id_item_cart });
+      toast.success('Produto adicionado ao carrinho!', {
         className: 'z'
       });
     } catch (error) {
       console.error('Error adding item to cart:', error);
       toast.error('Erro ao adicionar produto ao carrinho!');
-   }
+    }
   };
 
   const nextImage = () => {
@@ -139,6 +179,57 @@ const ProductDetail = () => {
 
   const previousImage = () => {
     setCurrentImageIndex((prev) => (prev - 1 + allImages.length) % allImages.length);
+  };
+
+  const handleSchedule = () => {
+    if (!auth.isAuthenticated) {
+      setIsAuthModalOpen(true);
+      return;
+    }
+    setShowScheduleModal(true);
+  };
+
+  const handleDateSelect = (slotInfo: { start: Date; end: Date }) => {
+    setSelectedDay(slotInfo.start);
+    setShowTimeModal(true);
+    
+    // Gerar horários disponíveis das 8h às 18h
+    const times = [];
+    for (let hour = 8; hour <= 18; hour++) {
+      times.push(`${hour.toString().padStart(2, '0')}:00`);
+      times.push(`${hour.toString().padStart(2, '0')}:30`);
+    }
+    setAvailableTimes(times);
+  };
+
+  const handleTimeSelect = (time: string) => {
+    if (!selectedDay) return;
+
+    const [hours, minutes] = time.split(':').map(Number);
+    const selectedDateTime = new Date(selectedDay);
+    selectedDateTime.setHours(hours, minutes, 0, 0);
+    
+    setSelectedDate(selectedDateTime);
+    setShowTimeModal(false);
+  };
+
+  const handleConfirmSchedule = async () => {
+    if (!selectedDate) return;
+
+    try {
+      await api.post('/schedule', {
+        id_product: product?.id_product,
+        id_user: user!.id_user,
+        scheduled_date: selectedDate,
+      });
+
+      toast.success('Agendamento realizado com sucesso!');
+      setShowScheduleModal(false);
+      setSelectedDate(null);
+    } catch (error) {
+      console.error('Error scheduling:', error);
+      toast.error('Erro ao realizar agendamento!');
+    }
   };
 
   if (!product) {
@@ -217,151 +308,166 @@ const ProductDetail = () => {
             <div>
               <h2 className="text-2xl font-semibold text-gray-900 mb-4">Opções de preço</h2>
               <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-                {product.is_budget ? (
-                  <>
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <label htmlFor="quote-note" className="text-sm font-medium text-gray-700">
-                          Observações para o orçamento
-                        </label>
-                        <Textarea
-                          id="quote-note"
-                          placeholder="Adicione observações importantes para o seu orçamento..."
-                          value={quoteNote}
-                          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setQuoteNote(e.target.value)}
-                          className="min-h-[100px]"
-                        />
-                      </div>
-                      <div className="flex gap-4">
-                        <Button
-                          onClick={handleWhatsAppOrder}
-                          className="flex-1 text-white"
-                        >
-                          <MessageCircle className="w-5 h-5 mr-2" />
-                          Solicitar Orçamento
-                        </Button>
-                      </div>
-                    </div>
-                    {product.service && (
-                      <div className="mt-6 border-t pt-6">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Serviço Vinculado</h3>
-                        <div className="bg-white rounded-lg p-4 border">
-                          <div className="flex items-center gap-4">
-                            {product.service.photo_library && product.service.photo_library.length > 0 && (
-                              <div className="w-24 h-24 flex-shrink-0">
-                                <img
-                                  src={product.service.photo_library.find(photo => photo.is_default)?.location}
-                                  alt={product.service.title}
-                                  className="w-full h-full object-cover rounded-md"
-                                />
-                              </div>
-                            )}
-                            <div className="flex-grow">
-                              <h4 className="font-medium text-gray-900">{product.service.title}</h4>
-                              <p className="text-sm text-gray-600 mt-1">{product.service.description}</p>
-                            </div>
-                            <div className="flex items-center">
-                              <Checkbox
-                                id="include-service"
-                                checked={includeService}
-                                onCheckedChange={(checked: boolean) => setIncludeService(checked)}
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <>
-                    {product.price.length === 1 ? (
-                      <div className="text-2xl font-semibold text-gray-900 mb-4">
-                        R$ {product.price[0].value.toFixed(2)}
-                      </div>
-                    ) : (
-                      <Select
-                        value={selectedPrice?.id_price}
-                        onValueChange={(value: string) => {
-                          const price = product.price.find(p => p.id_price === value);
-                          if (price) setSelectedPrice(price);
-                        }}
+                {
+                  product.for_schedule ? (
+                    <div className="flex justify-between gap-4 flex-col">
+                      <p>
+                        <span className="text-primary text-2xl font-semibold">R$ {product.price[0].value.toFixed(2)}</span>
+                      </p>
+                      <Button
+                        onClick={handleSchedule}
+                        className="flex-1 text-white"
                       >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select price" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {product.price.map((price) => (
-                            <SelectItem key={price.id_price} value={price.id_price}>
-                              {price.name} - R$ {price.value.toFixed(2)}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-
-                    {
-                      product?.type === 'service' ? (
-                        <div className="flex gap-4">
-                          <Button
-                            onClick={handleWhatsAppOrder}
-                            className="flex-1"
-                          >
-                            <MessageCircle className="w-5 h-5 mr-2" />
-                            Solicitar Serviço
-                          </Button>
-                        </div>
-                      ) : (
-                        <div className="flex gap-4 max-md:flex-col">
-                          <Button
-                            onClick={handleAddToCart}
-                            className="flex-1 text-white"
-                            disabled={!selectedPrice && product.price.length > 1}
-                          >
-                            <ShoppingCart className="w-5 h-5 mr-2" />
-                            Adicionar ao Carrinho
-                          </Button>
-                          <Button
-                            onClick={handleWhatsAppOrder}
-                            variant="outline"
-                            className="flex-1"
-                          >
-                            <MessageCircle className="w-5 h-5 mr-2" />
-                            WhatsApp
-                          </Button>
-                        </div>
-                      )
-                    }
-                    {product.service && (
-                      <div className="mt-6 border-t pt-6">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Serviço Vinculado</h3>
-                        <div className="bg-white rounded-lg p-4 border">
-                          <div className="flex items-center gap-4">
-                            {product.service.photo_library && product.service.photo_library.length > 0 && (
-                              <div className="w-24 h-24 flex-shrink-0">
-                                <img
-                                  src={product.service.photo_library.find(photo => photo.is_default)?.location}
-                                  alt={product.service.title}
-                                  className="w-full h-full object-cover rounded-md"
-                                />
-                              </div>
-                            )}
-                            <div className="flex-grow">
-                              <h4 className="font-medium text-gray-900">{product.service.title}</h4>
-                              <p className="text-sm text-gray-600 mt-1">{product.service.description}</p>
-                            </div>
-                            <div className="flex items-center">
-                              <Checkbox
-                                id="include-service"
-                                checked={includeService}
-                                onCheckedChange={(checked: boolean) => setIncludeService(checked)}
-                              />
-                            </div>
+                        <Calendar className="w-5 h-5 mr-2" />
+                        Agendar
+                      </Button>
+                    </div>
+                  ) :
+                    product.is_budget ? (
+                      <>
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <label htmlFor="quote-note" className="text-sm font-medium text-gray-700">
+                              Observações para o orçamento
+                            </label>
+                            <Textarea
+                              id="quote-note"
+                              placeholder="Adicione observações importantes para o seu orçamento..."
+                              value={quoteNote}
+                              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setQuoteNote(e.target.value)}
+                              className="min-h-[100px]"
+                            />
+                          </div>
+                          <div className="flex gap-4">
+                            <Button
+                              onClick={handleWhatsAppOrder}
+                              className="flex-1 text-white"
+                            >
+                              <MessageCircle className="w-5 h-5 mr-2" />
+                              Solicitar Orçamento
+                            </Button>
                           </div>
                         </div>
-                      </div>
+                        {product.service && (
+                          <div className="mt-6 border-t pt-6">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Serviço Vinculado</h3>
+                            <div className="bg-white rounded-lg p-4 border">
+                              <div className="flex items-center gap-4">
+                                {product.service.photo_library && product.service.photo_library.length > 0 && (
+                                  <div className="w-24 h-24 flex-shrink-0">
+                                    <img
+                                      src={product.service.photo_library.find(photo => photo.is_default)?.location}
+                                      alt={product.service.title}
+                                      className="w-full h-full object-cover rounded-md"
+                                    />
+                                  </div>
+                                )}
+                                <div className="flex-grow">
+                                  <h4 className="font-medium text-gray-900">{product.service.title}</h4>
+                                  <p className="text-sm text-gray-600 mt-1">{product.service.description}</p>
+                                </div>
+                                <div className="flex items-center">
+                                  <Checkbox
+                                    id="include-service"
+                                    checked={includeService}
+                                    onCheckedChange={(checked: boolean) => setIncludeService(checked)}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        {product.price.length === 1 ? (
+                          <div className="text-2xl font-semibold text-gray-900 mb-4">
+                            R$ {product.price[0].value.toFixed(2)}
+                          </div>
+                        ) : (
+                          <Select
+                            value={selectedPrice?.id_price}
+                            onValueChange={(value: string) => {
+                              const price = product.price.find(p => p.id_price === value);
+                              if (price) setSelectedPrice(price);
+                            }}
+                          >
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Select price" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {product.price.map((price) => (
+                                <SelectItem key={price.id_price} value={price.id_price}>
+                                  {price.name} - R$ {price.value.toFixed(2)}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
+
+                        {
+                          product?.type === 'service' ? (
+                            <div className="flex gap-4">
+                              <Button
+                                onClick={handleWhatsAppOrder}
+                                className="flex-1"
+                              >
+                                <MessageCircle className="w-5 h-5 mr-2" />
+                                Solicitar Serviço
+                              </Button>
+                            </div>
+                          ) : (
+                            <div className="flex gap-4 max-md:flex-col">
+                              <Button
+                                onClick={handleAddToCart}
+                                className="flex-1 text-white"
+                                disabled={!selectedPrice && product.price.length > 1}
+                              >
+                                <ShoppingCart className="w-5 h-5 mr-2" />
+                                Adicionar ao Carrinho
+                              </Button>
+                              <Button
+                                onClick={handleWhatsAppOrder}
+                                variant="outline"
+                                className="flex-1"
+                              >
+                                <MessageCircle className="w-5 h-5 mr-2" />
+                                WhatsApp
+                              </Button>
+                            </div>
+                          )
+                        }
+                        {product.service && (
+                          <div className="mt-6 border-t pt-6">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Serviço Vinculado</h3>
+                            <div className="bg-white rounded-lg p-4 border">
+                              <div className="flex items-center gap-4">
+                                {product.service.photo_library && product.service.photo_library.length > 0 && (
+                                  <div className="w-24 h-24 flex-shrink-0">
+                                    <img
+                                      src={product.service.photo_library.find(photo => photo.is_default)?.location}
+                                      alt={product.service.title}
+                                      className="w-full h-full object-cover rounded-md"
+                                    />
+                                  </div>
+                                )}
+                                <div className="flex-grow">
+                                  <h4 className="font-medium text-gray-900">{product.service.title}</h4>
+                                  <p className="text-sm text-gray-600 mt-1">{product.service.description}</p>
+                                </div>
+                                <div className="flex items-center">
+                                  <Checkbox
+                                    id="include-service"
+                                    checked={includeService}
+                                    onCheckedChange={(checked: boolean) => setIncludeService(checked)}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </>
                     )}
-                  </>
-                )}
               </div>
             </div>
 
@@ -435,6 +541,110 @@ const ProductDetail = () => {
                     }`}
                 />
               ))}
+            </div>
+          </div>
+        </div>
+      )}
+      {showScheduleModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg p-6 w-full max-w-4xl">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-semibold">Agendar Horário</h2>
+              <button
+                onClick={() => setShowScheduleModal(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            
+            <div className="h-[500px] mb-4">
+              <BigCalendar
+                localizer={localizer}
+                events={events}
+                startAccessor="start"
+                endAccessor="end"
+                style={{ height: '100%' }}
+                onSelectSlot={handleDateSelect}
+                selectable
+                views={['month', 'week', 'day']}
+                // onSelectEvent={handleEventClick}
+                messages={{
+                  work_week: "Semana de trabalho",
+                  next: "Próximo",
+                  previous: "Anterior",
+                  today: "Hoje",
+                  month: "Mês",
+                  week: "Semana",
+                  day: "Dia",
+                  agenda: "Agenda",
+                  date: "Data",
+                  time: "Hora",
+                  event: "Evento",
+                  noEventsInRange: "Não há eventos neste período",
+                }}
+              />
+            </div>
+
+            <div className="flex justify-end gap-4">
+              <Button
+                variant="outline"
+                onClick={() => setShowScheduleModal(false)}
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={handleConfirmSchedule}
+                disabled={!selectedDate}
+              >
+                Confirmar Agendamento
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showTimeModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-semibold">Selecione o Horário</h2>
+              <button
+                onClick={() => setShowTimeModal(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-3 gap-2">
+              {availableTimes.map((time) => {
+                const isBooked = events.some(event => {
+                  const eventTime = new Date(event.start);
+                  const [hours, minutes] = time.split(':').map(Number);
+                  return eventTime.getHours() === hours && eventTime.getMinutes() === minutes;
+                });
+
+                return (
+                  <Button
+                    key={time}
+                    variant={isBooked ? "outline" : "default"}
+                    disabled={isBooked}
+                    onClick={() => handleTimeSelect(time)}
+                    className="w-full"
+                  >
+                    {time}
+                  </Button>
+                );
+              })}
+            </div>
+
+            <div className="flex justify-end mt-4">
+              <Button
+                variant="outline"
+                onClick={() => setShowTimeModal(false)}
+              >
+                Cancelar
+              </Button>
             </div>
           </div>
         </div>

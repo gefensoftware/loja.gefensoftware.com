@@ -20,6 +20,7 @@ export interface Product {
   service?: Product;
   type: string;
   status: "active" | "inactive" | "paused"
+  for_schedule: boolean;
 }
 
 export type Prices = {

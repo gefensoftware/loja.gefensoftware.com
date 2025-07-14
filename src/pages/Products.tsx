@@ -1,18 +1,22 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { api } from '../api';
-import { productsAtom } from '../store/products';
+import { productsAtom, searchTermAtom } from '../store/products';
 import { useAtom } from 'jotai';
 import { CategorySidebar } from '../components/CategorySidebar';
-import { Header } from '../components/Header';
+
+import {  Tag } from 'lucide-react';
+import { ProductSkeletonGrid } from '../components/ProductSkeleton';
+import { ProductCard } from '../components/ProductCard';
 
 const Products = () => {
   const { name_store } = useParams();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [products, setProducts] = useAtom(productsAtom);
+  const [searchTerm] = useAtom(searchTermAtom);
   const [loading, setLoading] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [enterprise, setEnterprise] = useState<any>(null);
+  const [_, setEnterprise] = useState<any>(null);
   const [categories, setCategories] = useState<any>([]);
 
   useEffect(() => {
@@ -54,89 +58,120 @@ const Products = () => {
     fetchEnterprise();
   }, []);
 
-  const filteredProducts = selectedCategory
-    ? products.filter(product => product.id_category === selectedCategory)
-    : products;
+  // Filtrar produtos por termo de pesquisa
+  const filteredProducts = products.filter(product => {
+    if (!searchTerm) return true;
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      product.title.toLowerCase().includes(searchLower) ||
+      product.description?.toLowerCase().includes(searchLower)
+    );
+  });
+
+  // Agrupar produtos por categoria
+  const productsByCategory = categories.reduce((acc: any, category: any) => {
+    const categoryProducts = filteredProducts.filter(product => product.id_category === category.id_category);
+    if (categoryProducts.length > 0) {
+      acc[category.id_category] = {
+        category,
+        products: categoryProducts
+      };
+    }
+    return acc;
+  }, {});
+
+  // Produtos sem categoria
+  const uncategorizedProducts = filteredProducts.filter(product => !product.id_category);
+
+  // Função para scroll até a categoria
+  // const handleCategorySelect = (categoryId: string) => {
+  //   setSelectedCategory(categoryId);
+  //   setTimeout(() => {
+  //     const el = document.getElementById(`category-${categoryId}`);
+  //     if (el) {
+  //       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  //     }
+  //   }, 100);
+  // };
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="bg-white rounded-lg shadow-sm border p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Cardápio</h1>
+              <p className="text-gray-600 mt-1">Explore nossos produtos e serviços</p>
+            </div>
+          </div>
+        </div>
+        <ProductSkeletonGrid count={8} />
+      </div>
+    );
+  }
 
   return (
-    <div>
-      <Header
-        onMenuClick={() => setIsSidebarOpen(true)}
-        enterpriseName={enterprise?.name_fantasy}
-        enterpriseLogo={enterprise?.logo?.location}
-      />
+    <div className="space-y-10 pb-20">
 
-      <div className="container py-6">
-        <CategorySidebar
-          selectedCategory={selectedCategory}
-          onCategorySelect={setSelectedCategory}
-          isOpen={isSidebarOpen}
-          onClose={() => setIsSidebarOpen(false)}
-        />
-
-        <div
-          className="flex flex-wrap gap-2 mb-4 mx-2 max-md:hidden"
-        >
-          <button
-            onClick={() => setSelectedCategory(null)}
-            className={`
-              px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200
-              ${selectedCategory === null ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}
-            `}
-          >
-            Todos
-          </button>
-          {categories.map((category) => (
-            <button key={category.id_category}
-              onClick={() => setSelectedCategory(category.id_category)}
-              className={`
-              px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 border border-gray-300
-              ${selectedCategory === category.id_category ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}
-            `}
-            >
-              {category.name}
-            </button>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mx-2">
-          {filteredProducts.map((product) => (
-            <Link
-              to={product.status === "active" ? `/${name_store}/product/${product.id_product}` : `/${name_store}`}
-              key={product.id_product}
-              className={`bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition-shadow duration-300 relative ${product.status === "paused" ? "opacity-50" : ""}`} 
-            >
-              {product.type === 'service' ? (
-                <div className="bg-green-600 text-white px-2 py-1  text-sm absolute top-2 right-2 z-10 rounded-full">
-                  Serviço
-                </div>
-              ) : (
-                <div className="bg-sky-600 text-white px-2 py-1  text-sm absolute top-2 right-2 z-10 rounded-full">
-                  Produto
-                </div>
-              )}
-              {product.photo_library && (
-                <div className="relative h-48 overflow-hidden">
-                  <img
-                    src={product.photo_library.find(photo => photo.is_default)?.location ?? "https://placehold.co/600x400"}
-                    alt={product.title}
-                    className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
-              )}
-              <div className="p-6">
-                <h3 className="text-xl font-semibold text-zinc-800">{product.title}</h3>
-                <p className="text-gray-600 mt-2">{product.description}</p>
-                {product.is_budget ? (
-                  <p className="text-lg font-bold mt-4 text-primary">Orçamento</p>
-                ) : (
-                  <p className="text-lg font-bold mt-4 text-primary">R${product.price[0].value}</p>
-                )}
+      {/* Categorias e Produtos */}
+      <div className="space-y-10">
+        {Object.keys(productsByCategory).length === 0 && uncategorizedProducts.length === 0 ? (
+          <div className="bg-white rounded-lg shadow-sm border p-12 text-center">
+            <div className="max-w-md mx-auto">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Tag className="w-8 h-8 text-gray-400" />
               </div>
-            </Link>
-          ))}
-        </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                {searchTerm ? 'Nenhum produto encontrado' : 'Nenhum produto disponível'}
+              </h3>
+              <p className="text-gray-600">
+                {searchTerm 
+                  ? `Não encontramos produtos para "${searchTerm}"` 
+                  : 'Não há produtos disponíveis no momento'
+                }
+              </p>
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* Produtos por Categoria */}
+            {Object.entries(productsByCategory).map(([categoryId, data]: [string, any]) => {
+              const { category, products: categoryProducts } = data;
+              return (
+                <div key={categoryId} id={`category-${categoryId}`}>
+                  {/* Título da Categoria */}
+                  <h2 className="text-2xl font-bold text-gray-900 mb-4">{category.name}</h2>
+                  {/* Grid de Produtos */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {categoryProducts.map((product: any) => (
+                      <ProductCard key={product.id_product} product={product} />
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+            {/* Produtos sem categoria */}
+            {uncategorizedProducts.length > 0 && (
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">Outros Produtos</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {uncategorizedProducts.map((product: any) => (
+                    <ProductCard key={product.id_product} product={product} />
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
+        )}
       </div>
+
+      {/* Mobile Category Sidebar */}
+      <CategorySidebar
+        selectedCategory={selectedCategory}
+        onCategorySelect={setSelectedCategory}
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+      />
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import  { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -17,6 +17,7 @@ import { useAtom } from 'jotai';
 import { authAtom } from '../store/auth';
 import { userAtom } from '../store/user';
 import {toast} from 'react-toastify';
+import { Mail, Lock, User, Phone, Eye, EyeOff } from 'lucide-react';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -44,11 +45,16 @@ const registerSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 type RegisterFormData = z.infer<typeof registerSchema>;
 
-const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
+const AuthModal = (props: AuthModalProps) => {
+  const { isOpen, onClose } = props;
   const [activeTab, setActiveTab] = useState('login');
-  const [auth, setAuth] = useAtom(authAtom);
+  const [_, setAuth] = useAtom(authAtom);
   const [user, setUser] = useAtom(userAtom);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  console.log({});
+  
 
   const loginForm = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -102,111 +108,240 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Autenticação</DialogTitle>
-        </DialogHeader>
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="login">Login</TabsTrigger>
-            <TabsTrigger value="register">Cadastro</TabsTrigger>
-          </TabsList>
-          <TabsContent value="login">
-            <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input 
-                  id="email" 
-                  type="email" 
-                  placeholder="seu@email.com"
-                  {...loginForm.register('email')}
-                />
-                {loginForm.formState.errors.email && (
-                  <p className="text-sm text-red-500">{loginForm.formState.errors.email.message}</p>
-                )}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">Senha</Label>
-                <Input 
-                  id="password" 
-                  type="password"
-                  {...loginForm.register('password')}
-                />
-                {loginForm.formState.errors.password && (
-                  <p className="text-sm text-red-500">{loginForm.formState.errors.password.message}</p>
-                )}
-              </div>
-              <Button type="submit" className="w-full">Entrar</Button>
-            </form>
-          </TabsContent>
-          <TabsContent value="register">
-            <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Nome</Label>
-                <Input 
-                  id="name" 
-                  placeholder="Seu nome"
-                  {...registerForm.register('name')}
-                />
-                {registerForm.formState.errors.name && (
-                  <p className="text-sm text-red-500">{registerForm.formState.errors.name.message}</p>
-                )}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="phone">Telefone</Label>
-                <Input 
-                  id="phone" 
-                  type="tel" 
-                  placeholder="(00) 00000-0000"
-                  {...registerForm.register('phone', {
-                    onChange: (e) => {
-                      const formatted = formatPhoneNumber(e.target.value);
-                      e.target.value = formatted;
-                    }
-                  })}
-                />
-                {registerForm.formState.errors.phone && (
-                  <p className="text-sm text-red-500">{registerForm.formState.errors.phone.message}</p>
-                )}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="register-email">Email</Label>
-                <Input 
-                  id="register-email" 
-                  type="email" 
-                  placeholder="seu@email.com"
-                  {...registerForm.register('email')}
-                />
-                {registerForm.formState.errors.email && (
-                  <p className="text-sm text-red-500">{registerForm.formState.errors.email.message}</p>
-                )}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="register-password">Senha</Label>
-                <Input 
-                  id="register-password" 
-                  type="password"
-                  {...registerForm.register('password')}
-                />
-                {registerForm.formState.errors.password && (
-                  <p className="text-sm text-red-500">{registerForm.formState.errors.password.message}</p>
-                )}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="confirm-password">Confirmar Senha</Label>
-                <Input 
-                  id="confirm-password" 
-                  type="password"
-                  {...registerForm.register('confirmPassword')}
-                />
-                {registerForm.formState.errors.confirmPassword && (
-                  <p className="text-sm text-red-500">{registerForm.formState.errors.confirmPassword.message}</p>
-                )}
-              </div>
-              <Button type="submit" className="w-full">Cadastrar</Button>
-            </form>
-          </TabsContent>
-        </Tabs>
+      <DialogContent className="w-[90%] p-0 overflow-hidden bg-gradient-to-br from-white to-gray-50 border-0 shadow-2xl rounded-lg">
+        <div className="bg-primary px-6 py-4 text-white">
+          <DialogHeader className="text-center">
+            <DialogTitle className="text-2xl font-bold">Bem-vindo!</DialogTitle>
+            <p className="text-white mt-2">Entre ou crie sua conta para continuar</p>
+          </DialogHeader>
+        </div>
+        
+        <div className="px-6 pb-6">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-2 bg-gray-100 p-1 rounded-lg mb-6">
+              <TabsTrigger 
+                value="login" 
+                className="data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-sm rounded-md transition-all duration-200"
+              >
+                Entrar
+              </TabsTrigger>
+              <TabsTrigger 
+                value="register"
+                className="data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-sm rounded-md transition-all duration-200"
+              >
+                Cadastrar
+              </TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="login" className="space-y-4">
+              <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                    <Mail className="w-4 h-4" />
+                    Email
+                  </Label>
+                  <div className="relative">
+                    <Input 
+                      id="email" 
+                      type="email" 
+                      placeholder="seu@email.com"
+                      className="pl-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500 transition-colors"
+                      {...loginForm.register('email')}
+                    />
+                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  </div>
+                  {loginForm.formState.errors.email && (
+                    <p className="text-sm text-red-500 flex items-center gap-1">
+                      <span className="w-1 h-1 bg-red-500 rounded-full"></span>
+                      {loginForm.formState.errors.email.message}
+                    </p>
+                  )}
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="password" className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                    <Lock className="w-4 h-4" />
+                    Senha
+                  </Label>
+                  <div className="relative">
+                    <Input 
+                      id="password" 
+                      type={showPassword ? "text" : "password"}
+                      placeholder="********"
+                      className="pl-10 pr-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500 transition-colors"
+                      {...loginForm.register('password')}
+                    />
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  {loginForm.formState.errors.password && (
+                    <p className="text-sm text-red-500 flex items-center gap-1">
+                      <span className="w-1 h-1 bg-red-500 rounded-full"></span>
+                      {loginForm.formState.errors.password.message}
+                    </p>
+                  )}
+                </div>
+                
+                <Button 
+                  type="submit" 
+                  className="w-full bg-primary hover:bg-primary/80 text-white font-medium py-3 rounded-lg transition-all duration-200 transform hover:scale-[1.02] shadow-lg"
+                  disabled={loginForm.formState.isSubmitting}
+                >
+                  {loginForm.formState.isSubmitting ? 'Entrando...' : 'Entrar'}
+                </Button>
+              </form>
+            </TabsContent>
+            
+            <TabsContent value="register" className="space-y-4">
+              <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name" className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                    <User className="w-4 h-4" />
+                    Nome
+                  </Label>
+                  <div className="relative">
+                    <Input 
+                      id="name" 
+                      placeholder="Seu nome completo"
+                      className="pl-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500 transition-colors"
+                      {...registerForm.register('name')}
+                    />
+                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  </div>
+                  {registerForm.formState.errors.name && (
+                    <p className="text-sm text-red-500 flex items-center gap-1">
+                      <span className="w-1 h-1 bg-red-500 rounded-full"></span>
+                      {registerForm.formState.errors.name.message}
+                    </p>
+                  )}
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="phone" className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                    <Phone className="w-4 h-4" />
+                    Telefone
+                  </Label>
+                  <div className="relative">
+                    <Input 
+                      id="phone" 
+                      type="tel" 
+                      placeholder="(00) 00000-0000"
+                      className="pl-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500 transition-colors"
+                      {...registerForm.register('phone', {
+                        onChange: (e) => {
+                          const formatted = formatPhoneNumber(e.target.value);
+                          e.target.value = formatted;
+                        }
+                      })}
+                    />
+                    <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  </div>
+                  {registerForm.formState.errors.phone && (
+                    <p className="text-sm text-red-500 flex items-center gap-1">
+                      <span className="w-1 h-1 bg-red-500 rounded-full"></span>
+                      {registerForm.formState.errors.phone.message}
+                    </p>
+                  )}
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="register-email" className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                    <Mail className="w-4 h-4" />
+                    Email
+                  </Label>
+                  <div className="relative">
+                    <Input 
+                      id="register-email" 
+                      type="email" 
+                      placeholder="seu@email.com"
+                      className="pl-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500 transition-colors"
+                      {...registerForm.register('email')}
+                    />
+                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  </div>
+                  {registerForm.formState.errors.email && (
+                    <p className="text-sm text-red-500 flex items-center gap-1">
+                      <span className="w-1 h-1 bg-red-500 rounded-full"></span>
+                      {registerForm.formState.errors.email.message}
+                    </p>
+                  )}
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="register-password" className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                    <Lock className="w-4 h-4" />
+                    Senha
+                  </Label>
+                  <div className="relative">
+                    <Input 
+                      id="register-password" 
+                      type={showPassword ? "text" : "password"}
+                      className="pl-10 pr-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500 transition-colors"
+                      {...registerForm.register('password')}
+                    />
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  {registerForm.formState.errors.password && (
+                    <p className="text-sm text-red-500 flex items-center gap-1">
+                      <span className="w-1 h-1 bg-red-500 rounded-full"></span>
+                      {registerForm.formState.errors.password.message}
+                    </p>
+                  )}
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="confirm-password" className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                    <Lock className="w-4 h-4" />
+                    Confirmar Senha
+                  </Label>
+                  <div className="relative">
+                    <Input 
+                      id="confirm-password" 
+                      type={showConfirmPassword ? "text" : "password"}
+                      className="pl-10 pr-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500 transition-colors"
+                      {...registerForm.register('confirmPassword')}
+                    />
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                    >
+                      {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  {registerForm.formState.errors.confirmPassword && (
+                    <p className="text-sm text-red-500 flex items-center gap-1">
+                      <span className="w-1 h-1 bg-red-500 rounded-full"></span>
+                      {registerForm.formState.errors.confirmPassword.message}
+                    </p>
+                  )}
+                </div>
+                
+                <Button 
+                  type="submit" 
+                  className="w-full bg-primary hover:bg-primary/80 text-white font-medium py-3 rounded-lg transition-all duration-200 transform hover:scale-[1.02] shadow-lg"
+                  disabled={registerForm.formState.isSubmitting}
+                >
+                  {registerForm.formState.isSubmitting ? 'Cadastrando...' : 'Cadastrar'}
+                </Button>
+              </form>
+            </TabsContent>
+          </Tabs>
+        </div>
       </DialogContent>
     </Dialog>
   );

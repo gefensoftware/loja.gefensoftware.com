@@ -1,7 +1,8 @@
 import axios from "axios";
 
 export const api = axios.create({
-  baseURL: "https://7ger1x52bl.execute-api.sa-east-1.amazonaws.com/prod"
+  // baseURL: "https://7ger1x52bl.execute-api.sa-east-1.amazonaws.com/prod"
+  baseURL: "http://localhost:3003"
 })
 
 
