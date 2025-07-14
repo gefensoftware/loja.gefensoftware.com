@@ -21,10 +21,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   };
 
   return (
-    <Card onClick={handleClick} className="group overflow-hidden hover:shadow-lg transition-all duration-300 border-gray-200 hover:border-primary/50">
-      <CardContent className="p-0 w-full flex flex-col">
-        <div className='flex flex-row w-full p-4 justify-between'>
-          <div className=" w-2/3">
+    <Card onClick={handleClick} className=" group overflow-hidden hover:shadow-lg transition-all duration-300 border-gray-200 hover:border-primary/50">
+      <CardContent className="p-0 w-full  flex flex-col">
+        <div className='flex flex-row w-full  p-4 justify-between'>
+          <div className="w-2/3">
             <h3 className="font-semibold text-gray-900 text-lg mb-2 line-clamp-2 group-hover:text-primary transition-colors">
               {product.title}
             </h3>
@@ -34,7 +34,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 {product.description}
               </p>
             )}
-
             {/* <Button 
             onClick={handleAddToCart}
             className="w-full bg-primary hover:bg-primary/90 text-white font-medium py-2.5"

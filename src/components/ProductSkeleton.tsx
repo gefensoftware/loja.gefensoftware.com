@@ -5,21 +5,13 @@ export const ProductSkeleton: React.FC = () => {
   return (
     <Card className="overflow-hidden border-gray-200">
       <CardContent className="p-0">
-        {/* Image skeleton */}
         <div className="h-48 bg-gradient-to-br from-gray-200 to-gray-300 animate-pulse"></div>
-        
-        {/* Content skeleton */}
         <div className="p-4 space-y-3">
-          {/* Title skeleton */}
           <div className="h-5 bg-gray-200 rounded animate-pulse"></div>
-          
-          {/* Description skeleton */}
           <div className="space-y-2">
             <div className="h-3 bg-gray-200 rounded animate-pulse"></div>
             <div className="h-3 bg-gray-200 rounded w-3/4 animate-pulse"></div>
           </div>
-          
-          {/* Price skeleton */}
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <div className="h-3 bg-gray-200 rounded w-16 animate-pulse"></div>
