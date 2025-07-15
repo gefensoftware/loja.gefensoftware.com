@@ -11,9 +11,8 @@ import { Label } from '../components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar';
 import { User, Phone, Mail, Settings, Calendar } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
+import { Tabs, TabsContent } from '../components/ui/tabs';
 import Appointments from '../components/Appointments';
-import Navbar from '../components/Navbar';
 import { authAtom } from '../store/auth';
 import { useEffect, useState } from 'react';
 import AuthModal from '../components/AuthModal';
@@ -30,7 +29,7 @@ type ProfileFormData = z.infer<typeof profileSchema>;
 
 const Profile = () => {
   const [user, setUser] = useAtom(userAtom);
-  const [auth] = useAtom(authAtom);
+  const [auth, setAuth] = useAtom(authAtom);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   const form = useForm<ProfileFormData>({
@@ -87,7 +86,7 @@ const Profile = () => {
         </div>
 
         <Tabs defaultValue="profile" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-xl p-1 shadow-lg">
+          {/* <TabsList className="grid w-full grid-cols-2 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-xl p-1 shadow-lg">
             <TabsTrigger value="profile" className="flex items-center gap-2  rounded-lg transition-all duration-200">
               <User className="h-4 w-4" />
               Perfil
@@ -96,7 +95,7 @@ const Profile = () => {
               <Calendar className="h-4 w-4" />
               Agendamentos
             </TabsTrigger>
-          </TabsList>
+          </TabsList> */}
           <TabsContent value="profile" className="mt-2">
             <div className="grid gap-6">
               {/* Profile Header Card */}
@@ -193,14 +192,47 @@ const Profile = () => {
                         Email não pode ser alterado por questões de segurança
                       </p>
                     </div>
+                    <div className="flex flex-col gap-2">
 
-                    <Button
-                      type="submit"
-                      className="w-full bg-primary hover:bg-primary/80 text-white font-semibold py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02]"
-                    >
-                      Salvar Alterações
-                    </Button>
+                      <Button
+                        type="submit"
+                        className="w-full bg-primary hover:bg-primary/80 text-white font-semibold py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02]"
+                      >
+                        Salvar Alterações
+                      </Button>
+                     {
+                      auth.isAuthenticated && (
+                        <Button
+                        onClick={() => {
+                          
+                          setAuth({
+                            isAuthenticated: false,
+                            access_token: null,
+                            id_enterprise: null,
+                          });
+
+                          setUser({
+                            id_user: '',
+                            name: '',
+                            email: '',
+                            phone: '',
+                            active: false,
+                            avatar: '',
+                            role: '',
+                          });
+
+                          window.location.reload();
+                        }}
+                        type="button"
+                        className="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02]"
+                      >
+                        Sair
+                      </Button> 
+                      )
+                     }
+                    </div>
                   </form>
+
                 </CardContent>
               </Card>
             </div>
@@ -225,7 +257,6 @@ const Profile = () => {
         </Tabs>
       </div>
 
-      <Navbar />
     </div>
   );
 };

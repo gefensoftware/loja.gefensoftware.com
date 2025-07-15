@@ -6,6 +6,7 @@ import CartPage from './pages/Cart';
 import { useAtom } from 'jotai';
 import { authAtom } from './store/auth';
 import ProductDetail from './pages/ProductDetail';
+import UnderConstruction from './pages/UnderConstruction';
 import { useEffect } from 'react';
 import { api } from './api';
 import './styles/theme.css'
@@ -18,6 +19,8 @@ function App() {
   const [auth, setAuth] = useAtom(authAtom);
   const [_, setUser] = useAtom(userAtom);
   const [__, setCart] = useAtom(cartAtom);
+
+
   useEffect(() => {
     api.get('/auth/me').then((res) => {
       setUser(res.data);
@@ -38,12 +41,13 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/" element={<UnderConstruction />} />
         <Route path="/:name_store" element={<Layout />}>
           <Route path="/:name_store" element={<Products />} />
+          <Route path="/:name_store/cart" element={<CartPage />} />
+          <Route path="/:name_store/profile" element={<Profile />} />
         </Route>
         <Route path="/:name_store/product/:id_product" element={<ProductDetail />} />
-        <Route path="/:name_store/profile" element={<Profile />} />
-        <Route path="/:name_store/cart" element={<CartPage />} />
       </Routes>
     </BrowserRouter>
   );

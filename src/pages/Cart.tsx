@@ -8,10 +8,8 @@ import { toast } from 'react-toastify';
 import { authAtom } from '../store/auth';
 import { openStoreAtom } from '../store/open-store';
 import { Card, CardContent } from '../components/ui/card';
-import { Badge } from '../components/ui/badge';
-import { Minus, Plus, ShoppingBag, MessageCircle, ArrowLeft } from 'lucide-react';
+import { Minus, Plus, ShoppingBag, MessageCircle } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
-import Navbar from '../components/Navbar';
 
 const CartPage = () => {
   const [cart] = useAtom(cartAtom);
@@ -101,22 +99,7 @@ const CartPage = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col">
         {/* Header */}
-        <div className="bg-white shadow-sm border-b">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div className="flex items-center gap-3">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate(`/${name_store}`)}
-                className="text-gray-600 hover:text-gray-900"
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Voltar
-              </Button>
-              <h1 className="text-xl font-semibold text-gray-900">Meu Carrinho</h1>
-            </div>
-          </div>
-        </div>
+       
 
         {/* Empty State */}
         <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
@@ -134,36 +117,13 @@ const CartPage = () => {
             Ver Produtos
           </Button>
         </div>
+
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate(`/${name_store}`)}
-                className="text-gray-600 hover:text-gray-900"
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Voltar
-              </Button>
-              <h1 className="text-xl font-semibold text-gray-900">Meu Carrinho</h1>
-            </div>
-            <Badge variant="secondary" className="text-sm">
-              {items.length} {items.length === 1 ? 'item' : 'itens'}
-            </Badge>
-          </div>
-        </div>
-      </div>
-
-      {/* Cart Content */}
       <div className="flex-1 max-w-4xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Cart Items */}
@@ -303,7 +263,6 @@ const CartPage = () => {
           </div>
         </div>
       </div>
-      <Navbar />
     </div>
   );
 };

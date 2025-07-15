@@ -53,9 +53,6 @@ const AuthModal = (props: AuthModalProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  console.log({});
-  
-
   const loginForm = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
@@ -121,13 +118,11 @@ const AuthModal = (props: AuthModalProps) => {
             <TabsList className="grid w-full grid-cols-2 bg-gray-100 p-1 rounded-lg mb-6">
               <TabsTrigger 
                 value="login" 
-                className="data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-sm rounded-md transition-all duration-200"
               >
                 Entrar
               </TabsTrigger>
               <TabsTrigger 
                 value="register"
-                className="data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-sm rounded-md transition-all duration-200"
               >
                 Cadastrar
               </TabsTrigger>
