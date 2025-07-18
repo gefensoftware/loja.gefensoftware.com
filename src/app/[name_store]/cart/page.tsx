@@ -1,4 +1,4 @@
-import CartPage from '@/pages/Cart'
+import CartPage from '@/screens/Cart'
  
 export default function CartPageRoute() {
   return <CartPage />
