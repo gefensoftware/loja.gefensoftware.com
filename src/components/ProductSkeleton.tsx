@@ -1,5 +1,7 @@
+'use client'
+
 import React from 'react';
-import { Card, CardContent } from './ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 
 export const ProductSkeleton: React.FC = () => {
   return (

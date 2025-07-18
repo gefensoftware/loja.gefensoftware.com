@@ -1,21 +1,23 @@
+'use client'
+
 import  { useState } from 'react';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from './ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
+} from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { api } from '../api';
+import { api } from '@/api';
 import { useAtom } from 'jotai';
-import { authAtom } from '../store/auth';
-import { userAtom } from '../store/user';
+import { authAtom } from '@/store/auth';
+import { userAtom } from '@/store/user';
 import {toast} from 'react-toastify';
 import { Mail, Lock, User, Phone, Eye, EyeOff } from 'lucide-react';
 

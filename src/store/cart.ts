@@ -1,4 +1,5 @@
 import { atom } from "jotai";
+import { atomWithStorage } from "jotai/utils";
 import { Product, Prices } from "../types";
 
 export interface CartItem {
@@ -12,37 +13,27 @@ export interface Cart {
   id_cart: string;
   id_user: string;
   items: CartItem[];
+  lastUpdate?: number; // Adicionar timestamp para forçar re-renderização
 }
 
-// Load initial cart state from localStorage
-const loadCartFromStorage = (): Cart[] => {
-  if (typeof window === 'undefined') return [];
-  const savedCart = localStorage.getItem('cart');
-  if (!savedCart) return [];
-  try {
-    return JSON.parse(savedCart);
-  } catch (error) {
-    console.error('Error parsing cart from localStorage:', error);
-    return [];
-  }
-};
-
-// Create atom with initial value from localStorage
-export const cartAtom = atom<Cart>({
+// Usar atomWithStorage para lidar melhor com a hidratação
+export const cartAtom = atomWithStorage<Cart>('cart', {
   id_cart: '',
   id_user: '',
   items: []
-});
+}, undefined, { getOnInit: true });
 
-// Helper function to save cart to localStorage
-const saveCartToStorage = (cart: Cart) => {
-  if (typeof window === 'undefined') return;
-  try {
-    localStorage.setItem('cart', JSON.stringify(cart));
-  } catch (error) {
-    console.error('Error saving cart to localStorage:', error);
+// Atom para forçar re-renderização
+export const cartUpdateCounterAtom = atom(0);
+
+// Atom derivado para garantir re-renderização
+export const cartItemsAtom = atom(
+  (get) => {
+    const cart = get(cartAtom);
+    const counter = get(cartUpdateCounterAtom); // Força re-renderização
+    return cart?.items || [];
   }
-};
+);
 
 export const addToCartAtom = atom(
   null,
@@ -63,9 +54,9 @@ export const addToCartAtom = atom(
       newItems = [...currentCart.items, { product, quantity: 1, price, id_item_cart }];
     }
     
-    const newCart = { ...currentCart, items: newItems };
+    const newCart = { ...currentCart, items: newItems, lastUpdate: Date.now() };
     set(cartAtom, newCart);
-    saveCartToStorage(newCart);
+    set(cartUpdateCounterAtom, get(cartUpdateCounterAtom) + 1);
   }
 );
 
@@ -79,9 +70,9 @@ export const removeFromCartAtom = atom(
       (item) => !(item.product.id_product === productId && item.price.id_price === priceId && item.id_item_cart === id_item_cart)
     );
     
-    const newCart = { ...cart, items: newItems };
+    const newCart = { ...cart, items: newItems, lastUpdate: Date.now() };
     set(cartAtom, newCart);
-    saveCartToStorage(newCart);
+    set(cartUpdateCounterAtom, get(cartUpdateCounterAtom) + 1);
   }
 );
 
@@ -98,11 +89,43 @@ export const updateQuantityAtom = atom(
         }
         return item;
       })
-      .filter((item) => item.quantity > 0);
+      .filter((item) => item.quantity > 0); // Remove itens com quantidade 0
     
-    const newCart = { ...cart, items: newItems };
+    const newCart = { ...cart, items: newItems, lastUpdate: Date.now() };
     set(cartAtom, newCart);
-    saveCartToStorage(newCart);
+    set(cartUpdateCounterAtom, get(cartUpdateCounterAtom) + 1);
+  }
+);
+
+// Atom para sincronizar com a API - versão simplificada
+export const syncCartWithAPIAtom = atom(
+  null,
+  (get, set, { productId, priceId, quantity, id_item_cart }: { productId: string; priceId: string; quantity: number, id_item_cart: string }) => {
+    const cart = get(cartAtom);
+    if (!cart) {
+      console.log('Cart is null, cannot update');
+      return;
+    }
+
+    console.log('Updating cart:', { productId, priceId, quantity, id_item_cart });
+
+    // Atualizar diretamente o item no carrinho
+    const newItems = cart.items
+      .map(item => {
+        if (item.product.id_product === productId && 
+            item.price.id_price === priceId && 
+            item.id_item_cart === id_item_cart) {
+          return { ...item, quantity: Math.max(0, quantity) };
+        }
+        return item;
+      })
+      .filter(item => item.quantity > 0); // Remove automaticamente itens com quantidade 0
+
+    const newCart = { ...cart, items: newItems, lastUpdate: Date.now() };
+    set(cartAtom, newCart);
+    set(cartUpdateCounterAtom, get(cartUpdateCounterAtom) + 1);
+    
+    console.log('Cart updated, new items:', newItems);
   }
 );
 
@@ -115,10 +138,6 @@ export const clearCartAtom = atom(
       id_user: '',
       items: []
     });
-    saveCartToStorage({
-      id_cart: '',
-      id_user: '',
-      items: []
-    });
+    set(cartUpdateCounterAtom, get(cartUpdateCounterAtom) + 1);
   }
 ); 

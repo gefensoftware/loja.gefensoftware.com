@@ -1,3 +1,3 @@
-import { atom } from "jotai";
+import { atomWithStorage } from "jotai/utils";
 
-export const openStoreAtom = atom(false);
+export const openStoreAtom = atomWithStorage<boolean>("openStore", false);

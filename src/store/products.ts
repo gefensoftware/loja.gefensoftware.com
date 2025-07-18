@@ -1,5 +1,5 @@
-import { atom } from "jotai";
+import { atomWithStorage } from "jotai/utils";
 import { Product } from "../types";
 
-export const productsAtom = atom<Product[]>([]);
-export const searchTermAtom = atom<string>('');
+export const productsAtom = atomWithStorage<Product[]>("products", []);
+export const searchTermAtom = atomWithStorage<string>("searchTerm", '');

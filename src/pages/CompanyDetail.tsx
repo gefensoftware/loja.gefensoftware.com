@@ -1,8 +1,11 @@
+'use client'
+
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'next/navigation';
 
 const CompanyDetail: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+  const params = useParams();
+  const id = params?.id as string;
 
   // Mock data - in a real application, this would come from an API
   const company = {

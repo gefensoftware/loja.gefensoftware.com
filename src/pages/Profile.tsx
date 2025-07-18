@@ -1,21 +1,23 @@
+'use client'
+
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { api } from '../api';
+import { api } from '@/api';
 import { useAtom } from 'jotai';
-import { userAtom } from '../store/user';
+import { userAtom } from '@/store/user';
 import { toast } from 'react-toastify';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Label } from '../components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { User, Phone, Mail, Settings, Calendar } from 'lucide-react';
-import { Tabs, TabsContent } from '../components/ui/tabs';
-import Appointments from '../components/Appointments';
-import { authAtom } from '../store/auth';
+import { Tabs, TabsContent } from '@/components/ui/tabs';
+import Appointments from '@/components/Appointments';
+import { authAtom } from '@/store/auth';
 import { useEffect, useState } from 'react';
-import AuthModal from '../components/AuthModal';
+import AuthModal from '@/components/AuthModal';
 
 const phoneRegex = /^\(\d{2}\) \d{5}-\d{4}$/;
 
@@ -221,7 +223,9 @@ const Profile = () => {
                             role: '',
                           });
 
-                          window.location.reload();
+                          if (typeof window !== 'undefined') {
+        window.location.reload();
+      }
                         }}
                         type="button"
                         className="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02]"

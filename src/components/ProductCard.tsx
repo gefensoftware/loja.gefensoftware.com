@@ -1,23 +1,26 @@
+'use client'
+
 import React, { useState } from 'react';
-import { Product, Prices } from '../types';
-import { Badge } from './ui/badge';
-import { Card, CardContent } from './ui/card';
+import { Product, Prices } from '@/types';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Clock, Tag } from 'lucide-react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useRouter, useParams } from 'next/navigation';
 
 interface ProductCardProps {
   product: Product;
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
-  const [selectedPrice] = useState<Prices>(product.price[0]);
+  const [selectedPrice] = useState<Prices | undefined>(product.price?.[0]);
 
-  const navigate = useNavigate();
-  const { name_store } = useParams();
+  const router = useRouter();
+  const params = useParams();
+  const name_store = params?.name_store as string;
 
   const handleClick = () => {
-    navigate(`/${name_store}/product/${product.id_product}`);
+    router.push(`/${name_store}/product/${product.id_product}`);
   };
 
   return (
@@ -83,7 +86,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 ) : (
                   <div className="text-primary">
                     <div className="font-bold text-lg">
-                      R$ {selectedPrice.value.toFixed(2).replace('.', ',')}
+                      {selectedPrice ? `R$ ${selectedPrice.value.toFixed(2).replace('.', ',')}` : 'Preço não disponível'}
                     </div>
                   </div>
                 )}
@@ -91,10 +94,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             )}
           </div>
           <div className=" relative  flex justify-center items-center overflow-hidden ">
-            {product.photo_library && product.photo_library.length > 0 ? (
+            {product?.photo_library && product.photo_library.length > 0 ? (
               <img
                 src={product.photo_library.find(img => img.is_default)?.location ?? product.photo_library[0].location}
-                alt={product.title}
+                alt={product?.title || 'Produto'}
                 className="w-32 h-full rounded-lg object-cover group-hover:scale-105 transition-transform duration-300"
               />
             ) : (

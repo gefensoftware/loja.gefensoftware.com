@@ -1,15 +1,17 @@
-import React from 'react';
+'use client'
+
 import { useAtom } from 'jotai';
-import { cartAtom, updateQuantityAtom } from '../store/cart';
-import { Button } from './ui/button';
-import { Enterprise } from '../types/enterprise';
-import { api } from '../api';
+import { cartAtom, syncCartWithAPIAtom } from '@/store/cart';
+import { authAtom } from '@/store/auth';
+import { openStoreAtom } from '@/store/open-store';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Enterprise } from '@/types/enterprise';
+import { api } from '@/api';
 import { toast } from 'react-toastify';
-import { authAtom } from '../store/auth';
-import { openStoreAtom } from '../store/open-store';
-import { Card, CardContent } from './ui/card';
-import { Badge } from './ui/badge';
+import { Badge } from '@/components/ui/badge';
 import { Minus, Plus, Trash2, ShoppingBag, MessageCircle } from 'lucide-react';
+import { useState } from 'react';
 
 interface CartProps {
   enterprise: Enterprise | null;
@@ -17,21 +19,30 @@ interface CartProps {
 
 export const Cart: React.FC<CartProps> = ({ enterprise }: CartProps) => {
   const [cart] = useAtom(cartAtom);
-  const [, updateQuantity] = useAtom(updateQuantityAtom);
+  const [, syncCartWithAPI] = useAtom(syncCartWithAPIAtom);
   const [auth] = useAtom(authAtom);
   const [openStore] = useAtom(openStoreAtom);
+  const [updatingItems, setUpdatingItems] = useState<Set<string>>(new Set());
 
   const currentCart = cart;
   const items = currentCart?.items || [];
 
   const total = items.reduce((sum, item) => {
+    // Verificar se price e value existem antes de acessar
+    if (!item.price || typeof item.price.value === 'undefined') {
+      return sum;
+    }
     return sum + (item.price.value * item.quantity);
   }, 0);
 
   const generateOrderText = () => {
-    const itemsText = items.map(item =>
-      `${item.quantity}x ${item.product.title} - ${item.price.name} (R$ ${item.price.value})`
-    ).join('\n');
+    const itemsText = items.map(item => {
+      // Verificar se price e value existem antes de acessar
+      if (!item.price || typeof item.price.value === 'undefined') {
+        return `${item.quantity}x ${item.product?.title || 'Produto sem nome'} - Preço não disponível`;
+      }
+      return `${item.quantity}x ${item.product?.title || 'Produto sem nome'} - ${item.price.name} (R$ ${item.price.value})`;
+    }).join('\n');
 
     return `*Pedido:*\n\n${itemsText}\n\n*Total: R$ ${total.toFixed(2)}*`;
   };
@@ -50,7 +61,9 @@ export const Cart: React.FC<CartProps> = ({ enterprise }: CartProps) => {
     const enterprisePhone = enterprise?.phones.find(phone => phone.is_whatsapp)?.phone;
     console.log(enterprisePhone);
     const text = encodeURIComponent(generateOrderText());
-    window.open(`https://wa.me/${enterprisePhone}?text=${text}`, '_blank');
+    if (typeof window !== 'undefined') {
+      window.open(`https://wa.me/${enterprisePhone}?text=${text}`, '_blank');
+    }
   };
 
   if (!currentCart || items.length === 0) {
@@ -66,12 +79,21 @@ export const Cart: React.FC<CartProps> = ({ enterprise }: CartProps) => {
   }
 
   const handleUpdateQuantity = async (productId: string, priceId: string, quantity: number, id_item_cart: string) => {
+    const itemKey = `${productId}-${priceId}-${id_item_cart}`;
+    
     try {
+      // Marcar item como sendo atualizado
+      setUpdatingItems(prev => new Set(prev).add(itemKey));
+
       if (quantity < 0) {
         toast.error('A quantidade não pode ser negativa!');
         return;
       }
 
+      // Atualizar estado local imediatamente para feedback visual
+      syncCartWithAPI({ productId, priceId, quantity, id_item_cart });
+
+      // Se quantidade for 0, remover da API
       if (quantity === 0) {
         await api.delete(`/cart/delete-item/${id_item_cart}`);
       } else {
@@ -81,12 +103,23 @@ export const Cart: React.FC<CartProps> = ({ enterprise }: CartProps) => {
           id_product: productId,
           id_price: priceId,
           quantity: quantity
-        })
+        });
       }
 
-      updateQuantity({ productId, priceId, quantity, id_item_cart });
+      // Sucesso - não precisa fazer nada mais pois o estado já foi atualizado
     } catch (error) {
+      console.error('Erro ao atualizar quantidade:', error);
       toast.error('Erro ao atualizar quantidade do produto!');
+      
+      // Em caso de erro, reverter para o estado anterior
+      // Aqui você poderia implementar um rollback se necessário
+    } finally {
+      // Remover item da lista de atualização
+      setUpdatingItems(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(itemKey);
+        return newSet;
+      });
     }
   }
 
@@ -94,70 +127,82 @@ export const Cart: React.FC<CartProps> = ({ enterprise }: CartProps) => {
     <div className="flex flex-col h-full">
       {/* Cart Items */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
-        {items.map((item) => (
-          <Card key={`${item.product.id_product}-${item.price.id_price}`} className="border-gray-200">
-            <CardContent className="p-4">
-              <div className="flex gap-3">
-                {/* Product Image */}
-                <div className="flex-shrink-0">
-                  <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100">
-                    {item.product.photo_library && item.product.photo_library.length > 0 ? (
-                      <img
-                        src={item.product.photo_library.find(img => img.is_default)?.location ?? item.product.photo_library[0].location}
-                        alt={item.product.title}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                        <ShoppingBag className="w-6 h-6 text-gray-400" />
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Product Info */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-gray-900 text-sm line-clamp-2">
-                        {item.product.title}
-                      </h3>
-                      {item.price.name && (
-                        <p className="text-xs text-gray-500 mt-1">{item.price.name}</p>
+        {items.map((item) => {
+          const itemKey = `${item.product?.id_product || ''}-${item.price?.id_price || ''}-${item.id_item_cart}`;
+          const isUpdating = updatingItems.has(itemKey);
+          
+          return (
+            <Card key={item.id_item_cart} className="border-gray-200">
+              <CardContent className="p-4">
+                <div className="flex gap-3">
+                  {/* Product Image */}
+                  <div className="flex-shrink-0">
+                    <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100">
+                      {item.product?.photo_library && item.product.photo_library.length > 0 ? (
+                        <img
+                          src={item.product.photo_library.find(img => img.is_default)?.location ?? item.product.photo_library[0].location}
+                          alt={item.product?.title || 'Produto'}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                          <ShoppingBag className="w-6 h-6 text-gray-400" />
+                        </div>
                       )}
-                      <div className="flex items-center justify-between mt-2">
-                        <span className="font-semibold text-primary">
-                          R$ {item.price.value.toFixed(2).replace('.', ',')}
-                        </span>
-                        
-                        {/* Quantity Controls */}
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="w-8 h-8 p-0"
-                            onClick={() => handleUpdateQuantity(item.product.id_product, item.price.id_price, item.quantity - 1, item.id_item_cart)}
-                          >
-                            <Minus className="w-3 h-3" />
-                          </Button>
-                          <span className="w-8 text-center text-sm font-medium">{item.quantity}</span>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="w-8 h-8 p-0"
-                            onClick={() => handleUpdateQuantity(item.product.id_product, item.price.id_price, item.quantity + 1, item.id_item_cart)}
-                          >
-                            <Plus className="w-3 h-3" />
-                          </Button>
+                    </div>
+                  </div>
+
+                  {/* Product Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-medium text-gray-900 text-sm line-clamp-2">
+                          {item.product?.title || 'Produto sem nome'}
+                        </h3>
+                        {item.price?.name && (
+                          <p className="text-xs text-gray-500 mt-1">{item.price.name}</p>
+                        )}
+                        <div className="flex items-center justify-between mt-2">
+                          <span className="font-semibold text-primary">
+                            {item.price && typeof item.price.value !== 'undefined' 
+                              ? `R$ ${item.price.value.toFixed(2).replace('.', ',')}`
+                              : 'Preço não disponível'
+                            }
+                          </span>
+                          
+                          {/* Quantity Controls */}
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="w-8 h-8 p-0"
+                              onClick={() => handleUpdateQuantity(item.product?.id_product || '', item.price?.id_price || '', item.quantity - 1, item.id_item_cart)}
+                              disabled={!item.price?.id_price || isUpdating}
+                            >
+                              <Minus className="w-3 h-3" />
+                            </Button>
+                            <span className={`w-8 text-center text-sm font-medium ${isUpdating ? 'opacity-50' : ''}`}>
+                              {item.quantity}
+                            </span>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="w-8 h-8 p-0"
+                              onClick={() => handleUpdateQuantity(item.product?.id_product || '', item.price?.id_price || '', item.quantity + 1, item.id_item_cart)}
+                              disabled={!item.price?.id_price || isUpdating}
+                            >
+                              <Plus className="w-3 h-3" />
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
       {/* Cart Summary */}

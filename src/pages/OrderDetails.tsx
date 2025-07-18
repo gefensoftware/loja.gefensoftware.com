@@ -1,9 +1,11 @@
+'use client'
+
 import { useState } from 'react';
-import {  useNavigate } from 'react-router-dom';
-import { Button } from '../components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Calendar, Clock, MapPin, Package, Plus } from 'lucide-react';
-import AppointmentModal from '../components/AppointmentModal';
+import AppointmentModal from '@/components/AppointmentModal';
 import { toast } from 'react-toastify';
 
 interface OrderItem {
@@ -48,7 +50,7 @@ const statusText = {
 };
 
 const OrderDetails = () => {
-  const navigate = useNavigate();
+  const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleSchedule = () => {
@@ -61,7 +63,7 @@ const OrderDetails = () => {
       <Button
         variant="ghost"
         className="mb-2"
-        onClick={() => navigate(-1)}
+        onClick={() => router.back()}
       >
         <ArrowLeft className="h-4 w-4 mr-2" />
         Voltar

@@ -1,105 +1,121 @@
-# Catalog Web Client
+# Loja Gefen Software - Next.js
 
-![React](https://img.shields.io/badge/React-18.3.1-blue)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.5.3-blue)
-![Vite](https://img.shields.io/badge/Vite-5.4.2-purple)
-![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.4.1-38B2AC)
+Este projeto foi refatorado de Vite + React Router para Next.js 14 com App Router.
 
-Uma aplicação web moderna construída com React, TypeScript e Vite, apresentando uma interface bonita e moderna utilizando TailwindCSS e componentes shadcn/ui.
+## 🚀 Tecnologias
 
-## 🚀 Funcionalidades
-
-- ⚡️ Desenvolvimento ultrarrápido com Vite
-- 🎨 Interface moderna com TailwindCSS e shadcn/ui
-- 🔒 Desenvolvimento com tipagem forte usando TypeScript
-- 📱 Design responsivo
-- 🔄 Gerenciamento de estado com Jotai
-- 📝 Manipulação de formulários com React Hook Form e validação Zod
-- 🎯 Roteamento com React Router
-- 🔔 Notificações toast com React Hot Toast
-- 🎯 ESLint para qualidade do código
-
-## 📋 Pré-requisitos
-
-- Node.js (Versão LTS mais recente recomendada)
-- npm ou yarn
-
-## 🛠️ Instalação
-
-1. Clone o repositório:
-```bash
-git clone [url-do-seu-repositorio]
-cd catalog-web-client
-```
-
-2. Instale as dependências:
-```bash
-npm install
-# ou
-yarn install
-```
-
-3. Inicie o servidor de desenvolvimento:
-```bash
-npm run dev
-# ou
-yarn dev
-```
-
-A aplicação estará disponível em `http://localhost:5173`
-
-## 🏗️ Scripts Disponíveis
-
-- `npm run dev` - Inicia o servidor de desenvolvimento
-- `npm run build` - Cria build para produção
-- `npm run preview` - Visualiza o build de produção
-- `npm run lint` - Executa o ESLint
-
-## 🛠️ Stack Tecnológica
-
-- **Framework Frontend:** React 18
-- **Ferramenta de Build:** Vite
-- **Linguagem:** TypeScript
-- **Estilização:** TailwindCSS
-- **Componentes UI:** shadcn/ui
-- **Gerenciamento de Estado:** Jotai
-- **Manipulação de Formulários:** React Hook Form + Zod
-- **Roteamento:** React Router
-- **Cliente HTTP:** Axios
-- **Notificações:** React Hot Toast
+- **Next.js 14** - Framework React com App Router
+- **TypeScript** - Tipagem estática
+- **Tailwind CSS** - Framework CSS utilitário
+- **Jotai** - Gerenciamento de estado
+- **Shadcn/ui** - Componentes UI
+- **Axios** - Cliente HTTP
+- **React Hook Form** - Gerenciamento de formulários
+- **Zod** - Validação de esquemas
+- **Lucide React** - Ícones
 
 ## 📁 Estrutura do Projeto
 
 ```
-catalog-web-client/
-├── src/               # Arquivos fonte
-├── public/            # Arquivos estáticos
-├── index.html         # Arquivo HTML principal
-├── vite.config.ts     # Configuração do Vite
-├── tailwind.config.js # Configuração do TailwindCSS
-├── tsconfig.json      # Configuração do TypeScript
-└── package.json       # Dependências e scripts do projeto
+src/
+├── app/                    # App Router do Next.js
+│   ├── layout.tsx         # Layout raiz
+│   ├── page.tsx           # Página inicial
+│   ├── globals.css        # Estilos globais
+│   ├── providers.tsx      # Providers do Jotai
+│   └── [name_store]/      # Rotas dinâmicas das lojas
+│       ├── layout.tsx     # Layout da loja
+│       ├── page.tsx       # Página de produtos
+│       ├── cart/          # Página do carrinho
+│       ├── profile/       # Página do perfil
+│       └── product/       # Página de detalhes do produto
+├── components/            # Componentes reutilizáveis
+├── pages/                 # Páginas (componentes)
+├── store/                 # Gerenciamento de estado (Jotai)
+├── api/                   # Configuração da API
+├── types/                 # Definições de tipos TypeScript
+└── styles/                # Estilos adicionais
 ```
 
-## 🤝 Como Contribuir
+## 🔄 Principais Mudanças da Refatoração
 
-1. Faça um fork do repositório
-2. Crie sua branch de feature (`git checkout -b feature/nova-feature`)
-3. Faça commit das suas alterações (`git commit -m 'Adiciona nova feature'`)
-4. Faça push para a branch (`git push origin feature/nova-feature`)
-5. Abra um Pull Request
+### 1. Roteamento
+- **Antes**: React Router DOM
+- **Depois**: Next.js App Router com rotas dinâmicas
 
-## 📝 Licença
+### 2. Estrutura de Arquivos
+- **Antes**: `src/App.tsx` com BrowserRouter
+- **Depois**: `src/app/layout.tsx` e páginas individuais
 
-Este projeto está licenciado sob a Licença MIT - veja o arquivo LICENSE para mais detalhes.
+### 3. Navegação
+- **Antes**: `useNavigate` e `Link` do React Router
+- **Depois**: `useRouter` e `Link` do Next.js
 
-## 👥 Autores
+### 4. Configuração
+- **Antes**: Vite + configurações separadas
+- **Depois**: Next.js com configuração unificada
 
-- Seu Nome - Trabalho inicial
+## 🛠️ Como Executar
 
-## 🙏 Agradecimentos
+### Instalação
+```bash
+npm install
+```
 
-- [Vite](https://vitejs.dev/)
-- [React](https://reactjs.org/)
-- [TailwindCSS](https://tailwindcss.com/)
-- [shadcn/ui](https://ui.shadcn.com/) 
+### Desenvolvimento
+```bash
+npm run dev
+```
+
+### Build
+```bash
+npm run build
+```
+
+### Produção
+```bash
+npm start
+```
+
+## 🌐 Rotas Disponíveis
+
+- `/` - Página inicial (Under Construction)
+- `/[name_store]` - Página de produtos da loja
+- `/[name_store]/cart` - Carrinho de compras
+- `/[name_store]/profile` - Perfil do usuário
+- `/[name_store]/product/[id_product]` - Detalhes do produto
+
+## 🔧 Configurações
+
+### Next.js
+- App Router habilitado
+- TypeScript configurado
+- ESLint com configuração do Next.js
+
+### Tailwind CSS
+- Configuração completa com tema customizado
+- Variáveis CSS para cores dinâmicas
+
+### API
+- Base URL configurada para produção
+- Interceptors para autenticação
+
+## 📝 Notas da Migração
+
+1. **Componentes**: Todos os componentes foram adaptados para usar `'use client'` quando necessário
+2. **Roteamento**: Rotas dinâmicas implementadas com App Router
+3. **Estado**: Jotai mantido como gerenciador de estado
+4. **Estilos**: Tailwind CSS e tema customizado preservados
+5. **API**: Configuração mantida com interceptors
+
+## 🚀 Próximos Passos
+
+- [ ] Otimização de performance
+- [ ] Implementação de SSR/SSG onde apropriado
+- [ ] Melhorias de SEO
+- [ ] Testes automatizados
+- [ ] PWA (Progressive Web App)
+
+## 📄 Licença
+
+Este projeto é privado e pertence à Gefen Software. 

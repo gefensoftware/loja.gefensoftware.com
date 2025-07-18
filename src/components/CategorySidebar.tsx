@@ -1,8 +1,10 @@
+'use client'
+
 import React, { useEffect, useState } from 'react';
-import { Category } from '../types';
-import { api } from '../api';
-import { useParams } from 'react-router-dom';
-import { Card } from './ui/card';
+import { Category } from '@/types';
+import { api } from '@/api';
+import { useParams } from 'next/navigation';
+import { Card } from '@/components/ui/card';
 import { X } from 'lucide-react';
 
 interface CategorySidebarProps {
@@ -19,7 +21,8 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
   onClose,
 }) => {
   const [categories, setCategories] = useState<Category[]>([]);
-  const { name_store } = useParams();
+  const params = useParams();
+  const name_store = params?.name_store as string;
 
   useEffect(() => {
     const fetchCategories = async () => {

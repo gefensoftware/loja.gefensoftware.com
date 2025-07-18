@@ -1,7 +1,10 @@
-import { Link, useLocation, useParams } from 'react-router-dom';
-import { Home, User, ShoppingCart } from 'lucide-react';
-import { useAtom } from 'jotai';
-import { cartAtom } from '../store/cart';
+'use client'
+
+import Link from 'next/link'
+import { usePathname, useParams } from 'next/navigation'
+import { Home, User, ShoppingCart } from 'lucide-react'
+import { useAtom } from 'jotai'
+import { cartAtom } from '@/store/cart'
 
 const navItems = (company_name: string) => [
   {
@@ -22,8 +25,9 @@ const navItems = (company_name: string) => [
 ];
 
 export const Navbar = () => {
-  const location = useLocation();
-  const { name_store } = useParams();
+  const pathname = usePathname();
+  const params = useParams();
+  const name_store = params?.name_store as string;
   const [cart] = useAtom(cartAtom);
   
   const cartItemsCount = cart?.items?.length || 0;
@@ -32,13 +36,13 @@ export const Navbar = () => {
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t shadow-sm flex justify-around md:justify-center px-4 py-2 md:py-3 md:px-8 gap-8 md:gap-4">
       {navItems(name_store ?? '').map((item) => {
         const Icon = item.icon;
-        const isActive = location.pathname === item.to;
+        const isActive = pathname === item.to;
         const isCart = item.label === 'Carrinho';
         
         return (
           <Link
             key={item.to}
-            to={item.to}
+            href={item.to}
             className={`flex flex-col items-center gap-1 px-3 py-1 rounded-md transition-colors duration-150 relative ${
               isActive ? 'text-primary font-bold' : 'text-gray-500 hover:text-primary'
             }`}

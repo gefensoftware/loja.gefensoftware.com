@@ -1,18 +1,21 @@
+'use client'
+
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams } from 'next/navigation';
+import Link from 'next/link';
 import { ArrowLeft, X, MessageCircle, ChevronLeft, ChevronRight, ShoppingCart, Calendar } from 'lucide-react';
-import { Product, Prices, Category } from '../types';
-import { api } from '../api';
+import { Product, Prices, Category } from '@/types';
+import { api } from '@/api';
 import { useAtom } from 'jotai';
-import { addToCartAtom, cartAtom } from '../store/cart';
-import { authAtom } from '../store/auth';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../components/ui/select';
-import { Button } from '../components/ui/button';
-import { Checkbox } from '../components/ui/checkbox';
-import { Textarea } from '../components/ui/textarea';
-import AuthModal from '../components/AuthModal';
-import { userAtom } from '../store/user';
-import { Enterprise } from '../types/enterprise';
+import { addToCartAtom, cartAtom } from '@/store/cart';
+import { authAtom } from '@/store/auth';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Textarea } from '@/components/ui/textarea';
+import AuthModal from '@/components/AuthModal';
+import { userAtom } from '@/store/user';
+import { Enterprise } from '@/types/enterprise';
 import { toast } from 'react-toastify';
 import { Calendar as BigCalendar, dateFnsLocalizer } from 'react-big-calendar';
 import { format, parse, startOfWeek, getDay } from 'date-fns';
@@ -32,7 +35,9 @@ const localizer = dateFnsLocalizer({
 })
 
 const ProductDetail = () => {
-  const { id_product, name_store } = useParams();
+  const params = useParams();
+  const id_product = params?.id_product as string;
+  const name_store = params?.name_store as string;
 
   const [product, setProduct] = useState<Product | null>(null);
   const [showGallery, setShowGallery] = useState(false);
@@ -78,7 +83,10 @@ const ProductDetail = () => {
     const fetchEnterprise = async () => {
       const { data } = await api.get(`/enterprise/${name_store}`);
 
-      document.title = ` loja | ${data.name}`;
+      // Só alterar o título se estivermos no cliente
+      if (typeof window !== 'undefined') {
+        document.title = ` loja | ${data.name}`;
+      }
 
       setEnterprise(data);
     }
@@ -128,7 +136,8 @@ const ProductDetail = () => {
     }
 
 
-    const productUrl = window.location.href;
+    // Só usar window se estivermos no cliente
+    const productUrl = typeof window !== 'undefined' ? window.location.href : '';
     let message = `Olá! Gostaria de saber mais sobre o produto: *${product?.title}*.`;
 
     const contact = enterprise?.phones.find(p => p.is_whatsapp)?.phone;
@@ -143,7 +152,9 @@ const ProductDetail = () => {
 
     message += `\n\nLink do produto:\n${productUrl}`;
     const whatsappUrl = `https://wa.me/${contact}?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
+    if (typeof window !== 'undefined') {
+      window.open(whatsappUrl, '_blank');
+    }
   };
 
   const handleAddToCart = async () => {
@@ -236,7 +247,7 @@ const ProductDetail = () => {
     return (
       <div className="text-center py-12">
         <h2 className="text-2xl font-bold text-gray-900 mb-4">Produto não encontrado</h2>
-        <Link to={`/${name_store}`} className="text-primary hover:text-primary/90 flex items-center justify-center">
+                    <Link href={`/${name_store}`} className="text-primary hover:text-primary/90 flex items-center justify-center">
           <ArrowLeft className="w-4 h-4 mr-2" />
           Voltar para a lista de produtos
         </Link>
@@ -248,7 +259,7 @@ const ProductDetail = () => {
     <div className="flex justify-center items-center bg-white">
       <div className=" overflow-hidden max-w-6xl">
         <div className="p-6  border-b ">
-          <Link to={`/${name_store}`} className="text-primary hover:text-primary/90 flex items-center mb-4">
+          <Link href={`/${name_store}`} className="text-primary hover:text-primary/90 flex items-center mb-4">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Voltar para a lista de produtos
           </Link>
@@ -273,12 +284,12 @@ const ProductDetail = () => {
                 onClick={() => setShowGallery(true)}
               >
                 <img
-                  src={product.photo_library.find(photo => photo.is_default)?.location || 'https://placehold.co/600x400'}
-                  alt={product.title}
+                  src={product?.photo_library?.find(photo => photo.is_default)?.location || 'https://placehold.co/600x400'}
+                                      alt={product?.title || 'Produto'}
                   className="w-full h-auto object-cover"
                 />
 
-                {product.photo_library && product.photo_library.length > 0 && (
+                {product?.photo_library && product.photo_library.length > 0 && (
                   <div className="absolute bottom-4 right-4 bg-black bg-opacity-70 text-white px-3 py-1 rounded-md text-sm">
                     +{product.photo_library.length} Mais imagens
                   </div>
@@ -312,7 +323,9 @@ const ProductDetail = () => {
                   product.for_schedule ? (
                     <div className="flex justify-between gap-4 flex-col">
                       <p>
-                        <span className="text-primary text-2xl font-semibold">R$ {product.price[0].value.toFixed(2)}</span>
+                        <span className="text-primary text-2xl font-semibold">
+          {product.price?.[0]?.value ? `R$ ${product.price[0].value.toFixed(2)}` : 'Preço não disponível'}
+        </span>
                       </p>
                       <Button
                         onClick={handleSchedule}
@@ -382,7 +395,7 @@ const ProductDetail = () => {
                       <>
                         {product.price.length === 1 ? (
                           <div className="text-2xl font-semibold text-gray-900 mb-4">
-                            R$ {product.price[0].value.toFixed(2)}
+                            {product.price?.[0]?.value ? `R$ ${product.price[0].value.toFixed(2)}` : 'Preço não disponível'}
                           </div>
                         ) : (
                           <Select
@@ -398,7 +411,7 @@ const ProductDetail = () => {
                             <SelectContent>
                               {product.price.map((price) => (
                                 <SelectItem key={price.id_price} value={price.id_price}>
-                                  {price.name} - R$ {price.value.toFixed(2)}
+                                  {price.name} - {price.value ? `R$ ${price.value.toFixed(2)}` : 'Preço não disponível'}
                                 </SelectItem>
                               ))}
                             </SelectContent>

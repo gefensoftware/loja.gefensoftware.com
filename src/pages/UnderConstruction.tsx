@@ -1,9 +1,11 @@
-import { Card, CardContent } from '../components/ui/card';
-import { Button } from '../components/ui/button';
-import { useNavigate } from 'react-router-dom';
+'use client'
+
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
 
 const UnderConstruction = () => {
-  const navigate = useNavigate();
+  const router = useRouter();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-slate-100 flex items-center justify-center p-4">
@@ -48,14 +50,18 @@ const UnderConstruction = () => {
             {/* Botões neutros */}
             <div className="space-y-3">
               <Button 
-                onClick={() => navigate(-1)}
+                onClick={() => router.back()}
                 className="w-full bg-gray-700 hover:bg-gray-800 text-white font-medium py-2 transition-colors duration-200"
               >
                 ← Voltar
               </Button>
               
               <Button 
-                onClick={() => window.location.reload()}
+                onClick={() => {
+              if (typeof window !== 'undefined') {
+                window.location.reload();
+              }
+            }}
                 variant="outline"
                 className="w-full border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 transition-colors duration-200"
               >

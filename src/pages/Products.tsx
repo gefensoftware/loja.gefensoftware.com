@@ -1,36 +1,39 @@
+'use client'
+
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { api } from '../api';
-import { productsAtom, searchTermAtom } from '../store/products';
+import { useRouter, useParams } from 'next/navigation';
+import { api } from '@/api';
+import { productsAtom, searchTermAtom } from '@/store/products';
 import { useAtom } from 'jotai';
-import { CategorySidebar } from '../components/CategorySidebar';
+import { CategorySidebar } from '@/components/CategorySidebar';
 
 import {  Tag } from 'lucide-react';
-import { ProductSkeletonGrid } from '../components/ProductSkeleton';
-import { ProductCard } from '../components/ProductCard';
-import { enterprisesAtom } from '../store/atoms/enterprises';
-import { Button } from '../components/ui/button';
+import { ProductSkeletonGrid } from '@/components/ProductSkeleton';
+import { ProductCard } from '@/components/ProductCard';
+import { enterprisesAtom } from '@/store/atoms/enterprises';
+import { Button } from '@/components/ui/button';
 import { User, LogOut, ShoppingCart, X, MapPin } from 'lucide-react';
-import AuthModal from '../components/AuthModal';
+import AuthModal from '@/components/AuthModal';
 
-import { authAtom } from '../store/auth';
-import { userAtom } from '../store/user';
-import { cartAtom } from '../store/cart';
+import { authAtom } from '@/store/auth';
+import { userAtom } from '@/store/user';
+import { cartAtom } from '@/store/cart';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '../components/ui/dropdown-menu';
-import { Cart } from '../components/Cart';
-import { openStoreAtom } from '../store/open-store';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../components/ui/select';
-import { StatusStore } from '../components/StatusStore';
-import { Input } from '../components/ui/input';
+} from '@/components/ui/dropdown-menu';
+import { Cart } from '@/components/Cart';
+import { openStoreAtom } from '@/store/open-store';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+import { StatusStore } from '@/components/StatusStore';
+import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
 
 const Products = () => {
-  const { name_store } = useParams();
+  const params = useParams();
+  const name_store = params?.name_store as string;
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [products, setProducts] = useAtom(productsAtom);
   const [loading, setLoading] = useState(true);
@@ -41,13 +44,16 @@ const Products = () => {
   const [_, setUser] = useAtom(userAtom);
   const [cart] = useAtom(cartAtom);
   const [isScrolled, setIsScrolled] = useState(false);
-  const navigate = useNavigate();
+  const router = useRouter();
   const [categories, setCategories] = useState<any[]>([]);
   const [enterprise] = useAtom(enterprisesAtom);
   const [searchTerm, setSearchTerm] = useAtom(searchTermAtom);
 
 
   useEffect(() => {
+    // Só adicionar event listeners se estivermos no cliente
+    if (typeof window === 'undefined') return;
+
     const handleScroll = () => {
       const scrollPosition = window.scrollY;
       setIsScrolled(scrollPosition > 50);
@@ -77,7 +83,7 @@ const Products = () => {
   // Função para scroll até a categoria na página de produtos
   const handleCategorySelect = (categoryId: string) => {
     setSelectedCategory(categoryId);
-    if (!categoryId) return;
+    if (!categoryId || typeof window === 'undefined') return;
     setTimeout(() => {
       const el = document.getElementById(`category-${categoryId}`);
       if (el) {
@@ -88,6 +94,9 @@ const Products = () => {
 
   // Atualizar o select conforme o scroll
   useEffect(() => {
+    // Só adicionar event listeners se estivermos no cliente
+    if (typeof window === 'undefined') return;
+
     const onScroll = () => {
       if (!categories.length) return;
       let current: string | null = null;
@@ -370,7 +379,7 @@ const Products = () => {
               variant="outline"
               size="sm"
               className="relative border-primary text-primary hover:bg-primary hover:text-white"
-              onClick={() => navigate(`/${name_store}/cart`)}
+                              onClick={() => router.push(`/${name_store}/cart`)}
             >
               <ShoppingCart className="h-4 w-4 mr-2" />
               Carrinho
@@ -391,7 +400,7 @@ const Products = () => {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem onClick={() => navigate(`/profile`)}>
+                  <DropdownMenuItem onClick={() => router.push(`/profile`)}>
                     <User className="mr-2 h-4 w-4" />
                     Meu Perfil
                   </DropdownMenuItem>

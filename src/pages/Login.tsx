@@ -1,8 +1,10 @@
+'use client'
+
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { useSetAtom } from 'jotai';
-import { userAtom } from '../store/auth';
+import { userAtom } from '@/store/user';
 import { Package } from 'lucide-react';
 
 interface LoginForm {
@@ -11,18 +13,22 @@ interface LoginForm {
 }
 
 const Login = () => {
-  const navigate = useNavigate();
+  const router = useRouter();
   const setUser = useSetAtom(userAtom);
   const { register, handleSubmit, formState: { errors } } = useForm<LoginForm>();
 
   const onSubmit = (data: LoginForm) => {
     // Mock login - replace with actual authentication
     setUser({
-      id: '1',
+      id_user: '1',
       email: data.email,
       name: 'John Doe',
+      avatar: '',
+      phone: '',
+      role: 'user',
+      active: true,
     });
-    navigate('/');
+    router.push('/');
   };
 
   return (

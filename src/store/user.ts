@@ -1,4 +1,4 @@
-import { atom } from "jotai";
+import { atomWithStorage } from "jotai/utils";
 
 export interface UserType {
   id_user: string;
@@ -10,4 +10,4 @@ export interface UserType {
   active: boolean;
 }
 
-export const userAtom = atom<UserType | null>(null);
+export const userAtom = atomWithStorage<UserType | null>("user", null);

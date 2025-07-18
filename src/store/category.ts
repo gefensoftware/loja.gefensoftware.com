@@ -1,4 +1,4 @@
-import { atom } from "jotai";
+import { atomWithStorage } from "jotai/utils";
 import { Category } from "../types";
 
-export const categoriesAtom = atom<Category[]>([]);
+export const categoriesAtom = atomWithStorage<Category[]>("categories", []);

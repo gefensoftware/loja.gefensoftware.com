@@ -1,13 +1,14 @@
-import {  ShoppingBag, Coffee, Utensils } from "lucide-react";
+'use client'
+
+import { ShoppingBag } from "lucide-react";
 
 interface LoadingScreenProps {
   enterpriseName?: string;
 }
 
 const LoadingScreen = ({ enterpriseName }: LoadingScreenProps) => {
-  const icons = [ShoppingBag, Coffee, Utensils];
-  const randomIcon = icons[Math.floor(Math.random() * icons.length)];
-  const IconComponent = randomIcon;
+  // Usar um ícone fixo para evitar diferenças entre servidor e cliente
+  const IconComponent = ShoppingBag;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex items-center justify-center">
@@ -24,25 +25,6 @@ const LoadingScreen = ({ enterpriseName }: LoadingScreenProps) => {
               <IconComponent className="w-8 h-8 text-primary animate-bounce" />
             </div>
           </div>
-          
-          {/* Orbiting dots */}
-          {/* <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-            <div className="relative w-32 h-32">
-              {[...Array(3)].map((_, i) => (
-                <div
-                  key={i}
-                  className="absolute w-3 h-3 bg-primary rounded-full animate-spin"
-                  style={{
-                    top: '50%',
-                    left: '50%',
-                    transform: `translate(-50%, -50%) rotate(${i * 120}deg) translateY(-16px)`,
-                    animation: `spin 2s linear infinite`,
-                    animationDelay: `${i * 0.3}s`
-                  }}
-                />
-              ))}
-            </div>
-          </div> */}
         </div>
 
         {/* Loading text */}

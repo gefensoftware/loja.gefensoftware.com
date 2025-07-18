@@ -1,14 +1,17 @@
+'use client'
+
 import React, { useEffect, useState } from 'react';
-import { Product } from '../types';
-import { ProductSkeleton } from './ProductSkeleton';
-import { api } from '../api';
-import { useParams } from 'react-router-dom';
-import { ProductCard } from './ProductCard';
+import { Product } from '@/types';
+import { ProductSkeleton } from '@/components/ProductSkeleton';
+import { api } from '@/api';
+import { useParams } from 'next/navigation';
+import { ProductCard } from '@/components/ProductCard';
 
 export const ProductList: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const { name_store } = useParams();
+  const params = useParams();
+  const name_store = params?.name_store as string;
 
   useEffect(() => {
     const fetchProducts = async () => {
