@@ -5,11 +5,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "build:standalone": "next build && next export",
     "start": "next start",
-    "start:standalone": "next start -p 3000",
     "lint": "next lint",
-    "clean": "rimraf .next out dist",
+    "clean": "rimraf .next",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
