@@ -11,6 +11,7 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
+  themeColor: '#2563eb',
 }
 
 export const metadata: Metadata = {
@@ -67,9 +68,6 @@ export const metadata: Metadata = {
   alternates: {
     canonical: 'https://loja.gefensoftware.com',
   },
-  
-  // Theme color
-  themeColor: '#2563eb',
 }
 
 export default function RootLayout({
