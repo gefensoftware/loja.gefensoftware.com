@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "next lint",
     "clean": "rimraf .next",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "check:env-guard": "node scripts/check-env-guard.mjs",
+    "verify": "npm run type-check && npm run lint && npm run build && npm run check:env-guard"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -29,7 +31,6 @@
     "lucide-react": "^0.344.0",
     "next": "^14.2.5",
     "react": "^18.3.1",
-    "react-big-calendar": "^1.19.4",
     "react-day-picker": "^9.7.0",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.56.3",
@@ -42,7 +43,6 @@
   "devDependencies": {
     "@types/node": "^20.14.10",
     "@types/react": "^18.3.5",
-    "@types/react-big-calendar": "^1.16.2",
     "@types/react-dom": "^18.3.0",
     "autoprefixer": "^10.4.18",
     "eslint": "^8.57.0",

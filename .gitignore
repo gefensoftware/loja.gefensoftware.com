@@ -12,6 +12,11 @@ node_modules
 dist-ssr
 *.local
 
+# Variáveis de ambiente locais — nunca comitar segredos ou URLs de ambiente
+.env
+.env.local
+.env.*.local
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -23,3 +28,4 @@ dist-ssr
 *.sln
 *.sw?
 .next
+*.tsbuildinfo

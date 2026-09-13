@@ -12,8 +12,11 @@ export async function generateMetadata({
   params: { name_store: string } 
 }): Promise<Metadata> {
   try {
-    const { data: enterprise } = await serverApi.get(`/enterprise/${params.name_store}`)
-    
+    // GET /enterprises/by-slug/{slug} (enterprise_handler.go): rota pública
+    // nova. `/enterprise/{slug}` (singular) é do contrato anterior e não
+    // existe mais — os metadados eram sempre os do bloco catch abaixo.
+    const { data: enterprise } = await serverApi.get(`/enterprises/by-slug/${params.name_store}`)
+
     if (!enterprise) {
       return {
         title: 'Loja não encontrada',
@@ -21,13 +24,15 @@ export async function generateMetadata({
       }
     }
 
-    const logoUrl = enterprise.logo?.location || 'https://via.placeholder.com/150'
-    const bannerUrl = enterprise.banner?.location || 'https://via.placeholder.com/1200x630'
-    
+    // enterprise_dto.go: logoUrl/bannerUrl são strings diretas (nunca nulas,
+    // a API devolve "" sem logo/banner), não mais um objeto { location }.
+    const logoUrl = enterprise.logoUrl || 'https://via.placeholder.com/150'
+    const bannerUrl = enterprise.bannerUrl || 'https://via.placeholder.com/1200x630'
+
     return {
       title: `${enterprise.name} | Catálogo Digital`,
       description: enterprise.description || `Confira o Catálogo digital de ${enterprise.name}`,
-      keywords: `${enterprise.name_fantasy}, Catálogo digital, delivery, ${enterprise.city}, ${enterprise.uf}`,
+      keywords: `${enterprise.tradeName}, Catálogo digital, delivery, ${enterprise.address?.city}, ${enterprise.address?.state}`,
       authors: [{ name: enterprise.name }],
       creator: enterprise.name,
       publisher: enterprise.name,

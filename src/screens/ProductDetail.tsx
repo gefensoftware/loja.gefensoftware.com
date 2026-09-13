@@ -1,125 +1,105 @@
 'use client'
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, X, MessageCircle, ChevronLeft, ChevronRight, ShoppingCart, Calendar } from 'lucide-react';
-import { Product, Prices, Category } from '@/types';
+import { ArrowLeft, X, MessageCircle, ChevronLeft, ChevronRight, ShoppingCart, AlertTriangle } from 'lucide-react';
+import type { Price, Product } from '@/types/catalog';
+import { valorEfetivo, temPromocaoVigente, formatarPreco } from '@/lib/price';
 import { api } from '@/api';
 import { useAtom } from 'jotai';
-import { addToCartAtom, cartAtom } from '@/store/cart';
 import { authAtom } from '@/store/auth';
+import { CarrinhoNaoCarregado, useCarrinho } from '@/store/cart';
+import { useEmpresa } from '@/store/enterprise';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Textarea } from '@/components/ui/textarea';
 import AuthModal from '@/components/AuthModal';
-import { userAtom } from '@/store/user';
-import { Enterprise } from '@/types/enterprise';
 import { toast } from 'react-toastify';
-import { Calendar as BigCalendar, dateFnsLocalizer } from 'react-big-calendar';
-import { format, parse, startOfWeek, getDay } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
-import 'react-big-calendar/lib/css/react-big-calendar.css';
 
-const locales = {
-  'pt-BR': ptBR,
+/** Distingue "não existe" de "não deu para saber": 404 é produto inexistente;
+ *  qualquer outra falha (rede, 500, timeout) é erro e merece tentar de novo. */
+function ehNaoEncontrado(erro: unknown): boolean {
+  const axiosLike = erro as { response?: { status?: number } };
+  return axiosLike?.response?.status === 404;
 }
-
-const localizer = dateFnsLocalizer({
-  format,
-  parse,
-  startOfWeek,
-  getDay,
-  locales,
-})
 
 const ProductDetail = () => {
   const params = useParams();
-  const id_product = params?.id_product as string;
+  // A rota de produto é por código, não por id.
+  const code = params?.code as string;
   const name_store = params?.name_store as string;
 
   const [product, setProduct] = useState<Product | null>(null);
   const [showGallery, setShowGallery] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedPrice, setSelectedPrice] = useState<Prices | null>(null);
+  // Três desfechos distintos, não dois: carregando, não encontrado (404) e
+  // erro de leitura. Antes, qualquer falha virava "Produto não encontrado".
+  const [productNotFound, setProductNotFound] = useState(false);
+  const [productError, setProductError] = useState(false);
+  const [selectedPrice, setSelectedPrice] = useState<Price | null>(null);
   const [includeService, setIncludeService] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [quoteNote, setQuoteNote] = useState('');
-  const [, addToCart] = useAtom(addToCartAtom);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [auth] = useAtom(authAtom);
-  const [user] = useAtom(userAtom);
-  const [enterprise, setEnterprise] = useState<Enterprise | null>(null);
-  const [category, setCategory] = useState<Category | null>(null);
-  const [cart] = useAtom(cartAtom);
-  const [showScheduleModal, setShowScheduleModal] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [showTimeModal, setShowTimeModal] = useState(false);
-  const [selectedDay, setSelectedDay] = useState<Date | null>(null);
-  const [availableTimes, setAvailableTimes] = useState<string[]>([]);
+  // A empresa é pré-requisito do carrinho e do WhatsApp: sem ela o botão
+  // ficava habilitado e o clique não fazia nada (a guarda retornava em
+  // silêncio). A falha é visível e o botão só habilita com a empresa
+  // carregada. A busca em si vem do gancho compartilhado, que lê o átomo e
+  // só vai à rede quando ele está vazio — 404 e falha de leitura entram
+  // juntos aqui, porque as duas deixam a tela sem os dados da loja.
+  const {
+    empresa: enterprise,
+    naoEncontrada: lojaNaoEncontrada,
+    erro: erroDaLoja,
+    recarregar: recarregarLoja,
+  } = useEmpresa(name_store);
+  const enterpriseError = lojaNaoEncontrada || erroDaLoja;
+  const [tentativa, setTentativa] = useState(0);
 
-  const [events, setEvents] = useState<any[]>([]);
+  // O carrinho da loja assim que a empresa é conhecida: local enquanto
+  // anônimo, do servidor depois do login.
+  const carrinho = useCarrinho(enterprise?.id);
+
+  // O título da aba acompanha a empresa assim que ela chega, venha da rede ou
+  // do átomo já preenchido pela tela anterior.
+  useEffect(() => {
+    if (typeof window !== 'undefined' && enterprise) {
+      document.title = ` loja | ${enterprise.name}`;
+    }
+  }, [enterprise]);
 
   useEffect(() => {
-    const fetchEvents = async () => {
-      const { data } = await api.get(`/event/enterprise/${name_store}`);
-
-      const formattedEvents = data.map((event: any) => ({
-        ...event,
-        start: new Date(event.start),
-        end: new Date(event.end),
-        client: event.user,
-        service: event.product
-      }));
-
-      setEvents(formattedEvents);
-    }
-    fetchEvents();
-  }, [id_product]);
-
-  useEffect(() => {
-
-    const fetchEnterprise = async () => {
-      const { data } = await api.get(`/enterprise/${name_store}`);
-
-      // Só alterar o título se estivermos no cliente
-      if (typeof window !== 'undefined') {
-        document.title = ` loja | ${data.name}`;
-      }
-
-      setEnterprise(data);
-    }
-
-    fetchEnterprise();
-
     const fetchProduct = async () => {
       try {
         setIsLoading(true);
-        const { data } = await api.get(`/product/${id_product}`);
+        setProductNotFound(false);
+        setProductError(false);
+        const { data } = await api.get<Product>(`/enterprises/by-slug/${name_store}/products/${code}`);
         setProduct(data);
-        if (data.price && data.price.length > 0) {
-          setSelectedPrice(data.price[0]);
+        if (data.prices.length > 0) {
+          setSelectedPrice(data.prices[0]);
         }
-      } catch (error) {
-        console.error('Error fetching product:', error);
+      } catch (erro) {
+        console.error('Erro ao buscar produto:', erro);
+        setProduct(null);
+        if (ehNaoEncontrado(erro)) {
+          setProductNotFound(true);
+        } else {
+          setProductError(true);
+        }
       } finally {
         setIsLoading(false);
       }
     }
 
-    fetchProduct();
-  }, [id_product]);
+    if (name_store && code) fetchProduct();
+  }, [name_store, code, tentativa]);
 
-  useEffect(() => {
-    const fetchCategory = async () => {
-      const { data } = await api.get(`/category/${product?.id_category}`);
-      setCategory(data);
-    }
-    fetchCategory();
-  }, [product]);
-
-  const allImages = product?.photo_library ?? []
+  // A categoria vem embutida no produto (categoryRefDTO); não há mais
+  // requisição própria para ela.
+  const allImages = [...(product?.images ?? [])].sort((a, b) => a.position - b.position);
 
   const handleWhatsAppOrder = async () => {
     if (!auth.isAuthenticated) {
@@ -127,27 +107,23 @@ const ProductDetail = () => {
       return;
     }
 
-    if (product?.is_budget) {
-      await api.post('request-budget', {
-        id_product: product?.id_product,
-        id_user: user!.id_user,
-        description: quoteNote,
-      })
+    if (!enterprise) {
+      toast.error('Não foi possível carregar os dados da loja. Tente novamente.');
+      return;
     }
 
+    // Orçamento e agendamento são subsistemas próprios, sem rota nenhuma
+    // nesta API (confira registerEnterpriseRoutes/registerProductRoutes no
+    // repositório Go): não há requisição a fazer aqui, só o WhatsApp abaixo.
 
     // Só usar window se estivermos no cliente
     const productUrl = typeof window !== 'undefined' ? window.location.href : '';
     let message = `Olá! Gostaria de saber mais sobre o produto: *${product?.title}*.`;
 
-    const contact = enterprise?.phones.find(p => p.is_whatsapp)?.phone;
+    const contact = enterprise.phones.find(p => p.isWhatsapp)?.phone;
 
     if (product?.service && includeService) {
       message += `\nGostaria de incluir o serviço: *${product.service.title}*.`;
-    }
-
-    if (quoteNote.trim()) {
-      message += `\n\nObservações:\n*${quoteNote}*.`;
     }
 
     message += `\n\nLink do produto:\n${productUrl}`;
@@ -157,30 +133,58 @@ const ProductDetail = () => {
     }
   };
 
+  // Adicionar ao carrinho não exige login: enquanto anônimo a linha fica no
+  // armazenamento local (nenhuma requisição sai) e sobe numa única mesclagem
+  // quando o cliente entrar na conta.
   const handleAddToCart = async () => {
-    if (!auth.isAuthenticated) {
-      setIsAuthModalOpen(true);
+    if (!enterprise) {
+      toast.error('Não foi possível carregar os dados da loja. Tente novamente.');
       return;
     }
 
-    if (!product || !selectedPrice) return;
+    if (!product || !selectedPrice) {
+      toast.error('Escolha uma opção de preço antes de adicionar ao carrinho.');
+      return;
+    }
 
     try {
-      const { data } = await api.post('/cart/add-item', {
-        id_cart: cart.id_cart,
-        id_user: user!.id_user,
-        id_product: product.id_product,
-        id_price: selectedPrice.id_price,
-        quantity: 1
-      })
-
-      addToCart({ product, price: selectedPrice, id_item_cart: data.id_item_cart });
-      toast.success('Produto adicionado ao carrinho!', {
-        className: 'z'
+      setIsAddingToCart(true);
+      // A linha local guarda o suficiente de produto e preço para a tela do
+      // carrinho se desenhar sem rede; só productId/priceId/quantity sobem na
+      // mesclagem.
+      const resultado = await carrinho.adicionar({
+        productId: product.id,
+        priceId: selectedPrice.id,
+        quantity: 1,
+        product: {
+          id: product.id,
+          code: product.code,
+          title: product.title,
+          status: product.status,
+          image: product.images.find((i) => i.isMain) ?? product.images[0] ?? null,
+        },
+        price: selectedPrice,
       });
-    } catch (error) {
-      console.error('Error adding item to cart:', error);
-      toast.error('Erro ao adicionar produto ao carrinho!');
+      // A mensagem diz o que o servidor gravou, não o que o clique pediu.
+      toast.success(
+        `${product.title} no carrinho: ${resultado.quantidade} un.` +
+          (resultado.total ? ` Total: ${formatarPreco(resultado.total)}.` : ''),
+      );
+    } catch (erro) {
+      console.error('Erro ao adicionar item ao carrinho:', erro);
+      if (erro instanceof CarrinhoNaoCarregado) {
+        // Recusa deliberada: sem o carrinho do servidor em mãos, a quantidade
+        // nova sairia de um chute, e `POST .../items` substitui em vez de
+        // somar — o carrinho do cliente encolheria.
+        toast.error(
+          'Não foi possível ler o seu carrinho nesta loja. O produto não foi ' +
+            'adicionado — tente novamente.',
+        );
+      } else {
+        toast.error('Erro ao adicionar produto ao carrinho!');
+      }
+    } finally {
+      setIsAddingToCart(false);
     }
   };
 
@@ -192,65 +196,35 @@ const ProductDetail = () => {
     setCurrentImageIndex((prev) => (prev - 1 + allImages.length) % allImages.length);
   };
 
-  const handleSchedule = () => {
-    if (!auth.isAuthenticated) {
-      setIsAuthModalOpen(true);
-      return;
-    }
-    setShowScheduleModal(true);
-  };
-
-  const handleDateSelect = (slotInfo: { start: Date; end: Date }) => {
-    setSelectedDay(slotInfo.start);
-    setShowTimeModal(true);
-    
-    // Gerar horários disponíveis das 8h às 18h
-    const times = [];
-    for (let hour = 8; hour <= 18; hour++) {
-      times.push(`${hour.toString().padStart(2, '0')}:00`);
-      times.push(`${hour.toString().padStart(2, '0')}:30`);
-    }
-    setAvailableTimes(times);
-  };
-
-  const handleTimeSelect = (time: string) => {
-    if (!selectedDay) return;
-
-    const [hours, minutes] = time.split(':').map(Number);
-    const selectedDateTime = new Date(selectedDay);
-    selectedDateTime.setHours(hours, minutes, 0, 0);
-    
-    setSelectedDate(selectedDateTime);
-    setShowTimeModal(false);
-  };
-
-  const handleConfirmSchedule = async () => {
-    if (!selectedDate) return;
-
-    try {
-      await api.post('/schedule', {
-        id_product: product?.id_product,
-        id_user: user!.id_user,
-        scheduled_date: selectedDate,
-      });
-
-      toast.success('Agendamento realizado com sucesso!');
-      setShowScheduleModal(false);
-      setSelectedDate(null);
-    } catch (error) {
-      console.error('Error scheduling:', error);
-      toast.error('Erro ao realizar agendamento!');
-    }
-  };
-
-  if (!product) {
+  if (!isLoading && productNotFound) {
     return (
       <div className="text-center py-12">
         <h2 className="text-2xl font-bold text-gray-900 mb-4">Produto não encontrado</h2>
-                    <Link href={`/${name_store}`} className="text-primary hover:text-primary/90 flex items-center justify-center">
+        <Link href={`/${name_store}`} className="text-primary hover:text-primary/90 flex items-center justify-center">
           <ArrowLeft className="w-4 h-4 mr-2" />
           Voltar para a lista de produtos
         </Link>
+      </div>
+    );
+  }
+
+  if (!isLoading && productError) {
+    return (
+      <div className="text-center py-12 px-4">
+        <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+          <AlertTriangle className="w-8 h-8 text-red-500" />
+        </div>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Não foi possível carregar o produto</h2>
+        <p className="text-gray-600 mb-6">
+          Houve uma falha ao falar com o servidor. O produto pode continuar disponível.
+        </p>
+        <div className="flex items-center justify-center gap-4">
+          <Button onClick={() => setTentativa((n) => n + 1)}>Tentar novamente</Button>
+          <Link href={`/${name_store}`} className="text-primary hover:text-primary/90 flex items-center">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Voltar para a lista de produtos
+          </Link>
+        </div>
       </div>
     );
   }
@@ -266,6 +240,44 @@ const ProductDetail = () => {
           <h1 className="text-3xl font-bold text-gray-900">{product?.title || 'Loading...'}</h1>
         </div>
 
+        {enterpriseError && (
+          <div className="mx-6 mt-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm font-medium text-red-800">
+                Não foi possível carregar os dados da loja.
+              </p>
+              <p className="text-sm text-red-700">
+                Sem eles não dá para adicionar ao carrinho nem abrir o WhatsApp.
+              </p>
+            </div>
+            <Button variant="outline" size="sm" onClick={recarregarLoja}>
+              Tentar novamente
+            </Button>
+          </div>
+        )}
+
+        {/* A tela do carrinho mostra o erro de leitura; esta também precisa
+            mostrar, porque é daqui que se adiciona — e é a adição que a
+            leitura falha impede. */}
+        {carrinho.erro && (
+          <div className="mx-6 mt-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm font-medium text-red-800">
+                Não foi possível carregar o seu carrinho nesta loja.
+              </p>
+              <p className="text-sm text-red-700">
+                Sem ele não dá para adicionar o produto sem arriscar o que já
+                está no carrinho. Seus itens continuam na sua conta.
+              </p>
+            </div>
+            <Button variant="outline" size="sm" onClick={carrinho.recarregar}>
+              Tentar novamente
+            </Button>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6">
           <div className="space-y-6">
             {isLoading ? (
@@ -278,20 +290,22 @@ const ProductDetail = () => {
                   <div className="w-24 h-8 bg-gray-300 rounded-md animate-pulse"></div>
                 </div>
               </div>
-            ) : product?.photo_library ? (
+            ) : allImages.length > 0 ? (
               <div
                 className="relative rounded-lg overflow-hidden cursor-pointer"
                 onClick={() => setShowGallery(true)}
               >
                 <img
-                  src={product?.photo_library?.find(photo => photo.is_default)?.location || 'https://placehold.co/600x400'}
-                                      alt={product?.title || 'Produto'}
+                  src={allImages.find(img => img.isMain)?.url || allImages[0]?.url || 'https://placehold.co/600x400'}
+                  alt={product?.title || 'Produto'}
                   className="w-full h-auto object-cover"
                 />
 
-                {product?.photo_library && product.photo_library.length > 0 && (
+                {/* A imagem em exibição não conta como "mais uma". */}
+                {allImages.length > 1 && (
                   <div className="absolute bottom-4 right-4 bg-black bg-opacity-70 text-white px-3 py-1 rounded-md text-sm">
-                    +{product.photo_library.length} Mais imagens
+                    +{allImages.length - 1}{' '}
+                    {allImages.length - 1 === 1 ? 'imagem' : 'imagens'}
                   </div>
                 )}
               </div>
@@ -300,7 +314,7 @@ const ProductDetail = () => {
             <div className="bg-gray-50 rounded-lg p-6 ">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Características do produto</h3>
               <ul className="space-y-3">
-                {product.details_point.map((point, index) => (
+                {product?.detailsPoint.map((point, index) => (
                   <li key={index} className="flex items-start">
                     <span className="text-primary mr-2">•</span>
                     <span className="text-gray-700">{point}</span>
@@ -313,71 +327,93 @@ const ProductDetail = () => {
           <div className="space-y-6">
             <div>
               <h2 className="text-2xl font-semibold text-gray-900 mb-2">Descrição</h2>
-              <p className="text-gray-700">{product.description}</p>
+              <p className="text-gray-700">{product?.description}</p>
             </div>
 
             <div>
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4">Opções de preço</h2>
+              <h2 className="text-2xl font-semibold text-gray-900 mb-4">
+                {product && product.prices.length === 1 ? 'Opção de preço' : 'Opções de preço'}
+              </h2>
               <div className="bg-gray-50 rounded-lg p-6 space-y-4">
                 {
-                  product.for_schedule ? (
+                  product?.forSchedule ? (
                     <div className="flex justify-between gap-4 flex-col">
                       <p>
                         <span className="text-primary text-2xl font-semibold">
-          {product.price?.[0]?.value ? `R$ ${product.price[0].value.toFixed(2)}` : 'Preço não disponível'}
-        </span>
+                          {product.prices[0] ? (
+                            <>
+                              {temPromocaoVigente(product.prices[0]) && (
+                                <span className="text-base text-gray-400 line-through mr-2">
+                                  {formatarPreco(product.prices[0].value)}
+                                </span>
+                              )}
+                              {formatarPreco(valorEfetivo(product.prices[0]))}
+                            </>
+                          ) : 'Preço não disponível'}
+                        </span>
                       </p>
+                      {/* Agendamento indisponível: as rotas `/event/enterprise/{slug}`
+                          e `/schedule` não existem mais na API, então o botão abria
+                          um calendário cuja confirmação falhava sempre. Enquanto a
+                          funcionalidade não voltar, o caminho não é oferecido. */}
+                      <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-3">
+                        <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-medium text-amber-900">
+                            Agendamento temporariamente indisponível
+                          </p>
+                          <p className="text-sm text-amber-800">
+                            Para marcar um horário, fale com a loja pelo WhatsApp.
+                          </p>
+                        </div>
+                      </div>
                       <Button
-                        onClick={handleSchedule}
-                        className="flex-1 text-white"
+                        onClick={handleWhatsAppOrder}
+                        variant="outline"
+                        className="flex-1"
+                        disabled={!enterprise}
                       >
-                        <Calendar className="w-5 h-5 mr-2" />
-                        Agendar
+                        <MessageCircle className="w-5 h-5 mr-2" />
+                        WhatsApp
                       </Button>
                     </div>
                   ) :
-                    product.is_budget ? (
+                    product?.isBudget ? (
                       <>
-                        <div className="space-y-4">
-                          <div className="space-y-2">
-                            <label htmlFor="quote-note" className="text-sm font-medium text-gray-700">
-                              Observações para o orçamento
-                            </label>
-                            <Textarea
-                              id="quote-note"
-                              placeholder="Adicione observações importantes para o seu orçamento..."
-                              value={quoteNote}
-                              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setQuoteNote(e.target.value)}
-                              className="min-h-[100px]"
-                            />
+                        {/* Orçamento indisponível: é um subprojeto próprio,
+                            sem rota nenhuma nesta API — o antigo
+                            `POST request-budget` nunca existiu no contrato
+                            Go e sempre falhava em silêncio. Mesmo tratamento
+                            do agendamento, acima: aviso, sem fingir dado. */}
+                        <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-3">
+                          <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                          <div>
+                            <p className="text-sm font-medium text-amber-900">
+                              Orçamento temporariamente indisponível
+                            </p>
+                            <p className="text-sm text-amber-800">
+                              Para solicitar um orçamento, fale com a loja pelo WhatsApp.
+                            </p>
                           </div>
-                          <div className="flex gap-4">
-                            <Button
-                              onClick={handleWhatsAppOrder}
-                              className="flex-1 text-white"
-                            >
-                              <MessageCircle className="w-5 h-5 mr-2" />
-                              Solicitar Orçamento
-                            </Button>
-                          </div>
+                        </div>
+                        <div className="flex gap-4">
+                          <Button
+                            onClick={handleWhatsAppOrder}
+                            variant="outline"
+                            className="flex-1"
+                            disabled={!enterprise}
+                          >
+                            <MessageCircle className="w-5 h-5 mr-2" />
+                            WhatsApp
+                          </Button>
                         </div>
                         {product.service && (
                           <div className="mt-6 border-t pt-6">
                             <h3 className="text-lg font-semibold text-gray-900 mb-4">Serviço Vinculado</h3>
                             <div className="bg-white rounded-lg p-4 border">
                               <div className="flex items-center gap-4">
-                                {product.service.photo_library && product.service.photo_library.length > 0 && (
-                                  <div className="w-24 h-24 flex-shrink-0">
-                                    <img
-                                      src={product.service.photo_library.find(photo => photo.is_default)?.location}
-                                      alt={product.service.title}
-                                      className="w-full h-full object-cover rounded-md"
-                                    />
-                                  </div>
-                                )}
                                 <div className="flex-grow">
                                   <h4 className="font-medium text-gray-900">{product.service.title}</h4>
-                                  <p className="text-sm text-gray-600 mt-1">{product.service.description}</p>
                                 </div>
                                 <div className="flex items-center">
                                   <Checkbox
@@ -393,25 +429,40 @@ const ProductDetail = () => {
                       </>
                     ) : (
                       <>
-                        {product.price.length === 1 ? (
+                        {product && product.prices.length === 1 ? (
                           <div className="text-2xl font-semibold text-gray-900 mb-4">
-                            {product.price?.[0]?.value ? `R$ ${product.price[0].value.toFixed(2)}` : 'Preço não disponível'}
+                            {product.prices[0] ? (
+                              <>
+                                {product.prices[0].name && (
+                                  <span className="block text-sm font-normal text-gray-600 mb-1">
+                                    {product.prices[0].name}
+                                  </span>
+                                )}
+                                {temPromocaoVigente(product.prices[0]) && (
+                                  <span className="text-base text-gray-400 line-through mr-2">
+                                    {formatarPreco(product.prices[0].value)}
+                                  </span>
+                                )}
+                                {formatarPreco(valorEfetivo(product.prices[0]))}
+                              </>
+                            ) : 'Preço não disponível'}
                           </div>
                         ) : (
                           <Select
-                            value={selectedPrice?.id_price}
+                            value={selectedPrice?.id}
                             onValueChange={(value: string) => {
-                              const price = product.price.find(p => p.id_price === value);
+                              const price = product?.prices.find(p => p.id === value);
                               if (price) setSelectedPrice(price);
                             }}
                           >
                             <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Select price" />
+                              <SelectValue placeholder="Escolha uma opção de preço" />
                             </SelectTrigger>
                             <SelectContent>
-                              {product.price.map((price) => (
-                                <SelectItem key={price.id_price} value={price.id_price}>
-                                  {price.name} - {price.value ? `R$ ${price.value.toFixed(2)}` : 'Preço não disponível'}
+                              {product?.prices.map((price) => (
+                                <SelectItem key={price.id} value={price.id}>
+                                  {price.name} - {formatarPreco(valorEfetivo(price))}
+                                  {temPromocaoVigente(price) ? ` (de ${formatarPreco(price.value)})` : ''}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -424,6 +475,7 @@ const ProductDetail = () => {
                               <Button
                                 onClick={handleWhatsAppOrder}
                                 className="flex-1"
+                                disabled={!enterprise}
                               >
                                 <MessageCircle className="w-5 h-5 mr-2" />
                                 Solicitar Serviço
@@ -434,15 +486,26 @@ const ProductDetail = () => {
                               <Button
                                 onClick={handleAddToCart}
                                 className="flex-1 text-white"
-                                disabled={!selectedPrice && product.price.length > 1}
+                                disabled={
+                                  isAddingToCart ||
+                                  !enterprise ||
+                                  // Sem o carrinho desta loja carregado, a
+                                  // adição seria recusada: o botão espera em
+                                  // vez de prometer o que não pode cumprir.
+                                  !carrinho.pronto ||
+                                  (!selectedPrice && !!product && product.prices.length > 1)
+                                }
                               >
                                 <ShoppingCart className="w-5 h-5 mr-2" />
-                                Adicionar ao Carrinho
+                                {carrinho.carregando && !carrinho.pronto
+                                  ? 'Carregando carrinho...'
+                                  : 'Adicionar ao Carrinho'}
                               </Button>
                               <Button
                                 onClick={handleWhatsAppOrder}
                                 variant="outline"
                                 className="flex-1"
+                                disabled={!enterprise}
                               >
                                 <MessageCircle className="w-5 h-5 mr-2" />
                                 WhatsApp
@@ -450,23 +513,13 @@ const ProductDetail = () => {
                             </div>
                           )
                         }
-                        {product.service && (
+                        {product?.service && (
                           <div className="mt-6 border-t pt-6">
                             <h3 className="text-lg font-semibold text-gray-900 mb-4">Serviço Vinculado</h3>
                             <div className="bg-white rounded-lg p-4 border">
                               <div className="flex items-center gap-4">
-                                {product.service.photo_library && product.service.photo_library.length > 0 && (
-                                  <div className="w-24 h-24 flex-shrink-0">
-                                    <img
-                                      src={product.service.photo_library.find(photo => photo.is_default)?.location}
-                                      alt={product.service.title}
-                                      className="w-full h-full object-cover rounded-md"
-                                    />
-                                  </div>
-                                )}
                                 <div className="flex-grow">
                                   <h4 className="font-medium text-gray-900">{product.service.title}</h4>
-                                  <p className="text-sm text-gray-600 mt-1">{product.service.description}</p>
                                 </div>
                                 <div className="flex items-center">
                                   <Checkbox
@@ -490,19 +543,19 @@ const ProductDetail = () => {
                 <div className="flex justify-between">
                   <dt className="text-gray-600">Categoria</dt>
                   <dd className="text-gray-900 font-medium">
-                    {category?.name}
+                    {product?.category?.name ?? '—'}
                   </dd>
                 </div>
                 <div className="flex justify-between">
                   <dt className="text-gray-600">Adicionado em</dt>
                   <dd className="text-gray-900 font-medium">
-                    {new Date(product.createdAt).toLocaleDateString()}
+                    {product ? new Date(product.createdAt).toLocaleDateString() : ''}
                   </dd>
                 </div>
                 <div className="flex justify-between">
                   <dt className="text-gray-600">Atualizado em</dt>
                   <dd className="text-gray-900 font-medium">
-                    {new Date(product.updatedAt).toLocaleDateString()}
+                    {product ? new Date(product.updatedAt).toLocaleDateString() : ''}
                   </dd>
                 </div>
               </dl>
@@ -510,7 +563,7 @@ const ProductDetail = () => {
           </div>
         </div>
       </div>
-      {showGallery && (
+      {showGallery && allImages.length > 0 && (
         <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center">
           <div className="relative w-full max-w-6xl mx-4">
             <button
@@ -522,7 +575,7 @@ const ProductDetail = () => {
 
             <div className="relative">
               <img
-                src={allImages[currentImageIndex].location}
+                src={allImages[currentImageIndex].url}
                 alt={`Product image ${currentImageIndex + 1}`}
                 className="w-full h-auto max-h-[80vh] object-contain"
               />
@@ -554,110 +607,6 @@ const ProductDetail = () => {
                     }`}
                 />
               ))}
-            </div>
-          </div>
-        </div>
-      )}
-      {showScheduleModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-          <div className="bg-white rounded-lg p-6 w-full max-w-4xl">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-semibold">Agendar Horário</h2>
-              <button
-                onClick={() => setShowScheduleModal(false)}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-            
-            <div className="h-[500px] mb-4">
-              <BigCalendar
-                localizer={localizer}
-                events={events}
-                startAccessor="start"
-                endAccessor="end"
-                style={{ height: '100%' }}
-                onSelectSlot={handleDateSelect}
-                selectable
-                views={['month', 'week', 'day']}
-                // onSelectEvent={handleEventClick}
-                messages={{
-                  work_week: "Semana de trabalho",
-                  next: "Próximo",
-                  previous: "Anterior",
-                  today: "Hoje",
-                  month: "Mês",
-                  week: "Semana",
-                  day: "Dia",
-                  agenda: "Agenda",
-                  date: "Data",
-                  time: "Hora",
-                  event: "Evento",
-                  noEventsInRange: "Não há eventos neste período",
-                }}
-              />
-            </div>
-
-            <div className="flex justify-end gap-4">
-              <Button
-                variant="outline"
-                onClick={() => setShowScheduleModal(false)}
-              >
-                Cancelar
-              </Button>
-              <Button
-                onClick={handleConfirmSchedule}
-                disabled={!selectedDate}
-              >
-                Confirmar Agendamento
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-      {showTimeModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-semibold">Selecione o Horário</h2>
-              <button
-                onClick={() => setShowTimeModal(false)}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-
-            <div className="grid grid-cols-3 gap-2">
-              {availableTimes.map((time) => {
-                const isBooked = events.some(event => {
-                  const eventTime = new Date(event.start);
-                  const [hours, minutes] = time.split(':').map(Number);
-                  return eventTime.getHours() === hours && eventTime.getMinutes() === minutes;
-                });
-
-                return (
-                  <Button
-                    key={time}
-                    variant={isBooked ? "outline" : "default"}
-                    disabled={isBooked}
-                    onClick={() => handleTimeSelect(time)}
-                    className="w-full"
-                  >
-                    {time}
-                  </Button>
-                );
-              })}
-            </div>
-
-            <div className="flex justify-end mt-4">
-              <Button
-                variant="outline"
-                onClick={() => setShowTimeModal(false)}
-              >
-                Cancelar
-              </Button>
             </div>
           </div>
         </div>

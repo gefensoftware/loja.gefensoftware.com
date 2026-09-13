@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname, useParams } from 'next/navigation'
 import { Home, User, ShoppingCart } from 'lucide-react'
 import { useAtom } from 'jotai'
-import { cartAtom } from '@/store/cart'
+import { cartCountAtom } from '@/store/cart'
 
 const navItems = (company_name: string) => [
   {
@@ -28,10 +28,12 @@ export const Navbar = () => {
   const pathname = usePathname();
   const params = useParams();
   const name_store = params?.name_store as string;
-  const [cart] = useAtom(cartAtom);
-  
-  const cartItemsCount = cart?.items?.length || 0;
-  
+  // Contagem do carrinho do servidor, escrita por quem conhece o id da
+  // empresa (a grade e o detalhe do produto). Esta barra não busca sozinha:
+  // ela não tem o id, só o slug.
+  const [cartItemsCount] = useAtom(cartCountAtom);
+
+
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t shadow-sm flex justify-around md:justify-center px-4 py-2 md:py-3 md:px-8 gap-8 md:gap-4">
       {navItems(name_store ?? '').map((item) => {

@@ -1,13 +1,19 @@
 'use client'
 
-import React, { useEffect, useState } from 'react';
-import { Category } from '@/types';
-import { api } from '@/api';
-import { useParams } from 'next/navigation';
+import React from 'react';
+import type { Category } from '@/types/catalog';
 import { Card } from '@/components/ui/card';
-import { X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { AlertTriangle, X } from 'lucide-react';
 
 interface CategorySidebarProps {
+  // As categorias vêm de quem já as buscou (a grade). Antes esta barra
+  // repetia `GET /enterprises/by-slug/{slug}/categories` a cada carregamento,
+  // em estado próprio, e as duas listas podiam divergir.
+  categories: Category[];
+  loading: boolean;
+  error: boolean;
+  onRetry: () => void;
   onCategorySelect: (categoryId: string | null) => void;
   selectedCategory: string | null;
   isOpen: boolean;
@@ -15,40 +21,27 @@ interface CategorySidebarProps {
 }
 
 export const CategorySidebar: React.FC<CategorySidebarProps> = ({
+  categories,
+  loading,
+  error,
+  onRetry,
   onCategorySelect,
   selectedCategory,
   isOpen,
   onClose,
 }) => {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const params = useParams();
-  const name_store = params?.name_store as string;
-
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const { data } = await api.get(`/category/enterprise/${name_store}`);
-        setCategories(data);
-      } catch (error) {
-        console.error('Error fetching categories:', error);
-      }
-    };
-
-    fetchCategories();
-  }, [name_store]);
-
   return (
     <>
       {/* Backdrop */}
       {isOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 z-40 transition-opacity"
           onClick={onClose}
         />
       )}
-      
+
       {/* Sidebar */}
-      <div 
+      <div
         className={`fixed top-0 left-0 h-full z-50 transition-transform duration-300 ease-in-out ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
@@ -77,15 +70,42 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
             >
               Todos os produtos
             </button>
-            {categories.map((category) => (
+
+            {loading && (
+              <div className="space-y-2 pt-2">
+                {[0, 1, 2, 3].map((i) => (
+                  <div key={i} className="h-9 bg-gray-200 rounded-md animate-pulse" />
+                ))}
+              </div>
+            )}
+
+            {!loading && error && (
+              <div className="pt-2 space-y-2">
+                <div className="flex items-start gap-2 text-sm text-red-700">
+                  <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                  <span>Não foi possível carregar as categorias.</span>
+                </div>
+                <Button variant="outline" size="sm" className="w-full" onClick={onRetry}>
+                  Tentar novamente
+                </Button>
+              </div>
+            )}
+
+            {!loading && !error && categories.length === 0 && (
+              <p className="pt-2 text-sm text-muted-foreground">
+                Esta loja ainda não tem categorias.
+              </p>
+            )}
+
+            {!loading && !error && categories.map((category) => (
               <button
-                key={category.id_category}
+                key={category.id}
                 onClick={() => {
-                  onCategorySelect(category.id_category);
+                  onCategorySelect(category.id);
                   onClose();
                 }}
                 className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
-                  selectedCategory === category.id_category
+                  selectedCategory === category.id
                     ? 'bg-primary text-white'
                     : 'text-foreground hover:bg-primary/10'
                 }`}
@@ -98,4 +118,4 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
       </div>
     </>
   );
-}; 
+};

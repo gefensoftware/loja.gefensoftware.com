@@ -1,0 +1,49 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  # A régua da vitrine, na spec desta fatia: tipos, lint e build limpos. Até
+  # agora isso dependia de alguém lembrar — e é aqui, num projeto que acabou
+  # de migrar de contrato inteiro, que um campo renomeado só aparece em tempo
+  # de execução.
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      # `npm ci`, não `npm install`: instala exatamente o que está no
+      # package-lock.json e falha se ele divergir do package.json. Uma
+      # verificação que resolve versões novas a cada execução mede outra
+      # árvore de dependências a cada execução.
+      - name: dependências
+        run: npm ci
+
+      - name: tipos
+        run: npm run type-check
+
+      - name: lint
+        run: npm run lint
+
+      - name: build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:3000
+
+      # A guarda documentada no README: um build de produção SEM
+      # NEXT_PUBLIC_API_URL tem de falhar. O script tira os arquivos de
+      # ambiente locais do caminho antes de medir — sem isso, o Next carrega
+      # `.env.local` sozinho, a variável volta por ele e a verificação afirma
+      # o contrário do que mediu.
+      - name: guarda de ambiente
+        run: npm run check:env-guard

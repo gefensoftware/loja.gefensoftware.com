@@ -1,7 +1,8 @@
 'use client'
 
-import React, { useState } from 'react';
-import { Product, Prices } from '@/types';
+import React from 'react';
+import type { Product } from '@/types/catalog';
+import { valorEfetivo, temPromocaoVigente, formatarPreco } from '@/lib/price';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -13,14 +14,18 @@ interface ProductCardProps {
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
-  const [selectedPrice] = useState<Prices | undefined>(product.price?.[0]);
+  // A listagem pública já traz preço e imagem principal — nada aqui faz
+  // uma requisição extra por produto.
+  const price = product.prices[0];
+  const image = product.images.find((img) => img.isMain) ?? product.images[0];
 
   const router = useRouter();
   const params = useParams();
   const name_store = params?.name_store as string;
 
   const handleClick = () => {
-    router.push(`/${name_store}/product/${product.id_product}`);
+    // A rota de produto é por código, não por id.
+    router.push(`/${name_store}/product/${product.code}`);
   };
 
   return (
@@ -37,66 +42,45 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 {product.description}
               </p>
             )}
-            {/* <Button 
-            onClick={handleAddToCart}
-            className="w-full bg-primary hover:bg-primary/90 text-white font-medium py-2.5"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Adicionar ao Carrinho
-          </Button> */}
-            {product.price.length > 1 ? (
-              <div className="mb-2">
-                <p className='font-bold text-lg text-primary'>
-                  {product.price.sort((a, b) => a.value - b.value)[0].name + ' - ' + product.price.sort((a, b) => a.value - b.value)[0].value.toFixed(2).replace('.', ',')}
-                </p>
-                {/* <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  Escolha a opção:
-                </label>
-                <Select
-                  value={selectedPrice.id_price}
-                  onValueChange={(value: string) => {
-                    const price = product.price.find(p => p.id_price === value);
-                    if (price) setSelectedPrice(price);
-                  }}
-                >
-                  <SelectTrigger className="w-full border-gray-300 focus:border-primary">
-                    <SelectValue placeholder="Selecione uma opção" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {product.price.map((price) => (
-                      <SelectItem key={price.id_price} value={price.id_price}>
-                        <div className="flex items-center justify-between w-full">
-                          <span>{price.name}</span>
-                          <span className="font-semibold text-primary">
-                            R$ {price.value.toFixed(2).replace('.', ',')}
-                          </span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select> */}
-              </div>
-            ) : (
-              <div className="mb-4">
-                {product.is_budget ? (
-                  <div className="flex items-center gap-2 text-primary">
-                    <Clock className="w-4 h-4" />
-                    <span className="font-semibold">Orçamento</span>
+            <div className="mb-4">
+              {product.isBudget ? (
+                <div className="flex items-center gap-2 text-primary">
+                  <Clock className="w-4 h-4" />
+                  <span className="font-semibold">Orçamento</span>
+                </div>
+              ) : price ? (
+                <div className="text-primary">
+                  {/* Sem o nome do preço o cliente vê um valor solto — ainda
+                      mais quando há várias opções e esta é só a primeira. */}
+                  {price.name && (
+                    <span className="block text-xs text-gray-500">{price.name}</span>
+                  )}
+                  <div className="flex items-baseline gap-2">
+                    {temPromocaoVigente(price) && (
+                      <span className="text-sm text-gray-400 line-through">
+                        {formatarPreco(price.value)}
+                      </span>
+                    )}
+                    <span className="font-bold text-lg">
+                      {formatarPreco(valorEfetivo(price))}
+                    </span>
+                    {product.prices.length > 1 && (
+                      <span className="text-xs text-gray-500">
+                        +{product.prices.length - 1}{' '}
+                        {product.prices.length - 1 === 1 ? 'opção' : 'opções'}
+                      </span>
+                    )}
                   </div>
-                ) : (
-                  <div className="text-primary">
-                    <div className="font-bold text-lg">
-                      {selectedPrice ? `R$ ${selectedPrice.value.toFixed(2).replace('.', ',')}` : 'Preço não disponível'}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
+                </div>
+              ) : (
+                <div className="text-primary font-bold text-lg">Preço não disponível</div>
+              )}
+            </div>
           </div>
           <div className=" relative  flex justify-center items-center overflow-hidden ">
-            {product?.photo_library && product.photo_library.length > 0 ? (
+            {image ? (
               <img
-                src={product.photo_library.find(img => img.is_default)?.location ?? product.photo_library[0].location}
+                src={image.url}
                 alt={product?.title || 'Produto'}
                 className="w-32 h-full rounded-lg object-cover group-hover:scale-105 transition-transform duration-300"
               />
@@ -119,4 +103,4 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       </CardContent>
     </Card>
   );
-}; 
+};

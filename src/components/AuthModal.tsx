@@ -14,7 +14,8 @@ import { Label } from '@/components/ui/label';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { api } from '@/api';
+import { api, apiError } from '@/api';
+import { entrar, mensagemDeErroDeEntrada } from '@/api/auth';
 import { useAtom } from 'jotai';
 import { authAtom } from '@/store/auth';
 import { userAtom } from '@/store/user';
@@ -50,8 +51,8 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 const AuthModal = (props: AuthModalProps) => {
   const { isOpen, onClose } = props;
   const [activeTab, setActiveTab] = useState('login');
-  const [_, setAuth] = useAtom(authAtom);
-  const [user, setUser] = useAtom(userAtom);
+  const [, setAuth] = useAtom(authAtom);
+  const [, setUser] = useAtom(userAtom);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -73,35 +74,44 @@ const AuthModal = (props: AuthModalProps) => {
 
   const onLoginSubmit = async (data: LoginFormData) => {
     try {
-      const {data: auth} = await api.post('/auth', data)
-      console.log(auth);
-      
-
+      const { tokens, user } = await entrar(data);
+      setUser(user);
       setAuth({
-        access_token: auth.access_token,
+        access_token: tokens.accessToken,
         isAuthenticated: true,
-        id_enterprise: auth.id_enterprise
-      })
+        id_enterprise: null,
+      });
 
-      setUser(user)
       onClose()
       toast.success('Login realizado com sucesso!')
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Erro ao fazer login')
+    } catch (error) {
+      toast.error(mensagemDeErroDeEntrada(error));
     }
   };
 
   const onRegisterSubmit = async (data: RegisterFormData) => {
     try {
-      await api.post('/user', data)
+      // POST /users (plural) — é a rota que existe: registerUserRoutes monta
+      // o grupo "/users" e registra o cadastro na raiz dele.
+      await api.post('/users', data)
       await onLoginSubmit({
         email: data.email,
         password: data.password
       })
       onClose()
       toast.success('Cadastro realizado com sucesso!')
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Erro ao fazer cadastro')
+    } catch (error) {
+      // O contrato novo devolve {"error":{"code",...}} com o código em
+      // MAIÚSCULAS; `error.response.data.message` era do contrato antigo e
+      // chegava sempre indefinido.
+      const code = apiError(error);
+      if (code === 'EMAIL_ALREADY_EXISTS') {
+        toast.error('Este email já está cadastrado')
+      } else if (code === 'VALIDATION_ERROR') {
+        toast.error('Confira os dados informados')
+      } else {
+        toast.error('Erro ao fazer cadastro')
+      }
     }
   };
 
