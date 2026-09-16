@@ -15,6 +15,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import AuthModal from '@/components/AuthModal';
+import BudgetRequestPanel from '@/components/BudgetRequestPanel';
 import { toast } from 'react-toastify';
 
 /** Distingue "não existe" de "não deu para saber": 404 é produto inexistente;
@@ -380,22 +381,18 @@ const ProductDetail = () => {
                   ) :
                     product?.isBudget ? (
                       <>
-                        {/* Orçamento indisponível: é um subprojeto próprio,
-                            sem rota nenhuma nesta API — o antigo
-                            `POST request-budget` nunca existiu no contrato
-                            Go e sempre falhava em silêncio. Mesmo tratamento
-                            do agendamento, acima: aviso, sem fingir dado. */}
-                        <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-3">
-                          <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-                          <div>
-                            <p className="text-sm font-medium text-amber-900">
-                              Orçamento temporariamente indisponível
-                            </p>
-                            <p className="text-sm text-amber-800">
-                              Para solicitar um orçamento, fale com a loja pelo WhatsApp.
-                            </p>
-                          </div>
-                        </div>
+                        {/* O pedido de orçamento voltou: a API Go ganhou a
+                            tabela e as rotas que o contrato NestJS antigo
+                            tinha e a migração ainda não. O painel cuida dos
+                            dois lados da conversa — pedir, e responder à
+                            cotação quando a loja mandar o valor. */}
+                        <BudgetRequestPanel
+                          enterpriseId={enterprise?.id}
+                          productId={product.id}
+                          nameStore={name_store}
+                          autenticado={auth.isAuthenticated}
+                          onPrecisaEntrar={() => setIsAuthModalOpen(true)}
+                        />
                         <div className="flex gap-4">
                           <Button
                             onClick={handleWhatsAppOrder}
