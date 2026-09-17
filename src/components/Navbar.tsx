@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname, useParams } from 'next/navigation'
-import { Home, User, ShoppingCart, FileText } from 'lucide-react'
+import { Home, User, ShoppingCart, FileText, Calendar } from 'lucide-react'
 import { useAtom } from 'jotai'
 import { cartCountAtom } from '@/store/cart'
 
@@ -21,6 +21,11 @@ const navItems = (company_name: string) => [
     label: 'Orçamentos',
     to: `/${company_name}/orcamentos`,
     icon: FileText,
+  },
+  {
+    label: 'Agenda',
+    to: `/${company_name}/agendamentos`,
+    icon: Calendar,
   },
   {
     label: 'Perfil',

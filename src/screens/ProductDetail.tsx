@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import AuthModal from '@/components/AuthModal';
 import BudgetRequestPanel from '@/components/BudgetRequestPanel';
+import SchedulePanel from '@/components/SchedulePanel';
 import { toast } from 'react-toastify';
 
 /** Distingue "não existe" de "não deu para saber": 404 é produto inexistente;
@@ -353,21 +354,18 @@ const ProductDetail = () => {
                           ) : 'Preço não disponível'}
                         </span>
                       </p>
-                      {/* Agendamento indisponível: as rotas `/event/enterprise/{slug}`
-                          e `/schedule` não existem mais na API, então o botão abria
-                          um calendário cuja confirmação falhava sempre. Enquanto a
-                          funcionalidade não voltar, o caminho não é oferecido. */}
-                      <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-3">
-                        <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-                        <div>
-                          <p className="text-sm font-medium text-amber-900">
-                            Agendamento temporariamente indisponível
-                          </p>
-                          <p className="text-sm text-amber-800">
-                            Para marcar um horário, fale com a loja pelo WhatsApp.
-                          </p>
-                        </div>
-                      </div>
+                      {/* O agendamento voltou: a API Go ganhou a tabela e as
+                          rotas que faltavam. Os horários são calculados pelo
+                          servidor a partir do expediente menos o que já está
+                          confirmado — esta tela nunca vê a agenda da loja. */}
+                      <SchedulePanel
+                        enterpriseId={enterprise?.id}
+                        nameStore={name_store}
+                        productId={product.id}
+                        productCode={product.code}
+                        autenticado={auth.isAuthenticated}
+                        onPrecisaEntrar={() => setIsAuthModalOpen(true)}
+                      />
                       <Button
                         onClick={handleWhatsAppOrder}
                         variant="outline"
