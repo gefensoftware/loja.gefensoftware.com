@@ -436,22 +436,6 @@ const Profile = () => {
               Sair
             </Button>
           )}
-
-          {/* Único ponto fixo da vitrine em que os documentos ficam sempre
-              alcançáveis: a barra de navegação é só ícones de catálogo, e o
-              aviso do cadastro some depois que a conta existe. */}
-          <div className="flex items-center justify-center gap-3 pb-4 text-xs text-gray-500">
-            <a href="/termos-de-uso" className="hover:text-primary hover:underline">
-              Termos de Uso
-            </a>
-            <span aria-hidden="true">·</span>
-            <a
-              href="/politica-de-privacidade"
-              className="hover:text-primary hover:underline"
-            >
-              Política de Privacidade
-            </a>
-          </div>
         </div>
       </div>
     </div>

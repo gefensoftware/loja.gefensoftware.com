@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { useEmpresa } from '@/store/enterprise'
 import LoadingScreen from '@/components/LoadingScreen'
 import Navbar from '@/components/Navbar'
+import StoreFooter from '@/components/StoreFooter'
 import ClientOnly from '@/components/ClientOnly'
 
 export default function StoreLayoutClient({
@@ -49,6 +50,7 @@ export default function StoreLayoutClient({
       ) : (
         <>
           {children}
+          <StoreFooter />
           <Navbar />
         </>
       )}
