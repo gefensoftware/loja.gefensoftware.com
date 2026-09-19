@@ -338,13 +338,40 @@ const AuthModal = (props: AuthModalProps) => {
                   )}
                 </div>
                 
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   className="w-full bg-primary hover:bg-primary/80 text-white font-medium py-3 rounded-lg transition-all duration-200 transform hover:scale-[1.02] shadow-lg"
                   disabled={registerForm.formState.isSubmitting}
                 >
                   {registerForm.formState.isSubmitting ? 'Cadastrando...' : 'Cadastrar'}
                 </Button>
+
+                {/* O aviso fica junto do botão, e não escondido num rodapé, porque
+                    é neste clique que o cadastro acontece — é aqui que a
+                    informação precisa estar disponível para ser lida. Os links
+                    abrem em nova aba de propósito: o formulário está preenchido,
+                    e navegar para fora o perderia. */}
+                <p className="text-center text-xs leading-relaxed text-gray-500">
+                  Ao criar sua conta, você concorda com os{' '}
+                  <a
+                    href="/termos-de-uso"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-medium text-primary hover:underline"
+                  >
+                    Termos de Uso
+                  </a>{' '}
+                  e com a{' '}
+                  <a
+                    href="/politica-de-privacidade"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-medium text-primary hover:underline"
+                  >
+                    Política de Privacidade
+                  </a>
+                  .
+                </p>
               </form>
             </TabsContent>
           </Tabs>
