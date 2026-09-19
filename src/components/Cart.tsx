@@ -29,6 +29,7 @@ import {
   type EstadoDoCarrinho,
   type LinhaDoCarrinho,
 } from '@/store/cart';
+import { vocabularioDe } from '@/lib/vocabulario';
 import type { Enterprise } from '@/types/catalog';
 
 /**
@@ -346,6 +347,9 @@ export const EnviarPedido: React.FC<{
 }> = ({ carrinho, enterprise, aberta, name_store }) => {
   const itens = linhasDoPedido(carrinho.linhas);
   const telefone = telefoneDeWhatsApp(enterprise?.phones);
+  // "Enviar pedido" numa oficina vira "Enviar solicitação": é a mesma ação,
+  // com o nome que aquele negócio usa.
+  const v = vocabularioDe(enterprise?.mode);
   const bloqueado = !aberta || itens.length === 0 || !telefone;
 
   const enviar = () => {
@@ -372,11 +376,11 @@ export const EnviarPedido: React.FC<{
         className="w-full text-white"
       >
         <MessageCircle className="w-5 h-5 mr-2" />
-        Enviar pedido pelo WhatsApp
+        {v.fechar} pelo WhatsApp
       </Button>
       {!aberta && (
         <p className="text-xs text-gray-600 text-center">
-          A loja está fechada agora. O pedido pode ser enviado quando ela
+          A loja está fechada agora. O envio fica disponível quando ela
           reabrir.
         </p>
       )}

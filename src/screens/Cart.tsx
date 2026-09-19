@@ -10,6 +10,7 @@ import { StatusStore } from '@/components/StatusStore';
 import { useCarrinho } from '@/store/cart';
 import { useEmpresa } from '@/store/enterprise';
 import { estaAberta } from '@/store/open-store';
+import { capacidadesDe, vocabularioDe } from '@/lib/vocabulario';
 
 /**
  * Página do carrinho.
@@ -42,6 +43,10 @@ const CartPage = () => {
 
   const carrinho = useCarrinho(enterprise?.id);
   const aberta = enterprise ? estaAberta(enterprise.hours) : false;
+  // Como esta loja chama a lista do cliente. Loja sem modo escolhido fala a
+  // língua de hoje ("Carrinho"), então nada muda para quem já está no ar.
+  const v = vocabularioDe(enterprise?.mode);
+  const caps = capacidadesDe(enterprise?.capabilities);
 
   const [esvaziando, setEsvaziando] = useState(false);
   const esvaziar = async () => {
@@ -50,7 +55,7 @@ const CartPage = () => {
       await carrinho.esvaziar();
     } catch (erro) {
       console.error('Erro ao esvaziar o carrinho:', erro);
-      toast.error('Não foi possível esvaziar o carrinho.');
+      toast.error(`Não foi possível esvaziar: ${v.lista.toLowerCase()} não pôde ser alterado.`);
     } finally {
       setEsvaziando(false);
     }
@@ -66,10 +71,33 @@ const CartPage = () => {
           Não foi possível carregar a loja
         </h1>
         <p className="text-gray-600 max-w-md mb-6">
-          Sem os dados da loja não dá para mostrar o carrinho nem enviar o
+          Sem os dados da loja não dá para mostrar a lista nem enviar o
           pedido. Seus itens continuam guardados.
         </p>
         <Button onClick={buscarLoja}>Tentar novamente</Button>
+      </div>
+    );
+  }
+
+  // Loja que não trabalha com carrinho não tem esta página. O endereço
+  // continua existindo — link antigo, aba esquecida aberta, busca do
+  // navegador —, e o que ele encontra é uma explicação e um caminho de
+  // volta, não uma tela vazia com um botão de finalizar que não finaliza
+  // nada.
+  if (!carregandoLoja && enterprise && !caps.cart) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-8 text-center">
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">
+          Esta loja não trabalha com pedido direto
+        </h1>
+        <p className="text-gray-600 max-w-md mb-6">
+          {caps.budgets
+            ? `Aqui o atendimento começa por um orçamento: escolha um ${v.item.toLowerCase()} e use "${v.pedirPreco}".`
+            : 'Fale com a loja pelos contatos da página inicial.'}
+        </p>
+        <Button onClick={() => router.push(`/${name_store}`)}>
+          Ver {v.itens.toLowerCase()}
+        </Button>
       </div>
     );
   }
@@ -87,7 +115,7 @@ const CartPage = () => {
             Voltar para o cardápio
           </button>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold text-gray-900">Seu pedido</h1>
+            <h1 className="text-2xl font-bold text-gray-900">{v.listaTitulo}</h1>
             {!carregandoLoja && <StatusStore isOpen={aberta} />}
           </div>
           {enterprise && (
@@ -115,7 +143,7 @@ const CartPage = () => {
               onClick={esvaziar}
               disabled={esvaziando}
             >
-              {esvaziando ? 'Esvaziando...' : 'Esvaziar carrinho'}
+              {esvaziando ? 'Esvaziando...' : v.esvaziar}
             </Button>
           </div>
         ) : (
@@ -124,7 +152,7 @@ const CartPage = () => {
               onClick={() => router.push(`/${name_store}`)}
               className="w-full bg-primary hover:bg-primary/90"
             >
-              Ver produtos
+              Ver {v.itens.toLowerCase()}
             </Button>
           </div>
         )}

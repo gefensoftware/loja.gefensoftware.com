@@ -18,6 +18,7 @@ import AuthModal from '@/components/AuthModal';
 import { authAtom } from '@/store/auth';
 import { userAtom } from '@/store/user';
 import { useCarrinho } from '@/store/cart';
+import { capacidadesDe, vocabularioDe } from '@/lib/vocabulario';
 import { useEmpresa } from '@/store/enterprise';
 import {
   DropdownMenu,
@@ -82,6 +83,10 @@ const Products = () => {
   // dispara quando o cliente entra na conta.
   const carrinho = useCarrinho(loja?.id);
   const cartItemsCount = carrinho.contagem;
+  // O que esta loja tem ligado e como ela chama a lista do cliente. Loja
+  // ainda sem modo escolhido fala a língua de hoje: "Carrinho".
+  const caps = capacidadesDe(loja?.capabilities);
+  const v = vocabularioDe(loja?.mode);
 
   useEffect(() => {
     // Só adicionar event listeners se estivermos no cliente
@@ -440,8 +445,9 @@ const Products = () => {
               </Select>
             )}
 
-            {/* Cart Button */}
+            {/* Cart Button — só na loja que trabalha com pedido direto. */}
             <div className="flex items-center max-md:justify-between max-md:w-full md:gap-3">
+            {caps.cart && (
             <Button
               variant="outline"
               size="sm"
@@ -449,13 +455,14 @@ const Products = () => {
               onClick={() => setIsCartOpen(true)}
             >
               <ShoppingCart className="h-4 w-4 mr-2" />
-              Carrinho
+              {v.lista}
               {cartItemsCount > 0 && (
                 <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                   {cartItemsCount}
                 </span>
               )}
             </Button>
+            )}
 
             {/* User Menu */}
             {auth.isAuthenticated ? (
@@ -628,7 +635,7 @@ const Products = () => {
         <div className="h-full flex flex-col">
           <div className="p-6 border-b bg-gray-50">
             <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold text-gray-900">Seu Pedido</h2>
+              <h2 className="text-xl font-semibold text-gray-900">{v.listaTitulo}</h2>
               <Button
                 variant="ghost"
                 size="icon"
@@ -653,7 +660,7 @@ const Products = () => {
         <div className="h-full flex flex-col">
           <div className="p-4 border-b bg-gray-50">
             <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold text-gray-900">Seu Pedido</h2>
+              <h2 className="text-xl font-semibold text-gray-900">{v.listaTitulo}</h2>
               <Button
                 variant="ghost"
                 size="icon"
