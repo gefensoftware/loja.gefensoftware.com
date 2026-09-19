@@ -38,6 +38,13 @@ export default function PaginaLegal({ documento }: { documento: DocumentoLegal }
               <dt className="font-medium text-gray-700">Última atualização:</dt>
               <dd>{documento.atualizadoEm}</dd>
             </div>
+            {/* A versão fica visível porque é o que se grava no aceite: quem
+                quiser conferir o que aceitou precisa conseguir comparar o
+                identificador com o que está no ar. */}
+            <div className="flex gap-1.5">
+              <dt className="font-medium text-gray-700">Versão:</dt>
+              <dd>{documento.versao}</dd>
+            </div>
           </dl>
         </div>
       </header>

@@ -18,5 +18,11 @@ export type DocumentoLegal = {
   resumo: string;
   vigencia: string;
   atualizadoEm: string;
+  /**
+   * Identificador da versão deste texto, gravado junto do aceite. Fica no
+   * documento, e não só no componente que o exibe, porque quem grava o
+   * aceite precisa dele sem depender da renderização.
+   */
+  versao: string;
   secoes: SecaoLegal[];
 };

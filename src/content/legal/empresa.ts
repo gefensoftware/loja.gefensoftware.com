@@ -19,12 +19,12 @@ export const EMPRESA = {
     'Curitiba/PR, CEP 80.420-210',
 
   /** Canal geral de atendimento — dúvidas sobre os Termos, conta, suporte. */
-  emailContato: '[E-MAIL DE CONTATO]',
+  emailContato: 'gefensoftware@gmail.com',
 
   /** Canal do Encarregado (DPO), art. 41 da LGPD. Pode ser o mesmo endereço
    *  do contato geral, mas precisa estar publicado de forma clara e atender
    *  os pedidos de titular nos prazos do art. 19. */
-  emailEncarregado: '[E-MAIL DO ENCARREGADO]',
+  emailEncarregado: 'gefensoftware@gmail.com',
   nomeEncarregado: '[NOME DO ENCARREGADO]',
 
   site: 'https://gefensoftware.com',
@@ -46,6 +46,27 @@ export const ULTIMA_ATUALIZACAO = '19 de setembro de 2026';
  * com "[E-MAIL DO ENCARREGADO]" é pior do que não ter o documento, porque
  * anuncia um canal que não existe.
  */
+/**
+ * Identificador da versão de cada documento. É o que fica gravado no aceite,
+ * e é ele que dá sentido ao registro: "aceitou em 19/09/2026" não diz o que
+ * estava escrito naquele dia; "aceitou a versão 2026-09-19" diz.
+ *
+ * O histórico do texto não vive aqui — vive no git. Estas constantes são o
+ * ponteiro: dada uma versão, o texto correspondente é o de
+ * `src/content/legal/` no commit em que a constante passou a valer.
+ *
+ * REGRA: mudou o corpo do documento, muda a versão dele. Alterar a redação
+ * sem trocar a versão faz dois textos diferentes responderem pelo mesmo
+ * identificador — e aí o registro de aceite deixa de provar qualquer coisa.
+ * Correção de digitação que não altera o sentido pode ficar, desde que seja
+ * mesmo isso.
+ *
+ * Formato ISO (AAAA-MM-DD), não a data por extenso de VIGENCIA: este valor
+ * atravessa a API e um banco, onde ordenação e comparação importam.
+ */
+export const TERMOS_VERSAO = '2026-09-19';
+export const PRIVACIDADE_VERSAO = '2026-09-19';
+
 export const PENDENCIAS = Object.entries({ ...EMPRESA, VIGENCIA, ULTIMA_ATUALIZACAO })
   .filter(([, valor]) => typeof valor === 'string' && valor.startsWith('['))
   .map(([chave]) => chave);

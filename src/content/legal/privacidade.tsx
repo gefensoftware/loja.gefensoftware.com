@@ -1,4 +1,4 @@
-import { EMPRESA, VIGENCIA, ULTIMA_ATUALIZACAO } from './empresa';
+import { EMPRESA, VIGENCIA, ULTIMA_ATUALIZACAO, PRIVACIDADE_VERSAO } from './empresa';
 import type { DocumentoLegal } from './tipos';
 
 /**
@@ -24,6 +24,7 @@ export const politicaDePrivacidade: DocumentoLegal = {
     'direitos sob a LGPD. Não coletamos dados de pagamento.',
   vigencia: VIGENCIA,
   atualizadoEm: ULTIMA_ATUALIZACAO,
+  versao: PRIVACIDADE_VERSAO,
   secoes: [
     {
       id: 'quem-trata',

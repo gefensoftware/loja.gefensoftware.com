@@ -1,4 +1,4 @@
-import { EMPRESA, VIGENCIA, ULTIMA_ATUALIZACAO } from './empresa';
+import { EMPRESA, VIGENCIA, ULTIMA_ATUALIZACAO, TERMOS_VERSAO } from './empresa';
 import type { DocumentoLegal } from './tipos';
 
 /**
@@ -25,6 +25,7 @@ export const termosDeUso: DocumentoLegal = {
     'é o estabelecimento cujo catálogo você está acessando.',
   vigencia: VIGENCIA,
   atualizadoEm: ULTIMA_ATUALIZACAO,
+  versao: TERMOS_VERSAO,
   secoes: [
     {
       id: 'aceitacao',

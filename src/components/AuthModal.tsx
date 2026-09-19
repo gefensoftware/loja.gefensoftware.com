@@ -11,10 +11,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useForm } from 'react-hook-form';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { api, apiError } from '@/api';
+import { TERMOS_VERSAO, PRIVACIDADE_VERSAO } from '@/content/legal/empresa';
 import { entrar, mensagemDeErroDeEntrada } from '@/api/auth';
 import { useAtom } from 'jotai';
 import { authAtom } from '@/store/auth';
@@ -40,6 +42,12 @@ const registerSchema = z.object({
   email: z.string().email('Email inválido'),
   password: z.string().min(6, 'A senha deve ter no mínimo 6 caracteres'),
   confirmPassword: z.string(),
+  // Aceite explícito, não presumido do clique em "Cadastrar". O que se grava
+  // é este ato: marcar a caixa é o que distingue prova de aceite de prova de
+  // que a pessoa passou por uma tela.
+  aceite: z.literal(true, {
+    errorMap: () => ({ message: 'É preciso aceitar os Termos de Uso para criar a conta' }),
+  }),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "As senhas não coincidem",
   path: ["confirmPassword"],
@@ -62,6 +70,10 @@ const AuthModal = (props: AuthModalProps) => {
 
   const registerForm = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
+    // `aceite` precisa nascer false: sem valor inicial o Controller entrega
+    // undefined ao Radix, que passa a tratar a caixa como não controlada e
+    // deixa de refletir o estado do formulário.
+    defaultValues: { aceite: false as unknown as true },
   });
 
   const formatPhoneNumber = (value: string) => {
@@ -93,7 +105,19 @@ const AuthModal = (props: AuthModalProps) => {
     try {
       // POST /users (plural) — é a rota que existe: registerUserRoutes monta
       // o grupo "/users" e registra o cadastro na raiz dele.
-      await api.post('/users', data)
+      //
+      // Payload montado campo a campo, e não `data` inteiro: `aceite` e
+      // `confirmPassword` são estado do formulário, não do cadastro. O que a
+      // API precisa saber do aceite são as VERSÕES exibidas — a caixa
+      // marcada já é pré-requisito para chegar aqui.
+      await api.post('/users', {
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        password: data.password,
+        termsVersion: TERMOS_VERSAO,
+        privacyVersion: PRIVACIDADE_VERSAO,
+      })
       await onLoginSubmit({
         email: data.email,
         password: data.password
@@ -338,40 +362,74 @@ const AuthModal = (props: AuthModalProps) => {
                   )}
                 </div>
                 
+                {/* A caixa vem ANTES do botão: é pré-requisito do cadastro,
+                    não rodapé informativo. Os links abrem em nova aba de
+                    propósito — o formulário está preenchido, e navegar para
+                    fora o perderia.
+
+                    A redação separa os dois documentos porque eles são
+                    diferentes: os Termos são contrato, e se aceitam; a
+                    Política informa como os dados são tratados com base em
+                    execução de contrato e legítimo interesse, não em
+                    consentimento — dizer "concordo com a Política" afirmaria
+                    uma base legal que o próprio documento não usa. */}
+                <div className="space-y-2">
+                  <div className="flex items-start gap-3">
+                    <Controller
+                      name="aceite"
+                      control={registerForm.control}
+                      render={({ field }) => (
+                        <Checkbox
+                          id="aceite"
+                          checked={field.value}
+                          onCheckedChange={(marcado) => field.onChange(marcado === true)}
+                          onBlur={field.onBlur}
+                          ref={field.ref}
+                          className="mt-0.5"
+                          aria-describedby="aceite-erro"
+                        />
+                      )}
+                    />
+                    <Label
+                      htmlFor="aceite"
+                      className="text-xs font-normal leading-relaxed text-gray-600"
+                    >
+                      Li e aceito os{' '}
+                      <a
+                        href="/termos-de-uso"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-medium text-primary hover:underline"
+                      >
+                        Termos de Uso
+                      </a>{' '}
+                      e estou ciente da{' '}
+                      <a
+                        href="/politica-de-privacidade"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-medium text-primary hover:underline"
+                      >
+                        Política de Privacidade
+                      </a>
+                      .
+                    </Label>
+                  </div>
+                  {registerForm.formState.errors.aceite && (
+                    <p id="aceite-erro" className="text-sm text-red-500 flex items-center gap-1">
+                      <span className="w-1 h-1 bg-red-500 rounded-full"></span>
+                      {registerForm.formState.errors.aceite.message}
+                    </p>
+                  )}
+                </div>
+
                 <Button
                   type="submit"
                   className="w-full bg-primary hover:bg-primary/80 text-white font-medium py-3 rounded-lg transition-all duration-200 transform hover:scale-[1.02] shadow-lg"
-                  disabled={registerForm.formState.isSubmitting}
+                  disabled={registerForm.formState.isSubmitting || !registerForm.watch('aceite')}
                 >
                   {registerForm.formState.isSubmitting ? 'Cadastrando...' : 'Cadastrar'}
                 </Button>
-
-                {/* O aviso fica junto do botão, e não escondido num rodapé, porque
-                    é neste clique que o cadastro acontece — é aqui que a
-                    informação precisa estar disponível para ser lida. Os links
-                    abrem em nova aba de propósito: o formulário está preenchido,
-                    e navegar para fora o perderia. */}
-                <p className="text-center text-xs leading-relaxed text-gray-500">
-                  Ao criar sua conta, você concorda com os{' '}
-                  <a
-                    href="/termos-de-uso"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="font-medium text-primary hover:underline"
-                  >
-                    Termos de Uso
-                  </a>{' '}
-                  e com a{' '}
-                  <a
-                    href="/politica-de-privacidade"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="font-medium text-primary hover:underline"
-                  >
-                    Política de Privacidade
-                  </a>
-                  .
-                </p>
               </form>
             </TabsContent>
           </Tabs>
