@@ -81,7 +81,19 @@ export const Navbar = () => {
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t shadow-sm flex justify-around md:justify-center px-4 py-2 md:py-3 md:px-8 gap-8 md:gap-4 print:hidden">
       {itens.map((item) => {
         const Icon = item.icon;
-        const isActive = pathname === item.to;
+        // Prefixo, não igualdade: o Perfil ganhou sub-rotas
+        // (/profile/dados, /senha, /foto) e com comparação exata o item
+        // apagava assim que a pessoa entrava numa delas — a barra deixava
+        // de dizer onde ela estava.
+        //
+        // A Home é a exceção, e é por isso que não dá para trocar a
+        // comparação para todos: `/${name_store}` é prefixo de TODAS as outras
+        // rotas da vitrine, então por prefixo ela ficaria acesa o tempo
+        // todo, inclusive junto com o item realmente ativo.
+        const isActive =
+          item.to === `/${name_store}`
+            ? pathname === item.to
+            : pathname === item.to || pathname?.startsWith(`${item.to}/`);
 
         return (
           <Link
