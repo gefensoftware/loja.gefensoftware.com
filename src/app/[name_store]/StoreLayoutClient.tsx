@@ -6,6 +6,7 @@ import LoadingScreen from '@/components/LoadingScreen'
 import Navbar from '@/components/Navbar'
 import StoreFooter from '@/components/StoreFooter'
 import ClientOnly from '@/components/ClientOnly'
+import ScriptAdsense from '@/components/anuncios/ScriptAdsense'
 
 export default function StoreLayoutClient({
   children,
@@ -44,6 +45,8 @@ export default function StoreLayoutClient({
   }, [empresa?.theme])
 
   return (
+    <>
+    <ScriptAdsense />
     <ClientOnly fallback={<LoadingScreen />}>
       {carregando ? (
         <LoadingScreen enterpriseName={empresa?.name} />
@@ -55,5 +58,6 @@ export default function StoreLayoutClient({
         </>
       )}
     </ClientOnly>
+    </>
   )
 }
