@@ -18,6 +18,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import AuthModal from '@/components/AuthModal';
 import BudgetRequestPanel from '@/components/BudgetRequestPanel';
 import SchedulePanel from '@/components/SchedulePanel';
+import EspacoAnuncio from '@/components/anuncios/EspacoAnuncio';
 import { toast } from 'react-toastify';
 
 /** Distingue "não existe" de "não deu para saber": 404 é produto inexistente;
@@ -343,6 +344,8 @@ const ProductDetail = () => {
               <h2 className="text-2xl font-semibold text-gray-900 mb-2">Descrição</h2>
               <p className="text-gray-700">{product?.description}</p>
             </div>
+
+            <EspacoAnuncio posicao="produto" />
 
             <div>
               <h2 className="text-2xl font-semibold text-gray-900 mb-4">

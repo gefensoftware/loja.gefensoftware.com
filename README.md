@@ -100,6 +100,41 @@ push e pull request. O projeto não tem suíte de testes: o compilador de tipos
 contra `src/types/catalog.ts` é o que pega um campo renomeado no contrato da
 API antes de ele aparecer só em tempo de execução.
 
+## 📢 Anúncios
+
+A vitrine está preparada para exibir anúncios do Google AdSense, mas eles
+vêm **desligados**. Tudo depende de variáveis de ambiente, lidas no build:
+
+| Variável | Para quê |
+| --- | --- |
+| `NEXT_PUBLIC_ADSENSE_CLIENT` | ID do editor (`ca-pub-...`). Sem ela, nada de anúncio é carregado. |
+| `NEXT_PUBLIC_ADSENSE_SLOT_VITRINE` | Bloco entre a 1ª e a 2ª categoria da página da loja. |
+| `NEXT_PUBLIC_ADSENSE_SLOT_PRODUTO` | Bloco abaixo da descrição, na página do produto. |
+
+- Posição sem slot configurado não aparece (nem deixa espaço em branco).
+- O script só carrega nas páginas das lojas (`/[name_store]`), nunca nas
+  páginas legais.
+- `/ads.txt` é gerado a partir de `NEXT_PUBLIC_ADSENSE_CLIENT`; sem ela, 404.
+- Um `NEXT_PUBLIC_ADSENSE_CLIENT` fora do formato `ca-pub-<dígitos>` faz o
+  build de produção falhar.
+
+Código: `src/lib/anuncios.ts`, `src/components/anuncios/` e
+`src/app/ads.txt/route.ts`.
+
+### ⚠️ Antes de ligar
+
+A Política de Privacidade (`src/content/legal/privacidade.tsx`) diz hoje que
+a plataforma **não** usa cookies de publicidade nem rastreamento de terceiros.
+O AdSense usa os dois. Ligar os anúncios sem mudar isso deixa a política
+falsa. Antes de definir a variável em produção:
+
+1. Revisar a Política de Privacidade (e os Termos, se for o caso) e
+   subir a versão dos documentos.
+2. Colocar um aviso de consentimento de cookies (LGPD). No AdSense, a opção
+   é uma CMP certificada pelo Google (a "Mensagens de privacidade" do próprio
+   painel serve).
+3. Cadastrar e verificar o domínio `loja.gefensoftware.com` no AdSense.
+
 ## 🛠️ Como Executar
 
 ### Instalação

@@ -11,6 +11,7 @@ import { CategorySidebar } from '@/components/CategorySidebar';
 import { AlertTriangle, Tag } from 'lucide-react';
 import { ProductSkeletonGrid } from '@/components/ProductSkeleton';
 import { ProductCard } from '@/components/ProductCard';
+import EspacoAnuncio from '@/components/anuncios/EspacoAnuncio';
 import { Button } from '@/components/ui/button';
 import { User, LogOut, ShoppingCart, X, MapPin } from 'lucide-react';
 import AuthModal from '@/components/AuthModal';
@@ -560,10 +561,13 @@ const Products = () => {
         ) : (
           <>
             {/* Produtos por Categoria */}
-            {Object.entries(productsByCategory).map(([categoryId, data]) => {
+            {Object.entries(productsByCategory).map(([categoryId, data], indice) => {
               const { category, products: categoryProducts } = data;
               return (
                 <div key={categoryId} id={`category-${categoryId}`}>
+                  {/* Um único anúncio, entre a primeira e a segunda categoria:
+                      o cliente vê produto antes de ver propaganda. */}
+                  {indice === 1 && <EspacoAnuncio posicao="vitrine" className="mb-10" />}
                   {/* Título da Categoria */}
                   <h2 className="text-2xl font-bold text-gray-900 mb-4">{category.name}</h2>
                   {/* Grid de Produtos */}
@@ -578,6 +582,11 @@ const Products = () => {
             {/* Produtos que não caíram em nenhum grupo de categoria */}
             {uncategorizedProducts.length > 0 && (
               <div>
+                {/* Loja com uma categoria só (ou nenhuma) não passa pelo
+                    índice 1 acima; o anúncio vem antes deste grupo. */}
+                {Object.keys(productsByCategory).length === 1 && (
+                  <EspacoAnuncio posicao="vitrine" className="mb-10" />
+                )}
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">Outros Produtos</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
                   {uncategorizedProducts.map((product) => (
