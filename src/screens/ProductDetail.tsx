@@ -11,6 +11,7 @@ import { useAtom } from 'jotai';
 import { authAtom } from '@/store/auth';
 import { CarrinhoNaoCarregado, useCarrinho } from '@/store/cart';
 import { useEmpresa } from '@/store/enterprise';
+import { capacidadesDe, vocabularioDe } from '@/lib/vocabulario';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -63,6 +64,17 @@ const ProductDetail = () => {
   // O carrinho da loja assim que a empresa é conhecida: local enquanto
   // anônimo, do servidor depois do login.
   const carrinho = useCarrinho(enterprise?.id);
+
+  // O que esta loja tem ligado, e como ela chama as coisas.
+  const caps = capacidadesDe(enterprise?.capabilities);
+  const v = vocabularioDe(enterprise?.mode);
+
+  // As marcações do produto só valem DENTRO do que a loja ligou. Um produto
+  // marcado "sob orçamento" numa loja que desligou o módulo mantém a
+  // marcação gravada — religar devolve tudo como estava —, mas a vitrine não
+  // oferece um botão que levaria a uma tela que a loja não atende.
+  const agendavel = !!product?.forSchedule && caps.appointments;
+  const sobOrcamento = !!product?.isBudget && caps.budgets;
 
   // O título da aba acompanha a empresa assim que ela chega, venha da rede ou
   // do átomo já preenchido pela tela anterior.
@@ -145,7 +157,7 @@ const ProductDetail = () => {
     }
 
     if (!product || !selectedPrice) {
-      toast.error('Escolha uma opção de preço antes de adicionar ao carrinho.');
+      toast.error(`Escolha uma opção de preço antes de adicionar.`);
       return;
     }
 
@@ -338,7 +350,7 @@ const ProductDetail = () => {
               </h2>
               <div className="bg-gray-50 rounded-lg p-6 space-y-4">
                 {
-                  product?.forSchedule ? (
+                  agendavel ? (
                     <div className="flex justify-between gap-4 flex-col">
                       <p>
                         <span className="text-primary text-2xl font-semibold">
@@ -377,7 +389,7 @@ const ProductDetail = () => {
                       </Button>
                     </div>
                   ) :
-                    product?.isBudget ? (
+                    sobOrcamento ? (
                       <>
                         {/* O pedido de orçamento voltou: a API Go ganhou a
                             tabela e as rotas que o contrato NestJS antigo
@@ -478,6 +490,11 @@ const ProductDetail = () => {
                             </div>
                           ) : (
                             <div className="flex gap-4 max-md:flex-col">
+                              {/* Loja sem carrinho não mostra o botão de
+                                  adicionar: o WhatsApp ao lado continua
+                                  sendo o caminho, e era o que já acontecia
+                                  em produto do tipo serviço. */}
+                              {caps.cart && (
                               <Button
                                 onClick={handleAddToCart}
                                 className="flex-1 text-white"
@@ -493,9 +510,10 @@ const ProductDetail = () => {
                               >
                                 <ShoppingCart className="w-5 h-5 mr-2" />
                                 {carrinho.carregando && !carrinho.pronto
-                                  ? 'Carregando carrinho...'
-                                  : 'Adicionar ao Carrinho'}
+                                  ? `Carregando ${v.lista.toLowerCase()}...`
+                                  : v.adicionar}
                               </Button>
+                              )}
                               <Button
                                 onClick={handleWhatsAppOrder}
                                 variant="outline"

@@ -186,6 +186,30 @@ export interface AdminRef {
   email: string;
 }
 
+// OperationMode é como a loja trabalha, e é o que dá nome às coisas na
+// vitrine: `products` fala "Carrinho" e "Finalizar compra", `services` fala
+// "Orçamento", `maintenance` fala "Solicitação de serviço" e "Equipamento".
+// Ver src/lib/vocabulario.ts — o texto vive lá, não na API.
+//
+// `null` é um estado real, e não um descuido: a loja existe e o lojista
+// ainda não escolheu o perfil no portal. A vitrine lê o nulo como
+// `products`, que é o que toda loja mostra hoje.
+export type OperationMode = 'products' | 'services' | 'maintenance';
+
+// Capabilities é o que a loja tem ligado. Espelha `capabilitiesDTO` em
+// internal/adapters/in/http/enterprise_dto.go.
+//
+// É o que decide se o ícone do carrinho existe, se o botão de pedir preço
+// aparece e se o seletor de horário é mostrado. As marcações por produto
+// (`isBudget`, `forSchedule`) continuam decidindo item a item DENTRO do que
+// a loja ligou.
+export interface Capabilities {
+  cart: boolean;
+  budgets: boolean;
+  appointments: boolean;
+  workOrders: boolean;
+}
+
 export interface Enterprise {
   id: string;
   name: string;
@@ -201,6 +225,8 @@ export interface Enterprise {
   phones: ContactPhone[];
   theme: Theme;
   hours: BusinessDay[];
+  mode: OperationMode | null;
+  capabilities: Capabilities;
   // Só presente quando o chamador tem permissão para ver administradores
   // (a rota pública nunca inclui).
   admins?: AdminRef[];
