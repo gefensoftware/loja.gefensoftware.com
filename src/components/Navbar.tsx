@@ -78,7 +78,12 @@ export const Navbar = () => {
     // print:hidden porque a nota da ordem de serviço é uma página desta
     // mesma vitrine: sem isso, a barra de navegação sairia impressa no pé
     // do papel que o cliente guarda.
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t shadow-sm flex justify-around md:justify-center px-4 py-2 md:py-3 md:px-8 gap-8 md:gap-4 print:hidden">
+    // A barra do celular divide a largura entre os itens em vez de somar
+    // larguras naturais mais `gap`: com as quatro capacidades ligadas são seis
+    // itens, e o espaçamento fixo levava a barra a 611px num aparelho de
+    // 375px — "Serviços" e "Perfil" ficavam fora da tela, sem rolagem que os
+    // alcançasse. No md para cima nada muda: a barra volta a ser centrada.
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t shadow-sm flex justify-around md:justify-center px-1 md:px-8 py-2 md:py-3 gap-0 md:gap-4 print:hidden">
       {itens.map((item) => {
         const Icon = item.icon;
         // Prefixo, não igualdade: o Perfil ganhou sub-rotas
@@ -99,17 +104,24 @@ export const Navbar = () => {
           <Link
             key={item.to}
             href={item.to}
-            className={`flex flex-col items-center gap-1 px-3 py-1 rounded-md transition-colors duration-150 relative ${
+            className={`flex min-w-0 flex-1 md:flex-none flex-col items-center gap-1 px-0 md:px-3 py-1 rounded-md transition-colors duration-150 ${
               isActive ? 'text-primary font-bold' : 'text-gray-500 hover:text-primary'
             }`}
           >
-            <Icon className="w-6 h-6" />
-            <span className="text-xs md:text-sm">{item.label}</span>
-            {item.contador && cartItemsCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                {cartItemsCount}
-              </span>
-            )}
+            {/* O contador acompanha o ícone, não a caixa do item: com os itens
+                ocupando frações iguais da largura, ancorado na caixa ele
+                flutuava longe do carrinho. */}
+            <span className="relative">
+              <Icon className="w-6 h-6" />
+              {item.contador && cartItemsCount > 0 && (
+                <span className="absolute -top-1 -right-2 bg-red-500 text-white text-[10px] md:text-xs rounded-full w-4 h-4 md:w-5 md:h-5 flex items-center justify-center">
+                  {cartItemsCount}
+                </span>
+              )}
+            </span>
+            <span className="w-full truncate text-center text-[10px] leading-tight tracking-tight sm:text-xs md:text-sm md:tracking-normal">
+              {item.label}
+            </span>
           </Link>
         );
       })}

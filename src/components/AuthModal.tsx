@@ -141,7 +141,7 @@ const AuthModal = (props: AuthModalProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[90%] p-0 overflow-hidden bg-gradient-to-br from-white to-gray-50 border-0 shadow-2xl rounded-lg">
+      <DialogContent className="w-[calc(100%-2rem)] max-h-[90dvh] overflow-y-auto p-0 bg-gradient-to-br from-white to-gray-50 border-0 shadow-2xl rounded-lg">
         <div className="bg-primary px-6 py-4 text-white">
           <DialogHeader className="text-center">
             <DialogTitle className="text-2xl font-bold">Bem-vindo!</DialogTitle>

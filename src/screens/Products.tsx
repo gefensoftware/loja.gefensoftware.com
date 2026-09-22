@@ -360,10 +360,13 @@ const Products = () => {
                 />
               </div>
 
-              {/* Select de categorias */}
+              {/* Select de categorias — no celular ele divide a linha com a
+                  busca, e cada pixel que ele toma sai de lá. Não dá para
+                  escondê-lo: é o único caminho para as categorias no
+                  telefone. */}
               {categories.length > 0 && (
                 <Select value={selectedCategory || ''} onValueChange={handleCategorySelect}>
-                  <SelectTrigger className="w-40 flex-shrink-0 max-md:w-32">
+                  <SelectTrigger className="w-40 flex-shrink-0 max-md:w-28">
                     <SelectValue placeholder="Categorias..." />
                   </SelectTrigger>
                   <SelectContent>
@@ -375,8 +378,13 @@ const Products = () => {
               )}
             </div>
 
-            {/* Status da loja */}
-            <StatusStore isOpen={isOpen} />
+            {/* Status da loja. Some no celular: este cabeçalho tem uma linha
+                só, e com o selo aqui sobravam 78px para a busca — 38 deles
+                embaixo do ícone da lupa. O mesmo selo continua no cabeçalho
+                da loja, logo abaixo. */}
+            <span className="max-md:hidden">
+              <StatusStore isOpen={isOpen} />
+            </span>
           </div>
         </div>
       </div>
@@ -395,7 +403,9 @@ const Products = () => {
     )}
 
     {/* Fixed Header */}
-    <header className={`sticky bg-white shadow-sm border-b max-md:rounded-t-xl -mt-4 transition-all duration-300 ${isScrolled ? 'py-2' : 'py-4'}`}>
+    <header className={`sticky bg-white shadow-sm border-b transition-all duration-300 ${
+      loja?.bannerUrl ? 'max-md:rounded-t-xl -mt-4' : ''
+    } ${isScrolled ? 'py-2' : 'py-4'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
           {/* Store Info */}
@@ -404,7 +414,12 @@ const Products = () => {
               <img
                 src={loja.logoUrl}
                 alt="Logo"
-                className="w-16 h-16 rounded-full object-cover max-md:w-24 max-md:h-24 max-md:-mt-14"
+                // O recuo negativo existe para o logo montar no banner. Sem
+                // banner ele subia 56px acima do topo da página, e mais da
+                // metade do logo ficava cortada.
+                className={`w-16 h-16 rounded-full object-cover max-md:w-24 max-md:h-24 ${
+                  loja?.bannerUrl ? 'max-md:-mt-14' : ''
+                }`}
               />
             )}
             <div className='flex flex-col gap-2'>
@@ -571,7 +586,11 @@ const Products = () => {
                   {/* Título da Categoria */}
                   <h2 className="text-2xl font-bold text-gray-900 mb-4">{category.name}</h2>
                   {/* Grid de Produtos */}
-                  <div className="grid  gap-6 grid-cols-1 sm:grid-cols-2 ">
+                  {/* Mesma grade do esqueleto e do grupo "Outros Produtos":
+                      parando em duas colunas, a tela de 1440px mostrava cards
+                      de 608px, e o esqueleto de quatro colunas virava
+                      conteúdo de duas. */}
+                  <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     {categoryProducts.map((product) => (
                       <ProductCard key={product.id} product={product} />
                     ))}
@@ -588,7 +607,7 @@ const Products = () => {
                   <EspacoAnuncio posicao="vitrine" className="mb-10" />
                 )}
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">Outros Produtos</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                   {uncategorizedProducts.map((product) => (
                     <ProductCard key={product.id} product={product} />
                   ))}
@@ -640,7 +659,10 @@ const Products = () => {
 
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
 
-      <div className={`hidden lg:block fixed inset-y-0 right-0 w-96 bg-white shadow-xl transform transition-transform duration-300 ease-in-out z-50 ${isCartOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+      {/* O painel para acima da Navbar (`fixed bottom-0`, mesmo z-50 e depois
+          no DOM): indo até o fim da tela, o botão de enviar o pedido e o link
+          do carrinho completo ficavam atrás da barra. */}
+      <div className={`hidden lg:block fixed top-0 bottom-24 right-0 w-96 bg-white shadow-xl transform transition-transform duration-300 ease-in-out z-50 ${isCartOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         <div className="h-full flex flex-col">
           <div className="p-6 border-b bg-gray-50">
             <div className="flex justify-between items-center">
@@ -665,7 +687,7 @@ const Products = () => {
       </div>
 
       {/* Cart Sidebar - Mobile */}
-      <div className={`lg:hidden fixed inset-0 bg-white z-50 transform transition-transform duration-300 ease-in-out ${isCartOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+      <div className={`lg:hidden fixed inset-x-0 top-0 bottom-20 bg-white z-50 transform transition-transform duration-300 ease-in-out ${isCartOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         <div className="h-full flex flex-col">
           <div className="p-4 border-b bg-gray-50">
             <div className="flex justify-between items-center">
