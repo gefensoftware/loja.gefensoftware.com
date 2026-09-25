@@ -72,6 +72,20 @@ const VOCABULARIOS: Record<OperationMode, Vocabulario> = {
     pedirPreco: 'Solicitar atendimento',
     objeto: 'Equipamento',
   },
+  // A oficina fala igual à manutenção, com uma palavra trocada: quem entra
+  // na vitrine dela chegou com um VEÍCULO, não com um "equipamento". O resto
+  // do fluxo é o mesmo, e é por isso que só o objeto muda.
+  workshop: {
+    lista: 'Solicitação',
+    listaTitulo: 'Sua solicitação de serviço',
+    adicionar: 'Adicionar à solicitação',
+    esvaziar: 'Limpar solicitação',
+    fechar: 'Enviar solicitação',
+    item: 'Serviço',
+    itens: 'Serviços',
+    pedirPreco: 'Solicitar atendimento',
+    objeto: 'Veículo',
+  },
 };
 
 /**

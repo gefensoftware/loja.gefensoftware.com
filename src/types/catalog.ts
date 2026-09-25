@@ -194,7 +194,7 @@ export interface AdminRef {
 // `null` é um estado real, e não um descuido: a loja existe e o lojista
 // ainda não escolheu o perfil no portal. A vitrine lê o nulo como
 // `products`, que é o que toda loja mostra hoje.
-export type OperationMode = 'products' | 'services' | 'maintenance';
+export type OperationMode = 'products' | 'services' | 'maintenance' | 'workshop';
 
 // Capabilities é o que a loja tem ligado. Espelha `capabilitiesDTO` em
 // internal/adapters/in/http/enterprise_dto.go.
