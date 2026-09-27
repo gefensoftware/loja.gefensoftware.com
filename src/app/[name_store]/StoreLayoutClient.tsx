@@ -7,6 +7,7 @@ import Navbar from '@/components/Navbar'
 import StoreFooter from '@/components/StoreFooter'
 import ClientOnly from '@/components/ClientOnly'
 import ScriptAdsense from '@/components/anuncios/ScriptAdsense'
+import AvisoConsentimento from '@/components/anuncios/AvisoConsentimento'
 
 export default function StoreLayoutClient({
   children,
@@ -55,6 +56,9 @@ export default function StoreLayoutClient({
           {children}
           <StoreFooter />
           <Navbar />
+          {/* Depois da Navbar: o aviso flutua sobre ela (z-[60]), e a ordem no
+              DOM acompanha a ordem na tela para quem navega por teclado. */}
+          <AvisoConsentimento />
         </>
       )}
     </ClientOnly>

@@ -58,3 +58,50 @@ export function linhaAdsTxt(): string | null {
   const pub = adsenseClient.replace(/^ca-/, '');
   return `google.com, ${pub}, DIRECT, f08c47fec0942fa0`;
 }
+
+// --- Consentimento ---------------------------------------------------------
+//
+// A Política de Privacidade (content/legal/privacidade.tsx, seção "Cookies e
+// armazenamento local") afirma que anúncios personalizados só saem com o
+// consentimento do visitante, e que ele pode mudar ou retirar a escolha pelo
+// link "Preferências de anúncios" no rodapé das lojas. O que está aqui é a
+// metade técnica dessa promessa; a outra metade é o aviso
+// (components/anuncios/AvisoConsentimento.tsx).
+
+/** A resposta do visitante ao aviso de consentimento.
+ *
+ *  Ausência de resposta é `null` em quem lê isto — e não é o mesmo que
+ *  `'recusado'`: as duas servem anúncio não personalizado, mas só a primeira
+ *  ainda deve perguntar. */
+export type EscolhaAnuncios = 'aceito' | 'recusado';
+
+/** Chave da escolha no `localStorage`. A política lista esse armazenamento
+ *  entre os dados que ficam no aparelho ("Escolha sobre anúncios"). */
+export const CHAVE_CONSENTIMENTO = 'anuncios-consentimento';
+
+/** A fila do AdSense. É um array comum até a biblioteca carregar; ela então
+ *  processa o que está na fila e lê as propriedades de configuração
+ *  penduradas nele — `requestNonPersonalizedAds` entre elas. */
+type FilaAdsense = unknown[] & { requestNonPersonalizedAds?: 0 | 1 };
+
+declare global {
+  interface Window {
+    adsbygoogle?: FilaAdsense;
+  }
+}
+
+/**
+ * Marca a fila do AdSense com a escolha do visitante.
+ *
+ * Precisa rodar ANTES do `push({})` que pede o anúncio: o Google lê a
+ * configuração da fila no momento em que a processa, e um bloco já pedido não
+ * volta atrás. Sem resposta — e também com `'recusado'` — vale
+ * `requestNonPersonalizedAds = 1`, porque silêncio não é consentimento
+ * (art. 7º, I da LGPD) e o padrão tem de ser o conservador.
+ */
+export function marcarPreferenciaAnuncios(escolha: EscolhaAnuncios | null): void {
+  if (typeof window === 'undefined') return;
+  const fila: FilaAdsense = window.adsbygoogle ?? [];
+  fila.requestNonPersonalizedAds = escolha === 'aceito' ? 0 : 1;
+  window.adsbygoogle = fila;
+}

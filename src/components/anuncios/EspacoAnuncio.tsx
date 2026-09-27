@@ -1,13 +1,14 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { adsenseClient, slotDaPosicao, type PosicaoAnuncio } from '@/lib/anuncios'
-
-declare global {
-  interface Window {
-    adsbygoogle?: unknown[]
-  }
-}
+import { useAtomValue } from 'jotai'
+import {
+  adsenseClient,
+  marcarPreferenciaAnuncios,
+  slotDaPosicao,
+  type PosicaoAnuncio,
+} from '@/lib/anuncios'
+import { escolhaAnunciosAtom } from '@/store/anuncios'
 
 interface EspacoAnuncioProps {
   posicao: PosicaoAnuncio
@@ -24,6 +25,7 @@ interface EspacoAnuncioProps {
 // abaixo não pular quando ele carrega (CLS).
 export default function EspacoAnuncio({ posicao, className = '' }: EspacoAnuncioProps) {
   const slot = slotDaPosicao(posicao)
+  const escolha = useAtomValue(escolhaAnunciosAtom)
   // O StrictMode do desenvolvimento monta o efeito duas vezes; um segundo
   // `push` para o mesmo <ins> faz o AdSense lançar "already have ads".
   const enviado = useRef(false)
@@ -32,13 +34,18 @@ export default function EspacoAnuncio({ posicao, className = '' }: EspacoAnuncio
     if (!slot || enviado.current) return
     enviado.current = true
     try {
+      // A marcação vem imediatamente antes do `push`, no mesmo bloco
+      // síncrono: é a ordem que garante que o Google leia a escolha ao
+      // processar este pedido. Mudança posterior não reaproveita o bloco — o
+      // aviso recarrega a página (AvisoConsentimento.tsx).
+      marcarPreferenciaAnuncios(escolha)
       ;(window.adsbygoogle = window.adsbygoogle || []).push({})
     } catch (erro) {
       // Bloqueador de anúncio ou script ainda indisponível: o anúncio não
       // aparece, a vitrine segue normal. Não é erro para o cliente ver.
       console.warn('[anuncios] não foi possível preencher o espaço', posicao, erro)
     }
-  }, [slot, posicao])
+  }, [slot, posicao, escolha])
 
   if (!slot || !adsenseClient) return null
 

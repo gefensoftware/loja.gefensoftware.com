@@ -504,6 +504,7 @@ export const termosDeUso: DocumentoLegal = {
             <li>
               <strong>{EMPRESA.razaoSocial}</strong> — CNPJ {EMPRESA.cnpj}
             </li>
+            <li>Responsável: {EMPRESA.nomeResponsavel}</li>
             <li>{EMPRESA.endereco}</li>
             <li>
               E-mail:{' '}
