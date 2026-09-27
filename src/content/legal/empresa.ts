@@ -1,3 +1,5 @@
+import { anunciosAtivos } from '@/lib/anuncios';
+
 // Dados da empresa usados pelos Termos de Uso e pela Política de Privacidade.
 //
 // Ficam num arquivo só de propósito: razão social, CNPJ e endereço aparecem
@@ -25,7 +27,10 @@ export const EMPRESA = {
    *  do contato geral, mas precisa estar publicado de forma clara e atender
    *  os pedidos de titular nos prazos do art. 19. */
   emailEncarregado: 'gefensoftware@gmail.com',
-  nomeEncarregado: '[NOME DO ENCARREGADO]',
+  nomeEncarregado: 'João Gabriel Pinho Brandão',
+
+  /** Responsável pela empresa — aparece no bloco de contato dos Termos. */
+  nomeResponsavel: 'João Gabriel Pinho Brandão',
 
   site: 'https://gefensoftware.com',
   plataforma: 'https://loja.gefensoftware.com',
@@ -65,7 +70,37 @@ export const ULTIMA_ATUALIZACAO = '19 de setembro de 2026';
  * atravessa a API e um banco, onde ordenação e comparação importam.
  */
 export const TERMOS_VERSAO = '2026-09-19';
-export const PRIVACIDADE_VERSAO = '2026-09-19';
+
+/**
+ * A Política tem dois textos, e cada um responde por uma versão: sem
+ * anúncios (o que está no ar) e com anúncios (seções sobre o Google AdSense,
+ * cookies de publicidade e consentimento). Qual deles vale é decidido pela
+ * mesma variável que liga os anúncios (lib/anuncios.ts), para a política
+ * nunca descrever um site diferente do que está publicado — nem negar os
+ * anúncios que aparecem, nem anunciar um consentimento que ainda não existe.
+ *
+ * A vigência do texto com anúncios é a data do deploy que os liga. Ao
+ * ligá-los, ajuste PRIVACIDADE_COM_ANUNCIOS.vigencia para essa data.
+ */
+const PRIVACIDADE_SEM_ANUNCIOS = {
+  versao: '2026-09-19',
+  vigencia: VIGENCIA,
+  atualizadoEm: ULTIMA_ATUALIZACAO,
+} as const;
+
+// A versão continua sendo a `2026-09-21`: o corpo do texto é o mesmo escrito
+// naquele dia. O que mudou em 27/09 não foi a redação, foi a realidade que ela
+// descreve — o aviso de consentimento e o link "Preferências de anúncios"
+// passaram a existir, e os anúncios entraram no ar. Daí a vigência nova com a
+// versão antiga.
+const PRIVACIDADE_COM_ANUNCIOS = {
+  versao: '2026-09-21',
+  vigencia: '27 de setembro de 2026',
+  atualizadoEm: '21 de setembro de 2026',
+} as const;
+
+export const PRIVACIDADE = anunciosAtivos ? PRIVACIDADE_COM_ANUNCIOS : PRIVACIDADE_SEM_ANUNCIOS;
+export const PRIVACIDADE_VERSAO = PRIVACIDADE.versao;
 
 export const PENDENCIAS = Object.entries({ ...EMPRESA, VIGENCIA, ULTIMA_ATUALIZACAO })
   .filter(([, valor]) => typeof valor === 'string' && valor.startsWith('['))

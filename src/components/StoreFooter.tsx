@@ -1,4 +1,5 @@
 import type { JSX } from 'react'
+import LinkPreferencias from '@/components/anuncios/LinkPreferencias'
 
 // Os documentos legais viviam só no Profile e no aviso de cadastro do
 // AuthModal: quem chegava por um link de produto e nunca abria o perfil não
@@ -30,6 +31,7 @@ export default function StoreFooter(): JSX.Element {
       >
         Política de Privacidade
       </a>
+      <LinkPreferencias />
     </footer>
   )
 }
