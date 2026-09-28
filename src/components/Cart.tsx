@@ -43,17 +43,17 @@ const AvisoDoCarrinho: React.FC<{
   onDispensar: () => void;
   children?: React.ReactNode;
 }> = ({ titulo, onDispensar, children }) => (
-  <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start gap-3">
-    <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+  <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 rounded-lg p-4 flex items-start gap-3">
+    <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
     <div className="flex-1">
-      <p className="text-sm font-medium text-amber-900">{titulo}</p>
+      <p className="text-sm font-medium text-amber-900 dark:text-amber-200">{titulo}</p>
       {children}
     </div>
     <button
       type="button"
       onClick={onDispensar}
       aria-label="Dispensar aviso"
-      className="text-amber-700 hover:text-amber-900"
+      className="text-amber-700 dark:text-amber-300 hover:text-amber-900 dark:hover:text-amber-200"
     >
       <X className="w-4 h-4" />
     </button>
@@ -85,7 +85,7 @@ export const AvisoDeDescarte: React.FC<{
     >
       <ul className="mt-1 space-y-1">
         {descartes.map((d) => (
-          <li key={`${d.productId}::${d.priceId}`} className="text-sm text-amber-800">
+          <li key={`${d.productId}::${d.priceId}`} className="text-sm text-amber-800 dark:text-amber-200">
             {d.titulo ? <strong>{d.titulo}</strong> : 'Um produto'}
             {' — '}
             {textoDoDescarte(d.reason)}.
@@ -116,7 +116,7 @@ export const AvisoDeNaoMesclado: React.FC<{
       onDispensar={onDispensar}
       titulo="Os itens que você montou antes de entrar continuam guardados"
     >
-      <p className="mt-1 text-sm text-amber-800">
+      <p className="mt-1 text-sm text-amber-800 dark:text-amber-200">
         Este navegador não permitiu somá-los com segurança ao carrinho da sua
         conta, então eles não foram somados — e nenhum foi perdido. Você pode
         adicioná-los de novo aqui, ou abrir a loja no navegador do seu
@@ -136,7 +136,7 @@ const ItemDoCarrinho: React.FC<{
     className={`flex gap-3 py-4 ${linha.foraDoCardapio ? 'opacity-60' : ''}`}
     data-testid="linha-do-carrinho"
   >
-    <div className="w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
+    <div className="w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100 dark:bg-neutral-800 flex items-center justify-center">
       {linha.product.image ? (
         <img
           src={linha.product.image.url}
@@ -144,21 +144,21 @@ const ItemDoCarrinho: React.FC<{
           className="w-full h-full object-cover"
         />
       ) : (
-        <Tag className="w-6 h-6 text-gray-400" />
+        <Tag className="w-6 h-6 text-gray-400 dark:text-neutral-500" />
       )}
     </div>
 
     <div className="flex-1 min-w-0">
-      <p className="font-medium text-gray-900 truncate">{linha.product.title}</p>
+      <p className="font-medium text-gray-900 dark:text-neutral-100 truncate">{linha.product.title}</p>
       {linha.price.name && (
-        <p className="text-xs text-gray-500">{linha.price.name}</p>
+        <p className="text-xs text-gray-500 dark:text-neutral-400">{linha.price.name}</p>
       )}
-      <p className="text-sm text-gray-600">
+      <p className="text-sm text-gray-600 dark:text-neutral-300">
         {formatarPreco(linha.effectiveValue)} cada
       </p>
 
       {linha.foraDoCardapio ? (
-        <p className="mt-1 text-xs text-amber-700 flex items-start gap-1">
+        <p className="mt-1 text-xs text-amber-700 dark:text-amber-300 flex items-start gap-1">
           <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
           Saiu do cardápio depois de entrar no carrinho. Não entra no total —
           remova para seguir com o pedido.
@@ -193,13 +193,13 @@ const ItemDoCarrinho: React.FC<{
     <div className="flex flex-col items-end justify-between">
       {/* O valor de linha vem calculado do servidor. Enquanto anônimo ele não
           existe, e a tela mostra a quantidade em vez de inventar uma conta. */}
-      <span className="text-sm font-semibold text-gray-900 whitespace-nowrap">
+      <span className="text-sm font-semibold text-gray-900 dark:text-neutral-100 whitespace-nowrap">
         {linha.lineTotal ? formatarPreco(linha.lineTotal) : `${linha.quantity} un.`}
       </span>
       <Button
         variant="ghost"
         size="icon"
-        className="h-7 w-7 text-gray-400 hover:text-red-600"
+        className="h-7 w-7 text-gray-400 dark:text-neutral-500 hover:text-red-600 dark:hover:text-red-400"
         aria-label="Remover item"
         disabled={ocupado}
         onClick={onRemover}
@@ -232,10 +232,10 @@ export const ListaDoCarrinho: React.FC<{ carrinho: EstadoDoCarrinho }> = ({ carr
       <div className="p-6 space-y-4">
         {[0, 1, 2].map((i) => (
           <div key={i} className="flex gap-3">
-            <div className="w-16 h-16 bg-gray-200 rounded-lg animate-pulse" />
+            <div className="w-16 h-16 bg-gray-200 dark:bg-neutral-700 rounded-lg animate-pulse" />
             <div className="flex-1 space-y-2">
-              <div className="h-4 bg-gray-200 rounded animate-pulse w-2/3" />
-              <div className="h-3 bg-gray-200 rounded animate-pulse w-1/3" />
+              <div className="h-4 bg-gray-200 dark:bg-neutral-700 rounded animate-pulse w-2/3" />
+              <div className="h-3 bg-gray-200 dark:bg-neutral-700 rounded animate-pulse w-1/3" />
             </div>
           </div>
         ))}
@@ -246,13 +246,13 @@ export const ListaDoCarrinho: React.FC<{ carrinho: EstadoDoCarrinho }> = ({ carr
   if (carrinho.erro && carrinho.linhas.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center p-8 text-center">
-        <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-4">
+        <div className="w-16 h-16 bg-red-50 dark:bg-red-950/40 rounded-full flex items-center justify-center mb-4">
           <AlertTriangle className="w-8 h-8 text-red-500" />
         </div>
-        <h3 className="text-lg font-medium text-gray-900 mb-2">
+        <h3 className="text-lg font-medium text-gray-900 dark:text-neutral-100 mb-2">
           Não foi possível carregar o carrinho
         </h3>
-        <p className="text-gray-600 max-w-sm mb-6">
+        <p className="text-gray-600 dark:text-neutral-300 max-w-sm mb-6">
           Houve uma falha ao falar com o servidor. Seus itens continuam na sua
           conta.
         </p>
@@ -275,11 +275,11 @@ export const ListaDoCarrinho: React.FC<{ carrinho: EstadoDoCarrinho }> = ({ carr
 
       {carrinho.linhas.length === 0 ? (
         <div className="flex flex-col items-center justify-center p-8 text-center">
-          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-            <ShoppingCart className="w-8 h-8 text-gray-400" />
+          <div className="w-16 h-16 bg-gray-100 dark:bg-neutral-800 rounded-full flex items-center justify-center mb-4">
+            <ShoppingCart className="w-8 h-8 text-gray-400 dark:text-neutral-500" />
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Carrinho vazio</h3>
-          <p className="text-gray-600 max-w-sm">
+          <h3 className="text-lg font-medium text-gray-900 dark:text-neutral-100 mb-2">Carrinho vazio</h3>
+          <p className="text-gray-600 dark:text-neutral-300 max-w-sm">
             Escolha um produto no cardápio para começar o seu pedido.
           </p>
         </div>
@@ -311,7 +311,7 @@ export const ListaDoCarrinho: React.FC<{ carrinho: EstadoDoCarrinho }> = ({ carr
 
           <div className="border-t pt-4 space-y-1">
             <div className="flex items-center justify-between">
-              <span className="text-base font-semibold text-gray-900">Total</span>
+              <span className="text-base font-semibold text-gray-900 dark:text-neutral-100">Total</span>
               {/* Sempre o total do servidor, nunca a soma das linhas na tela:
                   produto fora do cardápio tem valor de linha e mesmo assim
                   não entra no total. */}
@@ -320,7 +320,7 @@ export const ListaDoCarrinho: React.FC<{ carrinho: EstadoDoCarrinho }> = ({ carr
               </span>
             </div>
             {!carrinho.total && (
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-gray-500 dark:text-neutral-400">
                 O total é calculado pela loja quando você entra na sua conta.
                 Até lá, o pedido vai com as quantidades e os valores unitários.
               </p>
@@ -373,19 +373,19 @@ export const EnviarPedido: React.FC<{
       <Button
         onClick={enviar}
         disabled={bloqueado}
-        className="w-full text-white"
+        className="w-full text-on-primary"
       >
         <MessageCircle className="w-5 h-5 mr-2" />
         {v.fechar} pelo WhatsApp
       </Button>
       {!aberta && (
-        <p className="text-xs text-gray-600 text-center">
+        <p className="text-xs text-gray-600 dark:text-neutral-300 text-center">
           A loja está fechada agora. O envio fica disponível quando ela
           reabrir.
         </p>
       )}
       {aberta && !telefone && (
-        <p className="text-xs text-gray-600 text-center">
+        <p className="text-xs text-gray-600 dark:text-neutral-300 text-center">
           Esta loja não cadastrou um número de WhatsApp.
         </p>
       )}

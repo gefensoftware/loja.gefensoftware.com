@@ -214,7 +214,7 @@ const ProductDetail = () => {
   if (!isLoading && productNotFound) {
     return (
       <div className="text-center py-12">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Produto não encontrado</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-neutral-100 mb-4">Produto não encontrado</h2>
         <Link href={`/${name_store}`} className="text-primary hover:text-primary/90 flex items-center justify-center">
           <ArrowLeft className="w-4 h-4 mr-2" />
           Voltar para a lista de produtos
@@ -226,11 +226,11 @@ const ProductDetail = () => {
   if (!isLoading && productError) {
     return (
       <div className="text-center py-12 px-4">
-        <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+        <div className="w-16 h-16 bg-red-50 dark:bg-red-950/40 rounded-full flex items-center justify-center mx-auto mb-4">
           <AlertTriangle className="w-8 h-8 text-red-500" />
         </div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Não foi possível carregar o produto</h2>
-        <p className="text-gray-600 mb-6">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-neutral-100 mb-2">Não foi possível carregar o produto</h2>
+        <p className="text-gray-600 dark:text-neutral-300 mb-6">
           Houve uma falha ao falar com o servidor. O produto pode continuar disponível.
         </p>
         <div className="flex items-center justify-center gap-4">
@@ -245,24 +245,24 @@ const ProductDetail = () => {
   }
 
   return (
-    <div className="flex justify-center items-center bg-white">
+    <div className="flex justify-center items-center bg-white dark:bg-neutral-900">
       <div className=" overflow-hidden max-w-6xl">
         <div className="p-6  border-b ">
           <Link href={`/${name_store}`} className="text-primary hover:text-primary/90 flex items-center mb-4">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Voltar para a lista de produtos
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900">{product?.title || 'Loading...'}</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-neutral-100">{product?.title || 'Loading...'}</h1>
         </div>
 
         {enterpriseError && (
-          <div className="mx-6 mt-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+          <div className="mx-6 mt-6 p-4 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-lg flex items-start gap-3">
             <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
-              <p className="text-sm font-medium text-red-800">
+              <p className="text-sm font-medium text-red-800 dark:text-red-300">
                 Não foi possível carregar os dados da loja.
               </p>
-              <p className="text-sm text-red-700">
+              <p className="text-sm text-red-700 dark:text-red-300">
                 Sem eles não dá para adicionar ao carrinho nem abrir o WhatsApp.
               </p>
             </div>
@@ -276,13 +276,13 @@ const ProductDetail = () => {
             mostrar, porque é daqui que se adiciona — e é a adição que a
             leitura falha impede. */}
         {carrinho.erro && (
-          <div className="mx-6 mt-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+          <div className="mx-6 mt-6 p-4 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-lg flex items-start gap-3">
             <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
-              <p className="text-sm font-medium text-red-800">
+              <p className="text-sm font-medium text-red-800 dark:text-red-300">
                 Não foi possível carregar o seu carrinho nesta loja.
               </p>
-              <p className="text-sm text-red-700">
+              <p className="text-sm text-red-700 dark:text-red-300">
                 Sem ele não dá para adicionar o produto sem arriscar o que já
                 está no carrinho. Seus itens continuam na sua conta.
               </p>
@@ -297,12 +297,12 @@ const ProductDetail = () => {
           <div className="space-y-6">
             {isLoading ? (
               <div className="relative rounded-lg overflow-hidden">
-                <div className="w-full h-96 bg-gray-200 animate-pulse"></div>
+                <div className="w-full h-96 bg-gray-200 dark:bg-neutral-700 animate-pulse"></div>
                 <div className="absolute top-4 right-4">
-                  <div className="w-20 h-8 bg-gray-300 rounded-md animate-pulse"></div>
+                  <div className="w-20 h-8 bg-gray-300 dark:bg-neutral-700 rounded-md animate-pulse"></div>
                 </div>
                 <div className="absolute bottom-4 right-4">
-                  <div className="w-24 h-8 bg-gray-300 rounded-md animate-pulse"></div>
+                  <div className="w-24 h-8 bg-gray-300 dark:bg-neutral-700 rounded-md animate-pulse"></div>
                 </div>
               </div>
             ) : allImages.length > 0 ? (
@@ -326,13 +326,13 @@ const ProductDetail = () => {
               </div>
             ) : null}
 
-            <div className="bg-gray-50 rounded-lg p-6 ">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Características do produto</h3>
+            <div className="bg-gray-50 dark:bg-neutral-900 rounded-lg p-6 ">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-neutral-100 mb-4">Características do produto</h3>
               <ul className="space-y-3">
                 {product?.detailsPoint.map((point, index) => (
                   <li key={index} className="flex items-start">
                     <span className="text-primary mr-2">•</span>
-                    <span className="text-gray-700">{point}</span>
+                    <span className="text-gray-700 dark:text-neutral-200">{point}</span>
                   </li>
                 ))}
               </ul>
@@ -341,17 +341,17 @@ const ProductDetail = () => {
 
           <div className="space-y-6">
             <div>
-              <h2 className="text-2xl font-semibold text-gray-900 mb-2">Descrição</h2>
-              <p className="text-gray-700">{product?.description}</p>
+              <h2 className="text-2xl font-semibold text-gray-900 dark:text-neutral-100 mb-2">Descrição</h2>
+              <p className="text-gray-700 dark:text-neutral-200">{product?.description}</p>
             </div>
 
             <EspacoAnuncio posicao="produto" />
 
             <div>
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4">
+              <h2 className="text-2xl font-semibold text-gray-900 dark:text-neutral-100 mb-4">
                 {product && product.prices.length === 1 ? 'Opção de preço' : 'Opções de preço'}
               </h2>
-              <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+              <div className="bg-gray-50 dark:bg-neutral-900 rounded-lg p-6 space-y-4">
                 {
                   agendavel ? (
                     <div className="flex justify-between gap-4 flex-col">
@@ -360,7 +360,7 @@ const ProductDetail = () => {
                           {product.prices[0] ? (
                             <>
                               {temPromocaoVigente(product.prices[0]) && (
-                                <span className="text-base text-gray-400 line-through mr-2">
+                                <span className="text-base text-gray-400 dark:text-neutral-500 line-through mr-2">
                                   {formatarPreco(product.prices[0].value)}
                                 </span>
                               )}
@@ -419,11 +419,11 @@ const ProductDetail = () => {
                         </div>
                         {product.service && (
                           <div className="mt-6 border-t pt-6">
-                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Serviço Vinculado</h3>
-                            <div className="bg-white rounded-lg p-4 border">
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-neutral-100 mb-4">Serviço Vinculado</h3>
+                            <div className="bg-white dark:bg-neutral-900 rounded-lg p-4 border">
                               <div className="flex items-center gap-4">
                                 <div className="flex-grow">
-                                  <h4 className="font-medium text-gray-900">{product.service.title}</h4>
+                                  <h4 className="font-medium text-gray-900 dark:text-neutral-100">{product.service.title}</h4>
                                 </div>
                                 <div className="flex items-center">
                                   <Checkbox
@@ -440,16 +440,16 @@ const ProductDetail = () => {
                     ) : (
                       <>
                         {product && product.prices.length === 1 ? (
-                          <div className="text-2xl font-semibold text-gray-900 mb-4">
+                          <div className="text-2xl font-semibold text-gray-900 dark:text-neutral-100 mb-4">
                             {product.prices[0] ? (
                               <>
                                 {product.prices[0].name && (
-                                  <span className="block text-sm font-normal text-gray-600 mb-1">
+                                  <span className="block text-sm font-normal text-gray-600 dark:text-neutral-300 mb-1">
                                     {product.prices[0].name}
                                   </span>
                                 )}
                                 {temPromocaoVigente(product.prices[0]) && (
-                                  <span className="text-base text-gray-400 line-through mr-2">
+                                  <span className="text-base text-gray-400 dark:text-neutral-500 line-through mr-2">
                                     {formatarPreco(product.prices[0].value)}
                                   </span>
                                 )}
@@ -500,7 +500,7 @@ const ProductDetail = () => {
                               {caps.cart && (
                               <Button
                                 onClick={handleAddToCart}
-                                className="flex-1 text-white"
+                                className="flex-1 text-on-primary"
                                 disabled={
                                   isAddingToCart ||
                                   !enterprise ||
@@ -531,11 +531,11 @@ const ProductDetail = () => {
                         }
                         {product?.service && (
                           <div className="mt-6 border-t pt-6">
-                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Serviço Vinculado</h3>
-                            <div className="bg-white rounded-lg p-4 border">
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-neutral-100 mb-4">Serviço Vinculado</h3>
+                            <div className="bg-white dark:bg-neutral-900 rounded-lg p-4 border">
                               <div className="flex items-center gap-4">
                                 <div className="flex-grow">
-                                  <h4 className="font-medium text-gray-900">{product.service.title}</h4>
+                                  <h4 className="font-medium text-gray-900 dark:text-neutral-100">{product.service.title}</h4>
                                 </div>
                                 <div className="flex items-center">
                                   <Checkbox
@@ -553,24 +553,24 @@ const ProductDetail = () => {
               </div>
             </div>
 
-            <div className="bg-gray-50 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Detalhes do produto</h3>
+            <div className="bg-gray-50 dark:bg-neutral-900 rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-neutral-100 mb-2">Detalhes do produto</h3>
               <dl className="space-y-3">
                 <div className="flex justify-between">
-                  <dt className="text-gray-600">Categoria</dt>
-                  <dd className="text-gray-900 font-medium">
+                  <dt className="text-gray-600 dark:text-neutral-300">Categoria</dt>
+                  <dd className="text-gray-900 dark:text-neutral-100 font-medium">
                     {product?.category?.name ?? '—'}
                   </dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-gray-600">Adicionado em</dt>
-                  <dd className="text-gray-900 font-medium">
+                  <dt className="text-gray-600 dark:text-neutral-300">Adicionado em</dt>
+                  <dd className="text-gray-900 dark:text-neutral-100 font-medium">
                     {product ? new Date(product.createdAt).toLocaleDateString() : ''}
                   </dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-gray-600">Atualizado em</dt>
-                  <dd className="text-gray-900 font-medium">
+                  <dt className="text-gray-600 dark:text-neutral-300">Atualizado em</dt>
+                  <dd className="text-gray-900 dark:text-neutral-100 font-medium">
                     {product ? new Date(product.updatedAt).toLocaleDateString() : ''}
                   </dd>
                 </div>

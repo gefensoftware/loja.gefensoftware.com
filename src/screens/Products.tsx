@@ -15,6 +15,7 @@ import EspacoAnuncio from '@/components/anuncios/EspacoAnuncio';
 import { Button } from '@/components/ui/button';
 import { User, LogOut, ShoppingCart, X, MapPin } from 'lucide-react';
 import AuthModal from '@/components/AuthModal';
+import { BotaoTema } from '@/components/BotaoTema';
 
 import { authAtom } from '@/store/auth';
 import { userAtom } from '@/store/user';
@@ -280,11 +281,11 @@ const Products = () => {
   if (loading || lojaLoading) {
     return (
       <div className="space-y-6">
-        <div className="bg-white rounded-lg shadow-sm border p-6">
+        <div className="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border p-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Cardápio</h1>
-              <p className="text-gray-600 mt-1">Explore nossos produtos e serviços</p>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-neutral-100">Cardápio</h1>
+              <p className="text-gray-600 dark:text-neutral-300 mt-1">Explore nossos produtos e serviços</p>
             </div>
           </div>
         </div>
@@ -297,12 +298,12 @@ const Products = () => {
   // vez de renderizar um cabeçalho sem nome e uma grade vazia.
   if (lojaNaoEncontrada) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-8 text-center">
-        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-          <Tag className="w-8 h-8 text-gray-400" />
+      <div className="min-h-screen bg-gray-50 dark:bg-neutral-900 flex flex-col items-center justify-center p-8 text-center">
+        <div className="w-16 h-16 bg-gray-100 dark:bg-neutral-800 rounded-full flex items-center justify-center mb-4">
+          <Tag className="w-8 h-8 text-gray-400 dark:text-neutral-500" />
         </div>
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Loja não encontrada</h1>
-        <p className="text-gray-600 max-w-md">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-neutral-100 mb-2">Loja não encontrada</h1>
+        <p className="text-gray-600 dark:text-neutral-300 max-w-md">
           Não existe nenhuma loja com o endereço <strong>{name_store}</strong>. Confira o
           link com quem o enviou.
         </p>
@@ -312,12 +313,12 @@ const Products = () => {
 
   if (lojaError) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-8 text-center">
-        <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-4">
+      <div className="min-h-screen bg-gray-50 dark:bg-neutral-900 flex flex-col items-center justify-center p-8 text-center">
+        <div className="w-16 h-16 bg-red-50 dark:bg-red-950/40 rounded-full flex items-center justify-center mb-4">
           <AlertTriangle className="w-8 h-8 text-red-500" />
         </div>
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Não foi possível carregar a loja</h1>
-        <p className="text-gray-600 max-w-md mb-6">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-neutral-100 mb-2">Não foi possível carregar a loja</h1>
+        <p className="text-gray-600 dark:text-neutral-300 max-w-md mb-6">
           Houve uma falha ao falar com o servidor. A loja pode continuar no ar.
         </p>
         <Button onClick={recarregarLoja}>Tentar novamente</Button>
@@ -326,9 +327,9 @@ const Products = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-neutral-900">
     {/* Scroll Header - aparece quando há scroll */}
-    <div className={`fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b py-3 transition-all duration-300 ease-out transform ${
+    <div className={`fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-neutral-900/95 backdrop-blur-sm border-b py-3 transition-all duration-300 ease-out transform ${
       isScrolled ? 'translate-y-0 opacity-100 shadow-lg' : '-translate-y-full opacity-0 shadow-none'
     }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -343,14 +344,14 @@ const Products = () => {
             )}
 
             {/* Nome da empresa */}
-            <h3 className="font-medium text-gray-900 text-sm truncate flex-shrink-0 max-md:hidden">
+            <h3 className="font-medium text-gray-900 dark:text-neutral-100 text-sm truncate flex-shrink-0 max-md:hidden">
               {loja?.name}
             </h3>
 
             <div className="flex-1 flex items-center gap-3 min-w-0">
               {/* Input de pesquisa */}
               <div className="relative flex-1 max-w-md min-w-0">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-neutral-500" />
                 <Input
                   type="text"
                   placeholder="Buscar produtos..."
@@ -403,10 +404,10 @@ const Products = () => {
     )}
 
     {/* Fixed Header */}
-    <header className={`sticky bg-white shadow-sm border-b transition-all duration-300 ${
+    <header className={`sticky bg-white dark:bg-neutral-900 shadow-sm border-b transition-all duration-300 ${
       loja?.bannerUrl ? 'max-md:rounded-t-xl -mt-4' : ''
     } ${isScrolled ? 'py-2' : 'py-4'}`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
           {/* Store Info */}
           <div className="flex items-center gap-3 max-md:gap-1 max-md:flex-col max-md:items-center max-md:w-full">
@@ -423,9 +424,13 @@ const Products = () => {
               />
             )}
             <div className='flex flex-col gap-2'>
-              <div className='flex items-center gap-2 justify-center md:justify-start'>
+              {/* O recuo simétrico no celular reserva o canto para o botão de
+                  tema, que flutua ali. Simétrico de propósito: com recuo só de
+                  um lado o nome deixaria de ficar centrado, e sem recuo nenhum
+                  o selo "Aberto" ficava por baixo do ícone. */}
+              <div className='flex items-center gap-2 justify-center md:justify-start max-md:px-10'>
 
-              <h2 className="font-semibold text-gray-900 max-md:text-2xl max-md:text-center">{loja?.name}</h2>
+              <h2 className="font-semibold text-gray-900 dark:text-neutral-100 max-md:text-2xl max-md:text-center">{loja?.name}</h2>
 
               <StatusStore isOpen={isOpen} />
 
@@ -435,8 +440,8 @@ const Products = () => {
                 <div className="flex items-center gap-1">
                   <MapPin className="w-4 h-4" />
                   {` ${loja.address.city} - ${loja.address.state}`}
-                  <div className='w-1.5 h-1.5 mx-2.5 bg-gray-700 rounded-full flex-shrink-0'></div>
-                  <p className=' text-zinc-700 font-bold text-sm '>
+                  <div className='w-1.5 h-1.5 mx-2.5 bg-gray-700 dark:bg-neutral-400 rounded-full flex-shrink-0'></div>
+                  <p className=' text-zinc-700 dark:text-neutral-200 font-bold text-sm '>
                     Mais informações
                   </p>
                 </div>
@@ -446,11 +451,18 @@ const Products = () => {
           </div>
 
           {/* Actions */}
-          <div className="flex items-center gap-3 max-md:flex-col-reverse max-md:hidden">
+          {/* No celular a fileira inteira saía de cena (`max-md:hidden`), e o
+              nome da loja passava a ocupar a largura toda. O botão de tema
+              precisa sobreviver a isso: a fileira sai do FLUXO em vez de
+              sumir, ancorada no canto superior direito do cabeçalho, e cada
+              item que não cabe no telefone é que se esconde. */}
+          <div className="flex items-center gap-3 max-md:flex-col-reverse max-md:absolute max-md:right-4 max-md:top-0">
+            <BotaoTema padraoDaLoja={loja?.theme?.mode} />
+
             {/* Select de Categorias */}
             {categories.length > 0 && (
               <Select value={selectedCategory || ''} onValueChange={handleCategorySelect}>
-                <SelectTrigger className="w-48">
+                <SelectTrigger className="w-48 max-md:hidden">
                   <SelectValue placeholder="Ir para categoria..." />
                 </SelectTrigger>
                 <SelectContent>
@@ -462,12 +474,12 @@ const Products = () => {
             )}
 
             {/* Cart Button — só na loja que trabalha com pedido direto. */}
-            <div className="flex items-center max-md:justify-between max-md:w-full md:gap-3">
+            <div className="flex items-center max-md:hidden max-md:justify-between max-md:w-full md:gap-3">
             {caps.cart && (
             <Button
               variant="outline"
               size="sm"
-              className="relative border-primary text-primary hover:bg-primary hover:text-white"
+              className="relative border-primary text-primary hover:bg-primary hover:text-on-primary"
               onClick={() => setIsCartOpen(true)}
             >
               <ShoppingCart className="h-4 w-4 mr-2" />
@@ -484,7 +496,7 @@ const Products = () => {
             {auth.isAuthenticated ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="text-gray-700 hover:bg-gray-100">
+                  <Button variant="ghost" size="sm" className="text-gray-700 dark:text-neutral-200 hover:bg-gray-100 dark:hover:bg-neutral-800">
                     <User className="h-4 w-4 mr-2" />
                     Conta
                   </Button>
@@ -521,13 +533,13 @@ const Products = () => {
     <div className="space-y-10 pb-20">
 
       {categoriesError && (
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start gap-3">
-          <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+        <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 rounded-lg p-4 flex items-start gap-3">
+          <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
           <div className="flex-1">
-            <p className="text-sm font-medium text-amber-900">
+            <p className="text-sm font-medium text-amber-900 dark:text-amber-200">
               Não foi possível carregar as categorias.
             </p>
-            <p className="text-sm text-amber-800">
+            <p className="text-sm text-amber-800 dark:text-amber-200">
               Os produtos continuam abaixo, sem a separação por categoria.
             </p>
           </div>
@@ -541,15 +553,15 @@ const Products = () => {
       <div className="space-y-10">
         {productsError ? (
           // Falha de leitura tem cara de falha, não de loja sem produtos.
-          <div className="bg-white rounded-lg shadow-sm border p-12 text-center">
+          <div className="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border p-12 text-center">
             <div className="max-w-md mx-auto">
-              <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-red-50 dark:bg-red-950/40 rounded-full flex items-center justify-center mx-auto mb-4">
                 <AlertTriangle className="w-8 h-8 text-red-500" />
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-neutral-100 mb-2">
                 Não foi possível carregar os produtos
               </h3>
-              <p className="text-gray-600 mb-6">
+              <p className="text-gray-600 dark:text-neutral-300 mb-6">
                 Houve uma falha ao falar com o servidor. A loja pode ter produtos
                 disponíveis.
               </p>
@@ -557,15 +569,15 @@ const Products = () => {
             </div>
           </div>
         ) : Object.keys(productsByCategory).length === 0 && uncategorizedProducts.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-sm border p-12 text-center">
+          <div className="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border p-12 text-center">
             <div className="max-w-md mx-auto">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Tag className="w-8 h-8 text-gray-400" />
+              <div className="w-16 h-16 bg-gray-100 dark:bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Tag className="w-8 h-8 text-gray-400 dark:text-neutral-500" />
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-neutral-100 mb-2">
                 {searchTerm ? 'Nenhum produto encontrado' : 'Nenhum produto disponível'}
               </h3>
-              <p className="text-gray-600">
+              <p className="text-gray-600 dark:text-neutral-300">
                 {searchTerm
                   ? `Não encontramos produtos para "${searchTerm}"`
                   : 'Não há produtos disponíveis no momento'
@@ -584,7 +596,7 @@ const Products = () => {
                       o cliente vê produto antes de ver propaganda. */}
                   {indice === 1 && <EspacoAnuncio posicao="vitrine" className="mb-10" />}
                   {/* Título da Categoria */}
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4">{category.name}</h2>
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-neutral-100 mb-4">{category.name}</h2>
                   {/* Grid de Produtos */}
                   {/* Mesma grade do esqueleto e do grupo "Outros Produtos":
                       parando em duas colunas, a tela de 1440px mostrava cards
@@ -606,7 +618,7 @@ const Products = () => {
                 {Object.keys(productsByCategory).length === 1 && (
                   <EspacoAnuncio posicao="vitrine" className="mb-10" />
                 )}
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">Outros Produtos</h2>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-neutral-100 mb-4">Outros Produtos</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                   {uncategorizedProducts.map((product) => (
                     <ProductCard key={product.id} product={product} />
@@ -620,11 +632,11 @@ const Products = () => {
                 o resto. */}
             {temMaisProdutos && (
               <div className="flex flex-col items-center gap-3 pt-4">
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 dark:text-neutral-300">
                   Exibindo {produtosExibidos} de {totalDeProdutos} produtos
                 </p>
                 {erroCarregarMais && (
-                  <p className="text-sm text-red-600 flex items-center gap-1.5">
+                  <p className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1.5">
                     <AlertTriangle className="w-4 h-4 flex-shrink-0" />
                     Não foi possível carregar mais produtos. Os que já estão na
                     tela continuam aqui.
@@ -662,16 +674,16 @@ const Products = () => {
       {/* O painel para acima da Navbar (`fixed bottom-0`, mesmo z-50 e depois
           no DOM): indo até o fim da tela, o botão de enviar o pedido e o link
           do carrinho completo ficavam atrás da barra. */}
-      <div className={`hidden lg:block fixed top-0 bottom-24 right-0 w-96 bg-white shadow-xl transform transition-transform duration-300 ease-in-out z-50 ${isCartOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+      <div className={`hidden lg:block fixed top-0 bottom-24 right-0 w-96 bg-white dark:bg-neutral-900 shadow-xl transform transition-transform duration-300 ease-in-out z-50 ${isCartOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         <div className="h-full flex flex-col">
-          <div className="p-6 border-b bg-gray-50">
+          <div className="p-6 border-b bg-gray-50 dark:bg-neutral-900">
             <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold text-gray-900">{v.listaTitulo}</h2>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-neutral-100">{v.listaTitulo}</h2>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsCartOpen(false)}
-                className="text-gray-500 hover:text-gray-700"
+                className="text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-neutral-200"
               >
                 <X className="h-5 w-5" />
               </Button>
@@ -687,16 +699,16 @@ const Products = () => {
       </div>
 
       {/* Cart Sidebar - Mobile */}
-      <div className={`lg:hidden fixed inset-x-0 top-0 bottom-20 bg-white z-50 transform transition-transform duration-300 ease-in-out ${isCartOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+      <div className={`lg:hidden fixed inset-x-0 top-0 bottom-20 bg-white dark:bg-neutral-900 z-50 transform transition-transform duration-300 ease-in-out ${isCartOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         <div className="h-full flex flex-col">
-          <div className="p-4 border-b bg-gray-50">
+          <div className="p-4 border-b bg-gray-50 dark:bg-neutral-900">
             <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold text-gray-900">{v.listaTitulo}</h2>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-neutral-100">{v.listaTitulo}</h2>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsCartOpen(false)}
-                className="text-gray-500 hover:text-gray-700"
+                className="text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-neutral-200"
               >
                 <X className="h-5 w-5" />
               </Button>

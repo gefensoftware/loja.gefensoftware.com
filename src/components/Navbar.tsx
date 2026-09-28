@@ -83,7 +83,7 @@ export const Navbar = () => {
     // itens, e o espaçamento fixo levava a barra a 611px num aparelho de
     // 375px — "Serviços" e "Perfil" ficavam fora da tela, sem rolagem que os
     // alcançasse. No md para cima nada muda: a barra volta a ser centrada.
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t shadow-sm flex justify-around md:justify-center px-1 md:px-8 py-2 md:py-3 gap-0 md:gap-4 print:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-neutral-900 border-t shadow-sm flex justify-around md:justify-center px-1 md:px-8 py-2 md:py-3 gap-0 md:gap-4 print:hidden">
       {itens.map((item) => {
         const Icon = item.icon;
         // Prefixo, não igualdade: o Perfil ganhou sub-rotas
@@ -105,7 +105,7 @@ export const Navbar = () => {
             key={item.to}
             href={item.to}
             className={`flex min-w-0 flex-1 md:flex-none flex-col items-center gap-1 px-0 md:px-3 py-1 rounded-md transition-colors duration-150 ${
-              isActive ? 'text-primary font-bold' : 'text-gray-500 hover:text-primary'
+              isActive ? 'text-primary font-bold' : 'text-gray-500 dark:text-neutral-400 hover:text-primary'
             }`}
           >
             {/* O contador acompanha o ícone, não a caixa do item: com os itens

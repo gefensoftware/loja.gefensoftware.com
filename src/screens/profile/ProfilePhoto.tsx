@@ -72,11 +72,11 @@ const ProfilePhoto = () => {
 
   return (
     <ProfileSubPage titulo="Foto de Perfil" descricao="Escolha uma foto ou remova a atual">
-      <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm">
+      <Card className="border-0 shadow-xl bg-white/80 dark:bg-neutral-900/80 backdrop-blur-sm">
         <CardContent className="flex flex-col items-center gap-6 pt-8">
           <UserAvatar user={user} />
 
-          <p className="max-w-sm text-center text-sm text-gray-600">
+          <p className="max-w-sm text-center text-sm text-gray-600 dark:text-neutral-300">
             A imagem é recortada no centro e reduzida antes do envio, então uma
             foto tirada pelo celular serve sem preparo.
           </p>
@@ -94,7 +94,7 @@ const ProfilePhoto = () => {
               type="button"
               onClick={() => inputRef.current?.click()}
               disabled={ocupado}
-              className="w-full gap-2 rounded-xl bg-primary py-3 font-semibold text-white shadow-lg transition-all duration-200 hover:bg-primary/80 hover:shadow-xl"
+              className="w-full gap-2 rounded-xl bg-primary py-3 font-semibold text-on-primary shadow-lg transition-all duration-200 hover:bg-primary/80 hover:shadow-xl"
             >
               <Camera className="h-4 w-4" />
               {enviando ? 'Enviando...' : user?.avatar ? 'Trocar foto' : 'Escolher foto'}
@@ -108,7 +108,7 @@ const ProfilePhoto = () => {
                 variant="outline"
                 onClick={aoRemover}
                 disabled={ocupado}
-                className="w-full gap-2 rounded-xl border-2 border-red-200 py-3 font-semibold text-red-600 transition-colors hover:bg-red-50"
+                className="w-full gap-2 rounded-xl border-2 border-red-200 dark:border-red-900 py-3 font-semibold text-red-600 dark:text-red-400 transition-colors hover:bg-red-50 dark:hover:bg-red-950/40"
               >
                 <Trash2 className="h-4 w-4" />
                 {removendo ? 'Removendo...' : 'Remover foto'}

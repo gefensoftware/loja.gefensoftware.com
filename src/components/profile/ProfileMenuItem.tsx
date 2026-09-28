@@ -13,8 +13,18 @@ interface Base {
 
 type Props = Base &
   (
-    | { href: string; onClick?: never }
-    | { onClick: () => void; href?: never }
+    | { href: string; onClick?: never; ligado?: never }
+    | {
+        onClick: () => void
+        href?: never
+        /**
+         * Presente = a linha é um interruptor, não uma ação de mão única.
+         * Troca o chevron por uma chave e anuncia `role="switch"` — sem isso
+         * um leitor de tela diria só "botão Aparência" e a pessoa não teria
+         * como saber se está ligado.
+         */
+        ligado?: boolean
+      }
   )
 
 /**
@@ -29,9 +39,10 @@ type Props = Base &
  * O chevron só acompanha quem navega — numa ação ele prometeria uma tela
  * seguinte que não existe.
  */
-export default function ProfileMenuItem({ icon: Icon, label, descricao, perigo, href, onClick }: Props) {
-  const cor = perigo ? 'text-red-600' : 'text-gray-800'
-  const corIcone = perigo ? 'text-red-500' : 'text-primary'
+export default function ProfileMenuItem({ icon: Icon, label, descricao, perigo, href, onClick, ligado }: Props) {
+  const cor = perigo ? 'text-red-600 dark:text-red-400' : 'text-gray-800 dark:text-neutral-100'
+  const corIcone = perigo ? 'text-red-500 dark:text-red-400' : 'text-primary'
+  const ehInterruptor = ligado !== undefined
 
   const conteudo = (
     <>
@@ -40,14 +51,32 @@ export default function ProfileMenuItem({ icon: Icon, label, descricao, perigo, 
       </span>
       <span className="flex-1 text-left">
         <span className={`block text-sm font-medium ${cor}`}>{label}</span>
-        {descricao && <span className="block text-xs text-gray-500">{descricao}</span>}
+        {descricao && <span className="block text-xs text-gray-500 dark:text-neutral-400">{descricao}</span>}
       </span>
-      {href && <ChevronRight className="h-5 w-5 shrink-0 text-gray-400" aria-hidden="true" />}
+      {href && <ChevronRight className="h-5 w-5 shrink-0 text-gray-400 dark:text-neutral-500" aria-hidden="true" />}
+      {ehInterruptor && (
+        <span
+          aria-hidden="true"
+          className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${
+            ligado ? 'bg-primary' : 'bg-gray-300 dark:bg-neutral-700'
+          }`}
+        >
+          {/* Ligada, a chave é da cor primária da loja — que no tema escuro
+              costuma ser clara. A bolinha usa então a cor que se lê SOBRE a
+              primária: branca sobre primária branca ela sumia, e a chave
+              ligada ficava idêntica à desligada. */}
+          <span
+            className={`absolute top-0.5 h-5 w-5 rounded-full shadow transition-all ${
+              ligado ? 'left-[22px] bg-on-primary' : 'left-0.5 bg-white'
+            }`}
+          />
+        </span>
+      )}
     </>
   )
 
   const classe =
-    'flex w-full items-center gap-4 px-4 py-4 transition-colors hover:bg-gray-50 focus-visible:bg-gray-50 focus-visible:outline-none'
+    'flex w-full items-center gap-4 px-4 py-4 transition-colors hover:bg-gray-50 dark:hover:bg-neutral-800 focus-visible:bg-gray-50 dark:focus-visible:bg-neutral-800 focus-visible:outline-none'
 
   if (href) {
     return (
@@ -58,7 +87,13 @@ export default function ProfileMenuItem({ icon: Icon, label, descricao, perigo, 
   }
 
   return (
-    <button type="button" onClick={onClick} className={classe}>
+    <button
+      type="button"
+      onClick={onClick}
+      className={classe}
+      role={ehInterruptor ? 'switch' : undefined}
+      aria-checked={ehInterruptor ? ligado : undefined}
+    >
       {conteudo}
     </button>
   )

@@ -90,7 +90,7 @@ const WorkOrderNote = () => {
 
   if (erro === 'sessao') {
     return (
-      <div className="min-h-screen bg-neutral-200 p-8 text-center text-sm text-neutral-700">
+      <div className="min-h-screen bg-neutral-200 dark:bg-neutral-700 p-8 text-center text-sm text-neutral-700 dark:text-neutral-200">
         Não encontramos esta ordem na sua conta.{' '}
         <Link href={`/${nameStore}/ordens`} className="underline">
           Ver minhas ordens
@@ -101,7 +101,7 @@ const WorkOrderNote = () => {
   }
   if (erro === 'falha') {
     return (
-      <div className="min-h-screen bg-neutral-200 p-8 text-center text-sm text-neutral-700">
+      <div className="min-h-screen bg-neutral-200 dark:bg-neutral-700 p-8 text-center text-sm text-neutral-700 dark:text-neutral-200">
         Não foi possível carregar a nota.{' '}
         <button className="underline" onClick={carregar}>
           Tentar de novo
@@ -111,8 +111,8 @@ const WorkOrderNote = () => {
   }
   if (!ordem) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-neutral-200">
-        <Loader2 className="h-6 w-6 animate-spin text-neutral-400" />
+      <div className="flex min-h-screen items-center justify-center bg-neutral-200 dark:bg-neutral-700">
+        <Loader2 className="h-6 w-6 animate-spin text-neutral-400 dark:text-neutral-500" />
       </div>
     );
   }
@@ -125,10 +125,14 @@ const WorkOrderNote = () => {
     : '';
 
   return (
-    <div className="min-h-screen bg-neutral-200 py-8 pb-28 print:bg-white print:py-0 print:pb-0">
+    <div className="min-h-screen bg-neutral-200 dark:bg-neutral-700 py-8 pb-28 print:bg-white print:py-0 print:pb-0">
       {/* A folha é branca com texto preto, e não usa o tema da loja: a
           vitrine de tema escuro imprimiria uma página inteira de tinta. A
-          marca dela entra pelo logo e pelo cabeçalho. */}
+          marca dela entra pelo logo e pelo cabeçalho.
+          É por isso que o <article> abaixo é a única parte da vitrine sem
+          variante `dark:` — nem na tela, para o que se vê ser o que sai na
+          impressora. O tema escuro alcança só a moldura: o fundo em volta da
+          folha, o link de voltar e o botão de imprimir. */}
       <style>{`
         @page { size: A4; margin: 12mm; }
         @media print {
@@ -139,7 +143,7 @@ const WorkOrderNote = () => {
       <div className="mx-auto mb-4 flex max-w-[210mm] items-center justify-between gap-4 px-4 print:hidden">
         <Link
           href={`/${nameStore}/ordens`}
-          className="text-sm text-neutral-700 underline hover:text-neutral-900"
+          className="text-sm text-neutral-700 dark:text-neutral-200 underline hover:text-neutral-900 dark:hover:text-white"
         >
           ← Minhas ordens
         </Link>

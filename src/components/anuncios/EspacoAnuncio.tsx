@@ -53,7 +53,7 @@ export default function EspacoAnuncio({ posicao, className = '' }: EspacoAnuncio
 
   return (
     <aside aria-label="Publicidade" className={`w-full ${className}`}>
-      <p className="text-[10px] uppercase tracking-wide text-gray-400 mb-1 text-center">
+      <p className="text-[10px] uppercase tracking-wide text-gray-400 dark:text-neutral-500 mb-1 text-center">
         Publicidade
       </p>
       <ins

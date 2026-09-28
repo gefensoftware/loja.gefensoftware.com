@@ -115,7 +115,7 @@ const ProfileData = () => {
   const aoPerderSessao = () => form.reset()
 
   const classeCampo =
-    'border-2 border-gray-200 focus:border-blue-500 focus:ring-blue-500/20 rounded-xl h-12 px-4 transition-all duration-200 bg-white/50 backdrop-blur-sm disabled:cursor-not-allowed disabled:opacity-60'
+    'border-2 border-gray-200 dark:border-neutral-700 focus:border-blue-500 focus:ring-blue-500/20 rounded-xl h-12 px-4 transition-all duration-200 bg-white/50 dark:bg-neutral-900/50 backdrop-blur-sm disabled:cursor-not-allowed disabled:opacity-60'
 
   return (
     <ProfileSubPage
@@ -123,11 +123,11 @@ const ProfileData = () => {
       descricao="Atualize suas informações de contato"
       aoPerderSessao={aoPerderSessao}
     >
-      <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm">
+      <Card className="border-0 shadow-xl bg-white/80 dark:bg-neutral-900/80 backdrop-blur-sm">
         <CardContent className="pt-6">
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="space-y-3">
-              <Label htmlFor="name" className="flex items-center gap-2 text-sm font-medium text-gray-700">
+              <Label htmlFor="name" className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-neutral-200">
                 <User className="h-4 w-4 text-primary" />
                 Nome Completo
               </Label>
@@ -147,7 +147,7 @@ const ProfileData = () => {
             </div>
 
             <div className="space-y-3">
-              <Label htmlFor="phone" className="flex items-center gap-2 text-sm font-medium text-gray-700">
+              <Label htmlFor="phone" className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-neutral-200">
                 <Phone className="h-4 w-4 text-primary" />
                 Telefone
               </Label>
@@ -172,7 +172,7 @@ const ProfileData = () => {
             </div>
 
             <div className="space-y-3">
-              <Label htmlFor="email" className="flex items-center gap-2 text-sm font-medium text-gray-700">
+              <Label htmlFor="email" className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-neutral-200">
                 <Mail className="h-4 w-4 text-primary" />
                 Email
               </Label>
@@ -180,12 +180,12 @@ const ProfileData = () => {
                 id="email"
                 type="email"
                 value={user?.email || ''}
-                className="border-2 border-gray-200 rounded-xl h-12 px-4 bg-gray-100/50 text-gray-500 cursor-not-allowed"
+                className="border-2 border-gray-200 dark:border-neutral-700 rounded-xl h-12 px-4 bg-gray-100/50 dark:bg-neutral-800/50 text-gray-500 dark:text-neutral-400 cursor-not-allowed"
                 disabled
                 readOnly
               />
-              <p className="text-xs text-gray-500 flex items-center gap-1">
-                <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
+              <p className="text-xs text-gray-500 dark:text-neutral-400 flex items-center gap-1">
+                <span className="w-1 h-1 bg-gray-400 dark:bg-neutral-600 rounded-full"></span>
                 Email não pode ser alterado
               </p>
             </div>
@@ -193,7 +193,7 @@ const ProfileData = () => {
             <Button
               type="submit"
               disabled={form.formState.isSubmitting}
-              className="w-full bg-primary hover:bg-primary/80 text-white font-semibold py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02]"
+              className="w-full bg-primary hover:bg-primary/80 text-on-primary font-semibold py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02]"
             >
               {form.formState.isSubmitting ? 'Salvando...' : 'Salvar Alterações'}
             </Button>

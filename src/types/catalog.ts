@@ -154,10 +154,24 @@ export interface Palette {
   text: string;
 }
 
+export type ThemeMode = 'light' | 'dark' | 'black';
+
 export interface Theme {
+  /** Como a loja abre para quem chega. A escolha do visitante ganha desta. */
+  mode: ThemeMode;
+  /**
+   * Derivado de `mode` pela API (mode !== 'light').
+   *
+   * @deprecated use `mode` — só continua existindo para não quebrar quem foi
+   *   publicado antes do modo preto.
+   */
   isDark: boolean;
   light: Palette;
   dark: Palette;
+  /** A cor que o lojista escolheu para o preto; as outras três são fixas. */
+  blackPrimary: string;
+  /** A paleta preta pronta, montada pela API a partir de `blackPrimary`. */
+  black: Palette;
 }
 
 export type Weekday =
