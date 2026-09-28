@@ -112,6 +112,11 @@ vêm **desligados**. Tudo depende de variáveis de ambiente, lidas no build:
 | `NEXT_PUBLIC_ADSENSE_SLOT_PRODUTO` | Bloco abaixo da descrição, na página do produto. |
 
 - Posição sem slot configurado não aparece (nem deixa espaço em branco).
+- Anúncio que o Google não preenche some junto com o rótulo "Publicidade". A
+  altura só fica reservada enquanto a resposta não chega, para o conteúdo não
+  pular. Sem isso a loja mostra um vão em branco — durante a análise do site no
+  AdSense, quando nada é servido, e depois dela em qualquer página sem anúncio
+  disponível.
 - O script só carrega nas páginas das lojas (`/[name_store]`), nunca nas
   páginas legais.
 - `/ads.txt` é gerado a partir de `NEXT_PUBLIC_ADSENSE_CLIENT`; sem ela, 404.
