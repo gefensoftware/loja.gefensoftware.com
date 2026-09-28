@@ -25,6 +25,7 @@ export const escolhaAnunciosAtom = atomWithStorage<EscolhaAnuncios | null>(
  *  rodapé. Fica fora do armazenamento: é estado de tela, não uma decisão. */
 export const preferenciasAnunciosAbertasAtom = atom(false);
 
+
 /**
  * A loja aberta agora exibe anúncio?
  *
