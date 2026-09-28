@@ -9,6 +9,7 @@ import { lerMinhaOrdem } from '@/api/work-order';
 import type { WorkOrder } from '@/types/work-order';
 import type { Enterprise } from '@/types/catalog';
 import { formatarPreco } from '@/lib/price';
+import { fichaPreenchida, modeloDe } from '@/lib/modelos-os';
 import { Button } from '@/components/ui/button';
 
 // A nota da ordem de serviço, do lado do cliente.
@@ -89,7 +90,7 @@ const WorkOrderNote = () => {
 
   if (erro === 'sessao') {
     return (
-      <div className="min-h-screen bg-neutral-200 p-8 text-center text-sm text-neutral-700">
+      <div className="min-h-screen bg-neutral-200 dark:bg-neutral-700 p-8 text-center text-sm text-neutral-700 dark:text-neutral-200">
         Não encontramos esta ordem na sua conta.{' '}
         <Link href={`/${nameStore}/ordens`} className="underline">
           Ver minhas ordens
@@ -100,7 +101,7 @@ const WorkOrderNote = () => {
   }
   if (erro === 'falha') {
     return (
-      <div className="min-h-screen bg-neutral-200 p-8 text-center text-sm text-neutral-700">
+      <div className="min-h-screen bg-neutral-200 dark:bg-neutral-700 p-8 text-center text-sm text-neutral-700 dark:text-neutral-200">
         Não foi possível carregar a nota.{' '}
         <button className="underline" onClick={carregar}>
           Tentar de novo
@@ -110,23 +111,28 @@ const WorkOrderNote = () => {
   }
   if (!ordem) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-neutral-200">
-        <Loader2 className="h-6 w-6 animate-spin text-neutral-400" />
+      <div className="flex min-h-screen items-center justify-center bg-neutral-200 dark:bg-neutral-700">
+        <Loader2 className="h-6 w-6 animate-spin text-neutral-400 dark:text-neutral-500" />
       </div>
     );
   }
 
   const nomeDaLoja = loja?.tradeName || loja?.name || ordem.store?.name || '';
+  const ficha = fichaPreenchida(ordem.template, ordem.intake);
   const telefone = loja?.phones?.[0]?.phone ?? '';
   const endereco = loja?.address
     ? `${loja.address.street}, ${loja.address.number}${loja.address.complement ? ` ${loja.address.complement}` : ''} — ${loja.address.neighborhood}, ${loja.address.city}/${loja.address.state}`
     : '';
 
   return (
-    <div className="min-h-screen bg-neutral-200 py-8 pb-28 print:bg-white print:py-0 print:pb-0">
+    <div className="min-h-screen bg-neutral-200 dark:bg-neutral-700 py-8 pb-28 print:bg-white print:py-0 print:pb-0">
       {/* A folha é branca com texto preto, e não usa o tema da loja: a
           vitrine de tema escuro imprimiria uma página inteira de tinta. A
-          marca dela entra pelo logo e pelo cabeçalho. */}
+          marca dela entra pelo logo e pelo cabeçalho.
+          É por isso que o <article> abaixo é a única parte da vitrine sem
+          variante `dark:` — nem na tela, para o que se vê ser o que sai na
+          impressora. O tema escuro alcança só a moldura: o fundo em volta da
+          folha, o link de voltar e o botão de imprimir. */}
       <style>{`
         @page { size: A4; margin: 12mm; }
         @media print {
@@ -137,7 +143,7 @@ const WorkOrderNote = () => {
       <div className="mx-auto mb-4 flex max-w-[210mm] items-center justify-between gap-4 px-4 print:hidden">
         <Link
           href={`/${nameStore}/ordens`}
-          className="text-sm text-neutral-700 underline hover:text-neutral-900"
+          className="text-sm text-neutral-700 dark:text-neutral-200 underline hover:text-neutral-900 dark:hover:text-white"
         >
           ← Minhas ordens
         </Link>
@@ -191,6 +197,26 @@ const WorkOrderNote = () => {
           <Campo rotulo="Placa / nº de série">{ordem.equipment?.identifier}</Campo>
         </section>
 
+        {/* A ficha de entrada: como o equipamento chegou. É o que responde
+            "esse risco já estava?" no dia da retirada.
+
+            Os campos sensíveis não chegam até aqui — a API os remove da
+            resposta do cliente. */}
+        {ficha.length > 0 && (
+          <section className="mt-4 border-t border-neutral-200 pt-4">
+            <p className="mb-2 text-[10px] uppercase tracking-wide text-neutral-500">
+              {modeloDe(ordem.template).fichaTitulo}
+            </p>
+            <div className="grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-4">
+              {ficha.map((linha) => (
+                <div key={linha.key} className={linha.longo ? 'col-span-2 sm:col-span-4' : ''}>
+                  <Campo rotulo={linha.label}>{linha.valor}</Campo>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
         <section className="mt-5 border-t border-neutral-200 pt-4">
           <p className="text-[10px] uppercase tracking-wide text-neutral-500">
             Defeito relatado pelo cliente
@@ -208,7 +234,7 @@ const WorkOrderNote = () => {
 
         <section className="mt-5">
           <p className="mb-2 text-[10px] uppercase tracking-wide text-neutral-500">
-            Peças e serviços
+            Serviço e {modeloDe(ordem.template).pecas.toLowerCase()}
           </p>
           <table className="w-full border-collapse text-[13px]">
             <thead>
@@ -230,7 +256,9 @@ const WorkOrderNote = () => {
               ) : (
                 ordem.items.map((item, i) => (
                   <tr key={item.id ?? i} className="border-b border-neutral-200">
-                    <td className="py-1.5">{item.kind === 'part' ? 'Peça' : 'Mão de obra'}</td>
+                    <td className="py-1.5">
+                      {item.kind === 'part' ? modeloDe(ordem.template).pecas : 'Mão de obra'}
+                    </td>
                     <td className="py-1.5">{item.description}</td>
                     <td className="py-1.5 text-right">{item.quantity}</td>
                     <td className="py-1.5 text-right">{formatarPreco(item.unitAmount)}</td>
@@ -243,8 +271,20 @@ const WorkOrderNote = () => {
             </tbody>
             <tfoot>
               <tr>
+                <td colSpan={4} className="py-1 text-right">
+                  Valor dos serviços
+                </td>
+                <td className="py-1 text-right">{formatarPreco(ordem.laborTotal)}</td>
+              </tr>
+              <tr>
+                <td colSpan={4} className="py-1 text-right">
+                  Valor de {modeloDe(ordem.template).pecas.toLowerCase()}
+                </td>
+                <td className="py-1 text-right">{formatarPreco(ordem.partsTotal)}</td>
+              </tr>
+              <tr>
                 <td colSpan={4} className="py-2 text-right font-medium">
-                  Total
+                  Valor total
                 </td>
                 <td className="py-2 text-right text-base font-bold">
                   {formatarPreco(ordem.total)}

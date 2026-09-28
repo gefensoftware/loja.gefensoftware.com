@@ -8,7 +8,7 @@ import {
   slotDaPosicao,
   type PosicaoAnuncio,
 } from '@/lib/anuncios'
-import { escolhaAnunciosAtom } from '@/store/anuncios'
+import { escolhaAnunciosAtom, lojaSemAnunciosAtom } from '@/store/anuncios'
 
 interface EspacoAnuncioProps {
   posicao: PosicaoAnuncio
@@ -18,8 +18,9 @@ interface EspacoAnuncioProps {
 // Um bloco de anúncio responsivo do AdSense.
 //
 // Some por inteiro (null, sem espaço reservado) quando os anúncios estão
-// desligados ou a posição não tem slot configurado: a vitrine não pode
-// ganhar um buraco em branco por falta de configuração.
+// desligados, quando o plano da loja inclui vitrine sem publicidade, ou
+// quando a posição não tem slot configurado: a vitrine não pode ganhar um
+// buraco em branco por falta de configuração.
 //
 // O `min-h` reserva a altura antes de o anúncio chegar, para o conteúdo
 // abaixo não pular quando ele carrega (CLS). Essa reserva vale enquanto a
@@ -28,6 +29,7 @@ interface EspacoAnuncioProps {
 export default function EspacoAnuncio({ posicao, className = '' }: EspacoAnuncioProps) {
   const slot = slotDaPosicao(posicao)
   const escolha = useAtomValue(escolhaAnunciosAtom)
+  const semAnuncios = useAtomValue(lojaSemAnunciosAtom)
   // O StrictMode do desenvolvimento monta o efeito duas vezes; um segundo
   // `push` para o mesmo <ins> faz o AdSense lançar "already have ads".
   const enviado = useRef(false)
@@ -41,7 +43,7 @@ export default function EspacoAnuncio({ posicao, className = '' }: EspacoAnuncio
   )
 
   useEffect(() => {
-    if (!slot || enviado.current) return
+    if (!slot || semAnuncios || enviado.current) return
     enviado.current = true
     try {
       // A marcação vem imediatamente antes do `push`, no mesmo bloco
@@ -55,7 +57,7 @@ export default function EspacoAnuncio({ posicao, className = '' }: EspacoAnuncio
       // aparece, a vitrine segue normal. Não é erro para o cliente ver.
       console.warn('[anuncios] não foi possível preencher o espaço', posicao, erro)
     }
-  }, [slot, posicao, escolha])
+  }, [slot, posicao, escolha, semAnuncios])
 
   // O AdSense escreve `data-ad-status` no <ins> quando a resposta chega:
   // "filled" com anúncio, "unfilled" sem. Sem anúncio o bloco precisa sumir —
@@ -82,7 +84,7 @@ export default function EspacoAnuncio({ posicao, className = '' }: EspacoAnuncio
     return () => observador.disconnect()
   }, [slot])
 
-  if (!slot || !adsenseClient) return null
+  if (!slot || !adsenseClient || semAnuncios) return null
 
   // `hidden` em vez de desmontar: tirar o <ins> do DOM deixaria o AdSense com
   // uma referência a um elemento que não existe mais, e um `push` futuro para
@@ -92,7 +94,7 @@ export default function EspacoAnuncio({ posicao, className = '' }: EspacoAnuncio
       aria-label="Publicidade"
       className={`w-full ${preenchimento === 'nao' ? 'hidden' : className}`}
     >
-      <p className="text-[10px] uppercase tracking-wide text-gray-400 mb-1 text-center">
+      <p className="text-[10px] uppercase tracking-wide text-gray-400 dark:text-neutral-500 mb-1 text-center">
         Publicidade
       </p>
       <ins

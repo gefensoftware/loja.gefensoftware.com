@@ -8,12 +8,12 @@ const UnderConstruction = () => {
   const router = useRouter();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-slate-100 flex items-center justify-center p-4">
-      <Card className="w-full max-w-lg shadow-xl border-0 bg-white">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-slate-100 dark:from-neutral-950 dark:to-neutral-900 flex items-center justify-center p-4">
+      <Card className="w-full max-w-lg shadow-xl border-0 bg-white dark:bg-neutral-900">
         <CardContent className="p-8 text-center">
           <div className="mb-6">
             {/* Ícone mais neutro - engrenagem */}
-            <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-r from-gray-600 to-slate-700 rounded-full flex items-center justify-center shadow-lg">
+            <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-r from-gray-600 to-slate-700 dark:from-neutral-700 dark:to-neutral-600 rounded-full flex items-center justify-center shadow-lg">
               <svg 
                 className="w-12 h-12 text-white" 
                 fill="none" 
@@ -25,24 +25,24 @@ const UnderConstruction = () => {
               </svg>
             </div>
             
-            <h1 className="text-3xl font-bold text-gray-800 mb-4">
+            <h1 className="text-3xl font-bold text-gray-800 dark:text-neutral-100 mb-4">
               🚧 Página em Construção
             </h1>
             
-            <p className="text-gray-600 mb-6 leading-relaxed">
+            <p className="text-gray-600 dark:text-neutral-300 mb-6 leading-relaxed">
               Estamos trabalhando para melhorar esta página. 
               <br />
-              <span className="text-gray-700 font-medium">Em breve estará disponível!</span>
+              <span className="text-gray-700 dark:text-neutral-200 font-medium">Em breve estará disponível!</span>
             </p>
           </div>
           
           <div className="space-y-4">
             {/* Indicador de progresso neutro */}
-            <div className="flex items-center justify-center space-x-3 text-sm text-gray-500">
+            <div className="flex items-center justify-center space-x-3 text-sm text-gray-500 dark:text-neutral-400">
               <div className="flex space-x-1">
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style={{animationDelay: '0.1s'}}></div>
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
+                <div className="w-2 h-2 bg-gray-400 dark:bg-neutral-600 rounded-full animate-pulse"></div>
+                <div className="w-2 h-2 bg-gray-400 dark:bg-neutral-600 rounded-full animate-pulse" style={{animationDelay: '0.1s'}}></div>
+                <div className="w-2 h-2 bg-gray-400 dark:bg-neutral-600 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
               </div>
               <span className="font-medium">Desenvolvimento em andamento</span>
             </div>
@@ -51,7 +51,7 @@ const UnderConstruction = () => {
             <div className="space-y-3">
               <Button 
                 onClick={() => router.back()}
-                className="w-full bg-gray-700 hover:bg-gray-800 text-white font-medium py-2 transition-colors duration-200"
+                className="w-full bg-gray-700 hover:bg-gray-800 dark:bg-neutral-700 dark:hover:bg-neutral-600 text-white font-medium py-2 transition-colors duration-200"
               >
                 ← Voltar
               </Button>
@@ -63,7 +63,7 @@ const UnderConstruction = () => {
               }
             }}
                 variant="outline"
-                className="w-full border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 transition-colors duration-200"
+                className="w-full border-gray-300 dark:border-neutral-700 text-gray-700 dark:text-neutral-200 hover:bg-gray-50 dark:hover:bg-neutral-900 font-medium py-2 transition-colors duration-200"
               >
                 🔄 Recarregar
               </Button>

@@ -134,7 +134,7 @@ export default function SchedulePanel({
   if (!autenticado) {
     return (
       <div className="space-y-4">
-        <p className="text-sm text-gray-700">
+        <p className="text-sm text-gray-700 dark:text-neutral-200">
           Entre na sua conta para escolher um horário e acompanhar a confirmação da loja por aqui.
         </p>
         <Button onClick={onPrecisaEntrar} className="w-full">
@@ -147,11 +147,11 @@ export default function SchedulePanel({
   if (pedido) {
     return (
       <div className="space-y-3">
-        <div className="flex items-center gap-2 text-sm font-medium text-gray-900">
+        <div className="flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-neutral-100">
           <Check className="w-4 h-4 flex-shrink-0" />
           Pedido enviado — aguardando a loja confirmar
         </div>
-        <p className="text-sm text-gray-700">
+        <p className="text-sm text-gray-700 dark:text-neutral-200">
           {/* O cliente precisa saber que pedir não é ter a hora: a loja ainda
               confirma, e só então o horário é dele. */}
           Seu horário só fica garantido depois que a loja confirmar. Você acompanha em{' '}
@@ -178,7 +178,7 @@ export default function SchedulePanel({
   return (
     <div className="space-y-4">
       <div>
-        <p className="flex items-center gap-2 text-sm font-medium text-gray-900 mb-2">
+        <p className="flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-neutral-100 mb-2">
           <Calendar className="w-4 h-4" />
           Escolha o dia
         </p>
@@ -192,7 +192,7 @@ export default function SchedulePanel({
                 type="button"
                 onClick={() => setDia(valor)}
                 className={`shrink-0 rounded-lg border px-3 py-2 text-sm ${
-                  ativo ? 'border-primary bg-primary text-white' : 'border-gray-300 bg-white text-gray-700'
+                  ativo ? 'border-primary bg-primary text-on-primary' : 'border-gray-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-gray-700 dark:text-neutral-200'
                 }`}
                 aria-pressed={ativo}
               >
@@ -204,25 +204,25 @@ export default function SchedulePanel({
       </div>
 
       <div>
-        <p className="flex items-center gap-2 text-sm font-medium text-gray-900 mb-2">
+        <p className="flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-neutral-100 mb-2">
           <Clock className="w-4 h-4" />
           Horários livres
         </p>
 
         {carregando ? (
-          <div className="flex items-center gap-2 text-sm text-gray-600">
+          <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-neutral-300">
             <Loader2 className="w-4 h-4 animate-spin" />
             Carregando…
           </div>
         ) : erro ? (
-          <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-3">
-            <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-            <p className="text-sm text-amber-900">{erro}</p>
+          <div className="p-4 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 rounded-lg flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+            <p className="text-sm text-amber-900 dark:text-amber-200">{erro}</p>
           </div>
         ) : slots.length === 0 ? (
           // Dia fechado e dia lotado dão o mesmo resultado para quem olha, e a
           // frase cobre os dois sem inventar qual foi.
-          <p className="text-sm text-gray-600">Nenhum horário livre neste dia. Tente outro.</p>
+          <p className="text-sm text-gray-600 dark:text-neutral-300">Nenhum horário livre neste dia. Tente outro.</p>
         ) : (
           <div className="flex flex-wrap gap-2">
             {slots.map((s) => (
@@ -232,8 +232,8 @@ export default function SchedulePanel({
                 onClick={() => setEscolhido(s)}
                 className={`rounded-lg border px-3 py-2 text-sm ${
                   escolhido === s
-                    ? 'border-primary bg-primary text-white'
-                    : 'border-gray-300 bg-white text-gray-700'
+                    ? 'border-primary bg-primary text-on-primary'
+                    : 'border-gray-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-gray-700 dark:text-neutral-200'
                 }`}
                 aria-pressed={escolhido === s}
               >
@@ -247,7 +247,7 @@ export default function SchedulePanel({
       {escolhido && (
         <div className="space-y-3">
           <div>
-            <label htmlFor="obs-agenda" className="block text-sm font-medium text-gray-900 mb-2">
+            <label htmlFor="obs-agenda" className="block text-sm font-medium text-gray-900 dark:text-neutral-100 mb-2">
               Alguma observação? (opcional)
             </label>
             <Textarea

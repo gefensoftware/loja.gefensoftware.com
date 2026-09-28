@@ -141,17 +141,17 @@ const AuthModal = (props: AuthModalProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[90%] p-0 overflow-hidden bg-gradient-to-br from-white to-gray-50 border-0 shadow-2xl rounded-lg">
-        <div className="bg-primary px-6 py-4 text-white">
+      <DialogContent className="w-[calc(100%-2rem)] max-h-[90dvh] overflow-y-auto p-0 bg-gradient-to-br from-white to-gray-50 dark:from-neutral-900 dark:to-neutral-950 border-0 shadow-2xl rounded-lg">
+        <div className="bg-primary px-6 py-4 text-on-primary">
           <DialogHeader className="text-center">
             <DialogTitle className="text-2xl font-bold">Bem-vindo!</DialogTitle>
-            <p className="text-white mt-2">Entre ou crie sua conta para continuar</p>
+            <p className="text-on-primary mt-2">Entre ou crie sua conta para continuar</p>
           </DialogHeader>
         </div>
         
         <div className="px-6 pb-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 bg-gray-100 p-1 rounded-lg mb-6">
+            <TabsList className="grid w-full grid-cols-2 bg-gray-100 dark:bg-neutral-800 p-1 rounded-lg mb-6">
               <TabsTrigger 
                 value="login" 
               >
@@ -167,7 +167,7 @@ const AuthModal = (props: AuthModalProps) => {
             <TabsContent value="login" className="space-y-4">
               <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                  <Label htmlFor="email" className="text-sm font-medium text-gray-700 dark:text-neutral-200 flex items-center gap-2">
                     <Mail className="w-4 h-4" />
                     Email
                   </Label>
@@ -176,10 +176,10 @@ const AuthModal = (props: AuthModalProps) => {
                       id="email" 
                       type="email" 
                       placeholder="seu@email.com"
-                      className="pl-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500 transition-colors"
+                      className="pl-10 border-gray-300 dark:border-neutral-700 focus:border-blue-500 focus:ring-blue-500 transition-colors"
                       {...loginForm.register('email')}
                     />
-                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-neutral-500 w-4 h-4" />
                   </div>
                   {loginForm.formState.errors.email && (
                     <p className="text-sm text-red-500 flex items-center gap-1">
@@ -190,7 +190,7 @@ const AuthModal = (props: AuthModalProps) => {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="password" className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                  <Label htmlFor="password" className="text-sm font-medium text-gray-700 dark:text-neutral-200 flex items-center gap-2">
                     <Lock className="w-4 h-4" />
                     Senha
                   </Label>
@@ -199,14 +199,14 @@ const AuthModal = (props: AuthModalProps) => {
                       id="password" 
                       type={showPassword ? "text" : "password"}
                       placeholder="********"
-                      className="pl-10 pr-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500 transition-colors"
+                      className="pl-10 pr-10 border-gray-300 dark:border-neutral-700 focus:border-blue-500 focus:ring-blue-500 transition-colors"
                       {...loginForm.register('password')}
                     />
-                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-neutral-500 w-4 h-4" />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-neutral-500 hover:text-gray-600 dark:hover:text-neutral-300 transition-colors"
                     >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
@@ -221,7 +221,7 @@ const AuthModal = (props: AuthModalProps) => {
                 
                 <Button 
                   type="submit" 
-                  className="w-full bg-primary hover:bg-primary/80 text-white font-medium py-3 rounded-lg transition-all duration-200 transform hover:scale-[1.02] shadow-lg"
+                  className="w-full bg-primary hover:bg-primary/80 text-on-primary font-medium py-3 rounded-lg transition-all duration-200 transform hover:scale-[1.02] shadow-lg"
                   disabled={loginForm.formState.isSubmitting}
                 >
                   {loginForm.formState.isSubmitting ? 'Entrando...' : 'Entrar'}
@@ -232,7 +232,7 @@ const AuthModal = (props: AuthModalProps) => {
             <TabsContent value="register" className="space-y-4">
               <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name" className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                  <Label htmlFor="name" className="text-sm font-medium text-gray-700 dark:text-neutral-200 flex items-center gap-2">
                     <User className="w-4 h-4" />
                     Nome
                   </Label>
@@ -240,10 +240,10 @@ const AuthModal = (props: AuthModalProps) => {
                     <Input 
                       id="name" 
                       placeholder="Seu nome completo"
-                      className="pl-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500 transition-colors"
+                      className="pl-10 border-gray-300 dark:border-neutral-700 focus:border-blue-500 focus:ring-blue-500 transition-colors"
                       {...registerForm.register('name')}
                     />
-                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-neutral-500 w-4 h-4" />
                   </div>
                   {registerForm.formState.errors.name && (
                     <p className="text-sm text-red-500 flex items-center gap-1">
@@ -254,7 +254,7 @@ const AuthModal = (props: AuthModalProps) => {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="phone" className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                  <Label htmlFor="phone" className="text-sm font-medium text-gray-700 dark:text-neutral-200 flex items-center gap-2">
                     <Phone className="w-4 h-4" />
                     Telefone
                   </Label>
@@ -263,7 +263,7 @@ const AuthModal = (props: AuthModalProps) => {
                       id="phone" 
                       type="tel" 
                       placeholder="(00) 00000-0000"
-                      className="pl-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500 transition-colors"
+                      className="pl-10 border-gray-300 dark:border-neutral-700 focus:border-blue-500 focus:ring-blue-500 transition-colors"
                       {...registerForm.register('phone', {
                         onChange: (e) => {
                           const formatted = formatPhoneNumber(e.target.value);
@@ -271,7 +271,7 @@ const AuthModal = (props: AuthModalProps) => {
                         }
                       })}
                     />
-                    <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-neutral-500 w-4 h-4" />
                   </div>
                   {registerForm.formState.errors.phone && (
                     <p className="text-sm text-red-500 flex items-center gap-1">
@@ -282,7 +282,7 @@ const AuthModal = (props: AuthModalProps) => {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="register-email" className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                  <Label htmlFor="register-email" className="text-sm font-medium text-gray-700 dark:text-neutral-200 flex items-center gap-2">
                     <Mail className="w-4 h-4" />
                     Email
                   </Label>
@@ -291,10 +291,10 @@ const AuthModal = (props: AuthModalProps) => {
                       id="register-email" 
                       type="email" 
                       placeholder="seu@email.com"
-                      className="pl-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500 transition-colors"
+                      className="pl-10 border-gray-300 dark:border-neutral-700 focus:border-blue-500 focus:ring-blue-500 transition-colors"
                       {...registerForm.register('email')}
                     />
-                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-neutral-500 w-4 h-4" />
                   </div>
                   {registerForm.formState.errors.email && (
                     <p className="text-sm text-red-500 flex items-center gap-1">
@@ -305,7 +305,7 @@ const AuthModal = (props: AuthModalProps) => {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="register-password" className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                  <Label htmlFor="register-password" className="text-sm font-medium text-gray-700 dark:text-neutral-200 flex items-center gap-2">
                     <Lock className="w-4 h-4" />
                     Senha
                   </Label>
@@ -313,14 +313,14 @@ const AuthModal = (props: AuthModalProps) => {
                     <Input 
                       id="register-password" 
                       type={showPassword ? "text" : "password"}
-                      className="pl-10 pr-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500 transition-colors"
+                      className="pl-10 pr-10 border-gray-300 dark:border-neutral-700 focus:border-blue-500 focus:ring-blue-500 transition-colors"
                       {...registerForm.register('password')}
                     />
-                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-neutral-500 w-4 h-4" />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-neutral-500 hover:text-gray-600 dark:hover:text-neutral-300 transition-colors"
                     >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
@@ -334,7 +334,7 @@ const AuthModal = (props: AuthModalProps) => {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="confirm-password" className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                  <Label htmlFor="confirm-password" className="text-sm font-medium text-gray-700 dark:text-neutral-200 flex items-center gap-2">
                     <Lock className="w-4 h-4" />
                     Confirmar Senha
                   </Label>
@@ -342,14 +342,14 @@ const AuthModal = (props: AuthModalProps) => {
                     <Input 
                       id="confirm-password" 
                       type={showConfirmPassword ? "text" : "password"}
-                      className="pl-10 pr-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500 transition-colors"
+                      className="pl-10 pr-10 border-gray-300 dark:border-neutral-700 focus:border-blue-500 focus:ring-blue-500 transition-colors"
                       {...registerForm.register('confirmPassword')}
                     />
-                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-neutral-500 w-4 h-4" />
                     <button
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-neutral-500 hover:text-gray-600 dark:hover:text-neutral-300 transition-colors"
                     >
                       {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
@@ -392,7 +392,7 @@ const AuthModal = (props: AuthModalProps) => {
                     />
                     <Label
                       htmlFor="aceite"
-                      className="text-xs font-normal leading-relaxed text-gray-600"
+                      className="text-xs font-normal leading-relaxed text-gray-600 dark:text-neutral-300"
                     >
                       Li e aceito os{' '}
                       <a
@@ -425,7 +425,7 @@ const AuthModal = (props: AuthModalProps) => {
 
                 <Button
                   type="submit"
-                  className="w-full bg-primary hover:bg-primary/80 text-white font-medium py-3 rounded-lg transition-all duration-200 transform hover:scale-[1.02] shadow-lg"
+                  className="w-full bg-primary hover:bg-primary/80 text-on-primary font-medium py-3 rounded-lg transition-all duration-200 transform hover:scale-[1.02] shadow-lg"
                   disabled={registerForm.formState.isSubmitting || !registerForm.watch('aceite')}
                 >
                   {registerForm.formState.isSubmitting ? 'Cadastrando...' : 'Cadastrar'}

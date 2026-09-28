@@ -128,7 +128,7 @@ export default function BudgetRequestPanel({
   if (!autenticado) {
     return (
       <div className="space-y-4">
-        <p className="text-sm text-gray-700">
+        <p className="text-sm text-gray-700 dark:text-neutral-200">
           Este item é vendido sob orçamento. Entre na sua conta para pedir um preço à loja e
           acompanhar a resposta por aqui.
         </p>
@@ -141,7 +141,7 @@ export default function BudgetRequestPanel({
 
   if (carregando) {
     return (
-      <div className="flex items-center gap-2 text-sm text-gray-600">
+      <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-neutral-300">
         <Loader2 className="w-4 h-4 animate-spin" />
         Carregando seu pedido…
       </div>
@@ -151,9 +151,9 @@ export default function BudgetRequestPanel({
   if (erroDeLeitura) {
     return (
       <div className="space-y-3">
-        <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-3">
-          <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-          <p className="text-sm text-amber-900">
+        <div className="p-4 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 rounded-lg flex items-start gap-3">
+          <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-amber-900 dark:text-amber-200">
             Não deu para verificar se você já tem um pedido para este item.
           </p>
         </div>
@@ -171,7 +171,7 @@ export default function BudgetRequestPanel({
       <div className="space-y-4">
         {pedido && <ResumoFechado pedido={pedido} nameStore={nameStore} />}
         <div>
-          <label htmlFor="mensagem-orcamento" className="block text-sm font-medium text-gray-900 mb-2">
+          <label htmlFor="mensagem-orcamento" className="block text-sm font-medium text-gray-900 dark:text-neutral-100 mb-2">
             {pedido ? 'Pedir outro orçamento' : 'Conte o que você precisa'}
           </label>
           <Textarea
@@ -197,23 +197,23 @@ export default function BudgetRequestPanel({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2 text-sm font-medium text-gray-900">
+      <div className="flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-neutral-100">
         <Icone className="w-4 h-4 flex-shrink-0" />
         {texto}
       </div>
 
-      <div className="text-sm text-gray-700">
-        <p className="font-medium text-gray-900">Seu pedido</p>
+      <div className="text-sm text-gray-700 dark:text-neutral-200">
+        <p className="font-medium text-gray-900 dark:text-neutral-100">Seu pedido</p>
         <p className="whitespace-pre-wrap">{pedido.message}</p>
       </div>
 
       {pedido.status === 'quoted' && pedido.quoteAmount && (
-        <div className="rounded-lg border bg-white p-4 space-y-3">
+        <div className="rounded-lg border bg-white dark:bg-neutral-900 p-4 space-y-3">
           <p className="text-2xl font-semibold text-primary">
             {formatarPreco(pedido.quoteAmount)}
           </p>
           {pedido.quoteNote && (
-            <p className="text-sm text-gray-700 whitespace-pre-wrap">{pedido.quoteNote}</p>
+            <p className="text-sm text-gray-700 dark:text-neutral-200 whitespace-pre-wrap">{pedido.quoteNote}</p>
           )}
           <div className="flex gap-3">
             <Button onClick={() => responder('aceitar')} disabled={enviando} className="flex-1">
@@ -238,12 +238,12 @@ export default function BudgetRequestPanel({
         variant="ghost"
         onClick={() => responder('cancelar')}
         disabled={enviando}
-        className="text-sm text-gray-600"
+        className="text-sm text-gray-600 dark:text-neutral-300"
       >
         Cancelar pedido
       </Button>
 
-      <p className="text-sm text-gray-600">
+      <p className="text-sm text-gray-600 dark:text-neutral-300">
         Todos os seus pedidos ficam em{' '}
         <Link href={`/${nameStore}/orcamentos`} className="underline">
           Meus orçamentos
@@ -259,13 +259,13 @@ export default function BudgetRequestPanel({
 function ResumoFechado({ pedido, nameStore }: { pedido: BudgetRequest; nameStore: string }) {
   const { texto } = ROTULOS[pedido.status];
   return (
-    <div className="rounded-lg border bg-white p-4 text-sm">
-      <p className="font-medium text-gray-900">{texto}</p>
+    <div className="rounded-lg border bg-white dark:bg-neutral-900 p-4 text-sm">
+      <p className="font-medium text-gray-900 dark:text-neutral-100">{texto}</p>
       {pedido.quoteAmount && (
-        <p className="text-gray-700">Valor orçado: {formatarPreco(pedido.quoteAmount)}</p>
+        <p className="text-gray-700 dark:text-neutral-200">Valor orçado: {formatarPreco(pedido.quoteAmount)}</p>
       )}
-      {pedido.closedNote && <p className="text-gray-700">Motivo: {pedido.closedNote}</p>}
-      <Link href={`/${nameStore}/orcamentos`} className="underline text-gray-600">
+      {pedido.closedNote && <p className="text-gray-700 dark:text-neutral-200">Motivo: {pedido.closedNote}</p>}
+      <Link href={`/${nameStore}/orcamentos`} className="underline text-gray-600 dark:text-neutral-300">
         Ver meus orçamentos
       </Link>
     </div>

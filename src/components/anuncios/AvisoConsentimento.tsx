@@ -75,13 +75,13 @@ export default function AvisoConsentimento() {
       aria-labelledby="aviso-anuncios-titulo"
       aria-describedby="aviso-anuncios-texto"
     >
-      <div className="pointer-events-auto relative w-full max-w-2xl rounded-lg border bg-white p-4 shadow-lg md:p-5">
+      <div className="pointer-events-auto relative w-full max-w-2xl rounded-lg border bg-white dark:bg-neutral-900 p-4 shadow-lg md:p-5">
         {!semResposta && (
           <button
             type="button"
             onClick={() => setReaberto(false)}
             aria-label="Fechar sem mudar a escolha"
-            className="absolute right-2 top-2 rounded-md p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+            className="absolute right-2 top-2 rounded-md p-1 text-gray-400 dark:text-neutral-500 hover:bg-gray-100 dark:hover:bg-neutral-800 hover:text-gray-600 dark:hover:text-neutral-300"
           >
             <X className="h-4 w-4" />
           </button>
@@ -89,12 +89,12 @@ export default function AvisoConsentimento() {
 
         <h2
           id="aviso-anuncios-titulo"
-          className="pr-8 text-sm font-semibold text-gray-900"
+          className="pr-8 text-sm font-semibold text-gray-900 dark:text-neutral-100"
         >
           Anúncios nesta loja
         </h2>
 
-        <p id="aviso-anuncios-texto" className="mt-2 text-xs leading-relaxed text-gray-600">
+        <p id="aviso-anuncios-texto" className="mt-2 text-xs leading-relaxed text-gray-600 dark:text-neutral-300">
           As páginas das lojas exibem anúncios fornecidos pelo Google. Com a sua
           permissão, eles podem ser escolhidos a partir da sua atividade em
           outros sites e aplicativos. Sem ela, você continua vendo anúncios —
@@ -112,9 +112,9 @@ export default function AvisoConsentimento() {
         </p>
 
         {!semResposta && (
-          <p className="mt-2 text-xs text-gray-500">
+          <p className="mt-2 text-xs text-gray-500 dark:text-neutral-400">
             Sua escolha atual:{' '}
-            <strong className="font-medium text-gray-700">
+            <strong className="font-medium text-gray-700 dark:text-neutral-200">
               {escolha === 'aceito'
                 ? 'anúncios personalizados permitidos'
                 : 'apenas anúncios não personalizados'}

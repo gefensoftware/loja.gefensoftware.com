@@ -63,14 +63,14 @@ const CartPage = () => {
 
   if (erroDaLoja) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-8 text-center">
-        <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-4">
+      <div className="min-h-screen bg-gray-50 dark:bg-neutral-900 flex flex-col items-center justify-center p-8 text-center">
+        <div className="w-16 h-16 bg-red-50 dark:bg-red-950/40 rounded-full flex items-center justify-center mb-4">
           <AlertTriangle className="w-8 h-8 text-red-500" />
         </div>
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-neutral-100 mb-2">
           Não foi possível carregar a loja
         </h1>
-        <p className="text-gray-600 max-w-md mb-6">
+        <p className="text-gray-600 dark:text-neutral-300 max-w-md mb-6">
           Sem os dados da loja não dá para mostrar a lista nem enviar o
           pedido. Seus itens continuam guardados.
         </p>
@@ -86,11 +86,11 @@ const CartPage = () => {
   // nada.
   if (!carregandoLoja && enterprise && !caps.cart) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-8 text-center">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">
+      <div className="min-h-screen bg-gray-50 dark:bg-neutral-900 flex flex-col items-center justify-center p-8 text-center">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-neutral-100 mb-2">
           Esta loja não trabalha com pedido direto
         </h1>
-        <p className="text-gray-600 max-w-md mb-6">
+        <p className="text-gray-600 dark:text-neutral-300 max-w-md mb-6">
           {caps.budgets
             ? `Aqui o atendimento começa por um orçamento: escolha um ${v.item.toLowerCase()} e use "${v.pedirPreco}".`
             : 'Fale com a loja pelos contatos da página inicial.'}
@@ -103,8 +103,8 @@ const CartPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <div className="bg-white border-b">
+    <div className="min-h-screen bg-gray-50 dark:bg-neutral-900 flex flex-col">
+      <div className="bg-white dark:bg-neutral-900 border-b">
         <div className="max-w-3xl mx-auto px-4 py-4">
           <button
             type="button"
@@ -115,17 +115,17 @@ const CartPage = () => {
             Voltar para o cardápio
           </button>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold text-gray-900">{v.listaTitulo}</h1>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-neutral-100">{v.listaTitulo}</h1>
             {!carregandoLoja && <StatusStore isOpen={aberta} />}
           </div>
           {enterprise && (
-            <p className="text-sm text-gray-600 mt-1">{enterprise.name}</p>
+            <p className="text-sm text-gray-600 dark:text-neutral-300 mt-1">{enterprise.name}</p>
           )}
         </div>
       </div>
 
       <div className="flex-1 max-w-3xl w-full mx-auto px-4 py-4 pb-28">
-        <div className="bg-white rounded-lg border">
+        <div className="bg-white dark:bg-neutral-900 rounded-lg border">
           <ListaDoCarrinho carrinho={carrinho} />
         </div>
 

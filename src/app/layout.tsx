@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { Providers } from './providers'
 import { ToastContainer } from 'react-toastify'
+import { CHAVE_TEMA } from '@/lib/tema'
 import 'react-toastify/dist/ReactToastify.css'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -76,8 +77,21 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" suppressHydrationWarning>
       <head>
+        {/* O tema escolhido pelo visitante, aplicado ANTES da primeira
+            pintura. Sem isto a página abre clara (o React só decide depois de
+            hidratar) e pisca branco na cara de quem escolheu escuro.
+            Por isso é script inline no <head>, e não um efeito: qualquer
+            coisa que dependa do React já chega tarde demais.
+            O padrão do lojista (`theme.mode`) não cabe aqui — depende de
+            uma chamada de rede —, e é por isso que a vitrine segura a tela
+            com a LoadingScreen até a empresa chegar. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{var t=JSON.parse(localStorage.getItem(${JSON.stringify(CHAVE_TEMA)}));if(t==='dark'||t==='black')document.documentElement.classList.add('dark');if(t==='black')document.documentElement.classList.add('black')}catch(e){}`,
+          }}
+        />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet" />

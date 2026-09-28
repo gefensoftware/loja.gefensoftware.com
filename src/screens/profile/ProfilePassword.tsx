@@ -89,7 +89,7 @@ const ProfilePassword = () => {
   }
 
   const classeCampo =
-    'border-2 border-gray-200 focus:border-blue-500 focus:ring-blue-500/20 rounded-xl h-12 px-4 transition-all duration-200 bg-white/50 backdrop-blur-sm'
+    'border-2 border-gray-200 dark:border-neutral-700 focus:border-blue-500 focus:ring-blue-500/20 rounded-xl h-12 px-4 transition-all duration-200 bg-white/50 dark:bg-neutral-900/50 backdrop-blur-sm'
 
   const campos = [
     { nome: 'currentPassword' as const, rotulo: 'Senha atual' },
@@ -103,12 +103,12 @@ const ProfilePassword = () => {
       descricao="Ao trocar a senha, todas as sessões são encerradas e você precisará entrar novamente."
       aoPerderSessao={() => form.reset()}
     >
-      <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm">
+      <Card className="border-0 shadow-xl bg-white/80 dark:bg-neutral-900/80 backdrop-blur-sm">
         <CardContent className="pt-6">
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             {campos.map(({ nome, rotulo }) => (
               <div key={nome} className="space-y-3">
-                <Label htmlFor={nome} className="text-sm font-medium text-gray-700">
+                <Label htmlFor={nome} className="text-sm font-medium text-gray-700 dark:text-neutral-200">
                   {rotulo}
                 </Label>
                 <Input
@@ -130,7 +130,7 @@ const ProfilePassword = () => {
             <Button
               type="submit"
               disabled={form.formState.isSubmitting}
-              className="w-full bg-primary hover:bg-primary/80 text-white font-semibold py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02]"
+              className="w-full bg-primary hover:bg-primary/80 text-on-primary font-semibold py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02]"
             >
               {form.formState.isSubmitting ? 'Trocando...' : 'Trocar Senha'}
             </Button>

@@ -1,6 +1,7 @@
 import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
 import { CHAVE_CONSENTIMENTO, type EscolhaAnuncios } from '@/lib/anuncios';
+import { enterprisesAtom } from '@/store/atoms/enterprises';
 
 /**
  * A escolha do visitante sobre anúncios personalizados, guardada no aparelho.
@@ -23,3 +24,20 @@ export const escolhaAnunciosAtom = atomWithStorage<EscolhaAnuncios | null>(
 /** Aviso reaberto de propósito pelo link "Preferências de anúncios" do
  *  rodapé. Fica fora do armazenamento: é estado de tela, não uma decisão. */
 export const preferenciasAnunciosAbertasAtom = atom(false);
+
+
+/**
+ * A loja aberta agora exibe anúncio?
+ *
+ * Derivado da empresa, e não escrito por um efeito: o plano já chega no mesmo
+ * JSON que a vitrine busca para renderizar a loja, então copiá-lo para um
+ * estado próprio só criaria duas versões da mesma verdade para manter em dia.
+ *
+ * O padrão é SEM anúncio — `true` quando a empresa ainda não chegou ou quando
+ * a resposta não traz o bloco do plano. É o lado conservador de propósito: o
+ * erro de não mostrar um anúncio custa centavos, e o de mostrar publicidade na
+ * vitrine de quem paga para não ter custa o cliente.
+ */
+export const lojaSemAnunciosAtom = atom(
+  (get) => get(enterprisesAtom)?.plan?.adsFree ?? true,
+);

@@ -154,10 +154,24 @@ export interface Palette {
   text: string;
 }
 
+export type ThemeMode = 'light' | 'dark' | 'black';
+
 export interface Theme {
+  /** Como a loja abre para quem chega. A escolha do visitante ganha desta. */
+  mode: ThemeMode;
+  /**
+   * Derivado de `mode` pela API (mode !== 'light').
+   *
+   * @deprecated use `mode` — só continua existindo para não quebrar quem foi
+   *   publicado antes do modo preto.
+   */
   isDark: boolean;
   light: Palette;
   dark: Palette;
+  /** A cor que o lojista escolheu para o preto; as outras três são fixas. */
+  blackPrimary: string;
+  /** A paleta preta pronta, montada pela API a partir de `blackPrimary`. */
+  black: Palette;
 }
 
 export type Weekday =
@@ -210,6 +224,15 @@ export interface Capabilities {
   workOrders: boolean;
 }
 
+// O que o plano da loja dá. Espelha `entitlementsDTO` em
+// internal/adapters/in/http/billing_dto.go, mas declara só o que a VITRINE
+// usa: os tetos e os módulos são assunto do portal e do painel, e um tipo que
+// os repetisse aqui teria de ser mantido em três lugares sem ninguém ler.
+export interface EnterprisePlan {
+  /** Plano sem publicidade: a vitrine desta loja não mostra anúncio. */
+  adsFree: boolean;
+}
+
 export interface Enterprise {
   id: string;
   name: string;
@@ -227,6 +250,7 @@ export interface Enterprise {
   hours: BusinessDay[];
   mode: OperationMode | null;
   capabilities: Capabilities;
+  plan: EnterprisePlan;
   // Só presente quando o chamador tem permissão para ver administradores
   // (a rota pública nunca inclui).
   admins?: AdminRef[];

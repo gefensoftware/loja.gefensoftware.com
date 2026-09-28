@@ -71,12 +71,33 @@
 }
  
 @layer base {
-  /* * {
+  /* A borda sem cor declarada (`border`, `border-t`, `border-b` soltos) usa o
+     padrão do Tailwind, que é cinza claro fixo — no tema escuro ela virava um
+     risco branco atravessando cada cabeçalho e cada card. Amarrando-a ao
+     token, ela acompanha o tema.
+     No claro nada muda: `--border` vale 214.3 31.8% 91.4%, que é o mesmo
+     gray-200 que o Tailwind já usava. E como isto é `base`, qualquer
+     `border-gray-300` escrito na marra continua ganhando. */
+  * {
     @apply border-border;
-  } */
-  /* body {
-    @apply bg-background text-foreground;
-  } */
+  }
+
+  /* A área além do conteúdo (o "elástico" da rolagem no celular, a faixa
+     abaixo de uma página curta) não pertence a nenhuma tela e ficava branca
+     no tema escuro. */
+  .dark body {
+    background-color: var(--dark-background-color);
+    color: var(--dark-text-color);
+  }
+
+  /* O mesmo para o preto. Estas duas regras nomeiam a paleta direto em vez de
+     usar `--background-color`/`--text-color` para não depender de quem vence
+     o empate entre `.dark` e `.dark.black` — aqui o seletor já diz qual tema
+     está no ar. */
+  .dark.black body {
+    background-color: var(--black-background-color);
+    color: var(--black-text-color);
+  }
 }
 
 /* Custom animations */
@@ -93,12 +114,31 @@
   --light-secondary-color: #64748b;
   --light-background-color: #f8fafc;
   --light-text-color: #1e293b;
+  /* A cor que se lê SOBRE a primária. Não é escolha de estilo: a primária vem
+     do lojista, e um azul escuro pede texto branco enquanto um amarelo pede
+     texto preto. O valor de verdade é calculado a partir da primária em
+     `StoreLayoutClient`; estes aqui são o que vale antes de a empresa chegar
+     da rede, casando com as primárias padrão logo acima. */
+  --light-primary-contrast-color: #ffffff;
 
   /* Dark mode variables */
   --dark-primary-color: #3b82f6;
   --dark-secondary-color: #94a3b8;
   --dark-background-color: #0f172a;
   --dark-text-color: #f1f5f9;
+  --dark-primary-contrast-color: #ffffff;
+
+  /* Black mode variables.
+
+     Os três últimos são fixos em toda loja — o preto é o preto — e batem com
+     domain.BlackPalette (internal/core/domain/palette.go), que é quem os
+     manda de verdade em `theme.black`. O que está aqui é o que vale antes de
+     a empresa chegar da rede. A primária é a única que o lojista escolhe. */
+  --black-primary-color: #3b82f6;
+  --black-secondary-color: #1c1c1e;
+  --black-background-color: #0a0a0a;
+  --black-text-color: #ffffff;
+  --black-primary-contrast-color: #ffffff;
 }
 
 /* Light mode styles */
@@ -107,6 +147,7 @@
   --secondary-color: var(--light-secondary-color);
   --background-color: var(--light-background-color);
   --text-color: var(--light-text-color);
+  --primary-contrast-color: var(--light-primary-contrast-color);
 }
 
 /* Dark mode styles */
@@ -115,6 +156,27 @@
   --secondary-color: var(--dark-secondary-color);
   --background-color: var(--dark-background-color);
   --text-color: var(--dark-text-color);
+  --primary-contrast-color: var(--dark-primary-contrast-color);
+}
+
+/* Black mode styles.
+
+   O `<html>` do modo preto tem AS DUAS classes, `dark black` — o preto é um
+   escuro, e sem `.dark` as centenas de variantes `dark:` do Tailwind
+   espalhadas pela vitrine voltariam todas para a versão clara. O seletor
+   nomeia as duas — `.dark.black`, e não só `.black` — para ganhar de `.dark`
+   por especificidade, e não pela ordem em que os dois blocos calham de
+   aparecer neste arquivo.
+
+   O que ele troca é a paleta da loja. Os cinzas do Tailwind que as variantes
+   `dark:` usam continuam os mesmos, e é por isso que o resultado fecha: o
+   `neutral-950` delas é exatamente #0a0a0a, o fundo daqui. */
+.dark.black {
+  --primary-color: var(--black-primary-color);
+  --secondary-color: var(--black-secondary-color);
+  --background-color: var(--black-background-color);
+  --text-color: var(--black-text-color);
+  --primary-contrast-color: var(--black-primary-contrast-color);
 }
 
 /* Primary color utilities */
@@ -136,6 +198,23 @@
 
 .hover\:text-primary:hover {
   color: var(--primary-color);
+}
+
+/* O texto que fica em cima da primária — botão, aba ativa, selo, avatar.
+   Existe porque estes lugares cravavam `text-white`: com a primária escura do
+   tema claro isso funcionava por acidente, e o primeiro lojista com primária
+   clara (a paleta escura costuma ter) ganhava um botão branco escrito em
+   branco. */
+.text-on-primary {
+  color: var(--primary-contrast-color);
+}
+
+.hover\:text-on-primary:hover {
+  color: var(--primary-contrast-color);
+}
+
+.bg-on-primary {
+  background-color: var(--primary-contrast-color);
 }
 
 /* Secondary color utilities */
@@ -171,7 +250,7 @@
 /* Button styles */
 .btn-primary {
   background-color: var(--primary-color);
-  color: white;
+  color: var(--primary-contrast-color);
   border-radius: 0.5rem;
   font-weight: 500;
   transition: all 0.2s ease-in-out;
@@ -194,8 +273,12 @@
 
 .btn-secondary:hover {
   background-color: var(--primary-color);
-  color: white;
+  color: var(--primary-contrast-color);
   transform: translateY(-1px);
+}
+
+.dark .btn-secondary {
+  background-color: #171717;
 }
 
 /* Link styles */
@@ -224,6 +307,11 @@
   transform: translateY(-2px);
 }
 
+.dark .card-primary {
+  border-color: #404040;
+  background-color: #171717;
+}
+
 /* Input styles */
 .input-primary:focus {
   border-color: var(--primary-color);
@@ -247,6 +335,18 @@
 
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #171717;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #404040;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #525252;
 }
 
 /* Line clamp utilities */

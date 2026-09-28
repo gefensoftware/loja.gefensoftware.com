@@ -64,7 +64,7 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
               }}
               className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
                 selectedCategory === null
-                  ? 'bg-primary text-white'
+                  ? 'bg-primary text-on-primary'
                   : 'text-foreground hover:bg-primary/10'
               }`}
             >
@@ -74,14 +74,14 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
             {loading && (
               <div className="space-y-2 pt-2">
                 {[0, 1, 2, 3].map((i) => (
-                  <div key={i} className="h-9 bg-gray-200 rounded-md animate-pulse" />
+                  <div key={i} className="h-9 bg-gray-200 dark:bg-neutral-700 rounded-md animate-pulse" />
                 ))}
               </div>
             )}
 
             {!loading && error && (
               <div className="pt-2 space-y-2">
-                <div className="flex items-start gap-2 text-sm text-red-700">
+                <div className="flex items-start gap-2 text-sm text-red-700 dark:text-red-300">
                   <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
                   <span>Não foi possível carregar as categorias.</span>
                 </div>
@@ -106,7 +106,7 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
                 }}
                 className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
                   selectedCategory === category.id
-                    ? 'bg-primary text-white'
+                    ? 'bg-primary text-on-primary'
                     : 'text-foreground hover:bg-primary/10'
                 }`}
               >

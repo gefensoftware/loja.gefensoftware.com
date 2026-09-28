@@ -41,6 +41,14 @@ export type WorkOrder = {
   store: WorkOrderStore | null;
   number: number;
   status: WorkOrderStatus;
+  /** O modelo da ficha de entrada. Ver lib/modelos-os.ts. */
+  template: 'automotive' | 'electronics' | 'generic';
+  /**
+   * As respostas da ficha de entrada, por chave. Chega SEM os campos
+   * sensíveis: a senha que o cliente deixou na assistência não volta numa
+   * resposta de API.
+   */
+  intake: Record<string, string>;
   customer: {
     userId: string | null;
     name: string;
@@ -61,7 +69,18 @@ export type WorkOrder = {
   diagnosis: string;
   closedNote: string;
   items: WorkOrderItem[];
+  /** Os três números do orçamento, somados pelo servidor. */
+  laborTotal: string;
+  partsTotal: string;
   total: string;
+  /**
+   * O valor combinado na aprovação, congelado. Vazio se ninguém aprovou.
+   *
+   * A vitrine NÃO o mostra: o cliente lê o orçamento em três linhas —
+   * serviços, peças, total — e é só isso. Fica aqui porque este arquivo
+   * espelha a resposta da API, não a tela.
+   */
+  estimatedTotal: string;
   quotedAt: string | null;
   approvedAt: string | null;
   approvedBy: '' | 'customer' | 'store';

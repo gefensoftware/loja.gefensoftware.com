@@ -20,7 +20,7 @@ import LinkPreferencias from '@/components/anuncios/LinkPreferencias'
 // dura é o que se quer ao sair da vitrine.
 export default function StoreFooter(): JSX.Element {
   return (
-    <footer className="bg-white flex items-center justify-center gap-3 pb-24 pt-6 text-xs text-gray-500">
+    <footer className="bg-white dark:bg-neutral-900 flex items-center justify-center gap-3 pb-24 pt-6 text-xs text-gray-500 dark:text-neutral-400">
       <a href="/termos-de-uso" className="hover:text-primary hover:underline">
         Termos de Uso
       </a>

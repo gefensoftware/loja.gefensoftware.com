@@ -10,11 +10,13 @@ import { sair } from '@/api/auth'
 import { userAtom } from '@/store/user'
 import { authAtom } from '@/store/auth'
 import { useEmpresa } from '@/store/enterprise'
+import { useTema } from '@/store/tema'
 import { capacidadesDe } from '@/lib/vocabulario'
 import { Card } from '@/components/ui/card'
 import RequireAuth from '@/components/RequireAuth'
 import UserAvatar from '@/components/profile/UserAvatar'
 import ProfileMenuItem from '@/components/profile/ProfileMenuItem'
+import SeletorDeTema from '@/components/profile/SeletorDeTema'
 
 /**
  * A lista de opções do perfil.
@@ -32,6 +34,10 @@ const Profile = () => {
   const { empresa } = useEmpresa(loja)
   const caps = capacidadesDe(empresa?.capabilities)
   const [saindo, setSaindo] = useState(false)
+  // O mesmo gancho do layout da loja, com o mesmo padrão do lojista: ler nos
+  // dois lugares é de graça (é um átomo) e evita que esta tela mostre a
+  // chave numa posição e a página esteja na outra.
+  const { tema, escolher } = useTema(empresa?.theme?.mode)
 
   const aoSair = async () => {
     setSaindo(true)
@@ -51,7 +57,7 @@ const Profile = () => {
 
   return (
     <RequireAuth>
-      <div className="min-h-screen bg-white mb-20">
+      <div className="min-h-screen bg-white dark:bg-neutral-950 mb-20">
         <div className="container mx-auto px-4 py-6 max-w-2xl">
           {/* Cabeçalho: foto, nome e e-mail */}
           <div className="mb-6 flex flex-col items-center">
@@ -63,17 +69,17 @@ const Profile = () => {
               <Link
                 href={`/${loja}/profile/foto`}
                 aria-label="Editar foto de perfil"
-                className="absolute bottom-1 right-1 rounded-full bg-primary p-2 text-white shadow-lg transition-transform hover:scale-105"
+                className="absolute bottom-1 right-1 rounded-full bg-primary p-2 text-on-primary shadow-lg transition-transform hover:scale-105"
               >
                 <Pencil className="h-4 w-4" />
               </Link>
             </div>
-            <h1 className="mt-4 text-2xl font-bold text-gray-800">{user?.name}</h1>
-            {user?.email && <p className="text-sm text-gray-500">{user.email}</p>}
+            <h1 className="mt-4 text-2xl font-bold text-gray-800 dark:text-neutral-100">{user?.name}</h1>
+            {user?.email && <p className="text-sm text-gray-500 dark:text-neutral-400">{user.email}</p>}
           </div>
 
           <Card className="overflow-hidden border-0 shadow-lg">
-            <div className="divide-y divide-gray-100">
+            <div className="divide-y divide-gray-100 dark:divide-neutral-800">
               <ProfileMenuItem
                 icon={User}
                 label="Dados Pessoais"
@@ -120,6 +126,10 @@ const Profile = () => {
                   href={`/${loja}/ordens`}
                 />
               )}
+
+              {/* Aparência fica acima do "Sair" porque é preferência, e o
+                  "Sair" é a ação destrutiva que fecha a lista. */}
+              <SeletorDeTema tema={tema} aoEscolher={escolher} />
 
               {auth.isAuthenticated && (
                 <ProfileMenuItem
