@@ -148,12 +148,19 @@ const Appointments = () => {
                   <CardContent className="p-5 space-y-3">
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                       <div className="min-w-0">
-                        <Link
-                          href={`/${nameStore}/product/${a.product.code}`}
-                          className="font-medium text-gray-900 dark:text-neutral-100 hover:underline"
-                        >
-                          {a.product.title}
-                        </Link>
+                        {/* O horário livre, marcado pela loja fora do
+                            catálogo, não tem página de produto para onde ir:
+                            vira texto, e não um link quebrado. */}
+                        {a.product ? (
+                          <Link
+                            href={`/${nameStore}/product/${a.product.code}`}
+                            className="font-medium text-gray-900 dark:text-neutral-100 hover:underline"
+                          >
+                            {a.title}
+                          </Link>
+                        ) : (
+                          <p className="font-medium text-gray-900 dark:text-neutral-100">{a.title}</p>
+                        )}
                         <p className="mt-1 text-sm text-gray-700 dark:text-neutral-200">
                           {formatarQuando(a.startsAt, a.endsAt)}
                         </p>

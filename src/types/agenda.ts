@@ -21,14 +21,23 @@ export type Appointment = {
   startsAt: string;
   endsAt: string;
   closedNote: string;
+  // Nulo quando a loja marcou um horário LIVRE, fora do catálogo — "traga o
+  // carro que eu vejo o que está acontecendo". Não há página de produto para
+  // onde apontar, e quem nomeia a marcação é o `title`.
   product: {
     id: string;
     code: number;
     title: string;
     status: string;
     image: { id: string; url: string; position: number } | null;
+  } | null;
+  customer: {
+    id: string | null;
+    customerId: string | null;
+    name: string;
+    email: string;
+    phone: string;
   };
-  customer: { id: string; name: string; email: string; phone: string };
   createdAt: string;
   updatedAt: string;
 };
