@@ -1,4 +1,5 @@
-import { EMPRESA, VIGENCIA, ULTIMA_ATUALIZACAO, PRIVACIDADE_VERSAO } from './empresa';
+import { anunciosAtivos } from '@/lib/anuncios';
+import { EMPRESA, PRIVACIDADE } from './empresa';
 import type { DocumentoLegal } from './tipos';
 
 /**
@@ -15,16 +16,29 @@ import type { DocumentoLegal } from './tipos';
  *   (`lib/pedido.ts`) e a negociação acontece fora daqui;
  * - a sessão mora em localStorage, não em cookie. Anunciar "banner de cookies"
  *   seria descrever um mecanismo que a vitrine não usa.
+ *
+ * Anúncios: os trechos sob `anunciosAtivos` só existem quando o AdSense está
+ * ligado (lib/anuncios.ts), e com eles a política muda de versão
+ * (PRIVACIDADE em empresa.ts). O texto com anúncios promete duas coisas que
+ * precisam existir no ar ANTES de a variável ser ligada:
+ * - um aviso de consentimento na primeira visita a uma loja, e anúncios
+ *   personalizados só depois do "aceito" (`requestNonPersonalizedAds` até lá);
+ * - o link "Preferências de anúncios" no rodapé das lojas, que reabre esse
+ *   aviso para mudar ou retirar a escolha.
  */
 export const politicaDePrivacidade: DocumentoLegal = {
   titulo: 'Política de Privacidade',
   resumo:
     'Esta política explica quais dados pessoais a Gefen Software coleta na plataforma de ' +
     'catálogo digital, por que os coleta, com quem os compartilha e como você exerce seus ' +
-    'direitos sob a LGPD. Não coletamos dados de pagamento.',
-  vigencia: VIGENCIA,
-  atualizadoEm: ULTIMA_ATUALIZACAO,
-  versao: PRIVACIDADE_VERSAO,
+    'direitos sob a LGPD. Não coletamos dados de pagamento.' +
+    (anunciosAtivos
+      ? ' As páginas das lojas exibem anúncios fornecidos pelo Google; ' +
+        'anúncios personalizados só com o seu consentimento.'
+      : ''),
+  vigencia: PRIVACIDADE.vigencia,
+  atualizadoEm: PRIVACIDADE.atualizadoEm,
+  versao: PRIVACIDADE.versao,
   secoes: [
     {
       id: 'quem-trata',
@@ -123,6 +137,17 @@ export const politicaDePrivacidade: DocumentoLegal = {
               operacional. A guarda desses registros é obrigação legal imposta pelo
               art. 15 do Marco Civil da Internet.
             </li>
+            {anunciosAtivos && (
+              <li>
+                <strong>Dados de anúncios:</strong> nas páginas das lojas, o
+                Google, que fornece os anúncios, coleta diretamente do seu
+                navegador o endereço IP, identificadores de cookie e do
+                dispositivo, a página visitada, dados do navegador e a sua
+                interação com os anúncios (se foram exibidos e clicados). Esses
+                dados vão direto ao Google; a Gefen recebe dele apenas relatórios
+                agregados de exibição e receita, sem identificar você.
+              </li>
+            )}
           </ul>
           <p>
             <strong>O que não coletamos.</strong> A Plataforma{' '}
@@ -194,11 +219,45 @@ export const politicaDePrivacidade: DocumentoLegal = {
               Base: cumprimento de obrigação legal ou regulatória (art. 7º, II) e
               exercício regular de direitos (art. 7º, VI).
             </li>
+            {anunciosAtivos && (
+              <>
+                <li>
+                  <strong>
+                    Exibir anúncios personalizados nas páginas das lojas.
+                  </strong>{' '}
+                  Base: consentimento (art. 7º, I), pedido no aviso exibido na
+                  sua primeira visita a uma loja.
+                </li>
+                <li>
+                  <strong>
+                    Exibir anúncios não personalizados, limitar a repetição de
+                    um mesmo anúncio, detectar tráfego fraudulento e medir
+                    resultados de forma agregada.
+                  </strong>{' '}
+                  Base: legítimo interesse (art. 7º, IX) — os anúncios são o
+                  que custeia a Plataforma. Você pode se opor, como explicado em{' '}
+                  <a href="#armazenamento-no-dispositivo">
+                    O que guardamos no seu navegador
+                  </a>
+                  .
+                </li>
+              </>
+            )}
           </ul>
-          <p>
-            Não usamos seus dados para publicidade comportamental, não os vendemos e
-            não os cedemos a terceiros para fins de marketing.
-          </p>
+          {anunciosAtivos ? (
+            <p>
+              Não vendemos seus dados. Não enviamos ao Google, nem a nenhum
+              anunciante, os dados da sua Conta (nome, e-mail, telefone), do seu
+              carrinho, dos seus agendamentos ou dos seus orçamentos. Anúncios
+              personalizados — escolhidos a partir da sua atividade em outros
+              sites e aplicativos — só aparecem se você consentir.
+            </p>
+          ) : (
+            <p>
+              Não usamos seus dados para publicidade comportamental, não os vendemos e
+              não os cedemos a terceiros para fins de marketing.
+            </p>
+          )}
         </>
       ),
     },
@@ -233,6 +292,26 @@ export const politicaDePrivacidade: DocumentoLegal = {
               Fonts, o que expõe a eles o seu endereço IP e dados do navegador na
               requisição da fonte.
             </li>
+            {anunciosAtivos && (
+              <li>
+                <strong>Com o Google, para os anúncios:</strong> as páginas das
+                lojas carregam o Google AdSense, que coleta os dados descritos em{' '}
+                <a href="#dados-coletados">Quais dados coletamos</a> para
+                escolher, exibir e medir anúncios. Nesse tratamento o Google é
+                controlador independente, sob a sua própria política de
+                privacidade; veja{' '}
+                <a
+                  href="https://policies.google.com/technologies/partner-sites"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  como o Google usa dados de sites parceiros
+                </a>
+                . Os anúncios são escolhidos pelo Google, não pela Gefen nem pelo
+                Estabelecimento, e não representam recomendação de nenhum dos
+                dois. O Estabelecimento não recebe dados de anúncios.
+              </li>
+            )}
             <li>
               <strong>Com autoridades públicas</strong>, quando houver requisição
               legal, ordem judicial ou necessidade de exercício regular de direitos.
@@ -251,11 +330,20 @@ export const politicaDePrivacidade: DocumentoLegal = {
       titulo: 'O que guardamos no seu navegador',
       corpo: (
         <>
-          <p>
-            A Plataforma não usa cookies de publicidade nem de rastreamento de
-            terceiros. O que ela guarda fica no armazenamento local do seu
-            navegador (<em>localStorage</em>) e serve só para o funcionamento:
-          </p>
+          {anunciosAtivos ? (
+            <p>
+              O que a própria Plataforma guarda fica no armazenamento local do
+              seu navegador (<em>localStorage</em>) e serve só para o
+              funcionamento — a Plataforma não grava cookies seus. Os cookies de
+              anúncios, descritos adiante, são do Google.
+            </p>
+          ) : (
+            <p>
+              A Plataforma não usa cookies de publicidade nem de rastreamento de
+              terceiros. O que ela guarda fica no armazenamento local do seu
+              navegador (<em>localStorage</em>) e serve só para o funcionamento:
+            </p>
+          )}
           <ul>
             <li>
               <strong>Sessão</strong> — os tokens que mantêm você conectado entre
@@ -268,12 +356,57 @@ export const politicaDePrivacidade: DocumentoLegal = {
             <li>
               <strong>Carrinho</strong> — os itens escolhidos, inclusive sem Conta.
             </li>
+            {anunciosAtivos && (
+              <li>
+                <strong>Escolha sobre anúncios</strong> — a sua resposta ao aviso
+                de consentimento, para não perguntarmos de novo a cada visita.
+              </li>
+            )}
           </ul>
           <p>
             Esses dados ficam no seu aparelho. Sair da conta apaga a sessão e o
             perfil; limpar os dados do site pelo navegador apaga tudo, inclusive o
-            carrinho.
+            carrinho{anunciosAtivos ? ' e a escolha sobre anúncios' : ''}.
           </p>
+          {anunciosAtivos && (
+            <>
+              <p>
+                <strong>Cookies de anúncios.</strong> Nas páginas das lojas — e
+                só nelas; os Termos e esta política não exibem anúncios —, o
+                Google grava e lê cookies e identificadores semelhantes no seu
+                navegador. Sem o seu consentimento, eles servem para exibir
+                anúncios não personalizados, limitar a repetição, detectar fraude
+                e medir resultados. Com o consentimento, servem também para
+                personalizar os anúncios a partir da sua atividade em outros
+                sites e aplicativos. Esses cookies são do Google, que define por
+                quanto tempo os guarda; veja{' '}
+                <a
+                  href="https://policies.google.com/technologies/ads"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  como o Google usa cookies em publicidade
+                </a>
+                .
+              </p>
+              <p>
+                <strong>Como controlar.</strong> Você muda ou retira o
+                consentimento a qualquer momento pelo link{' '}
+                <strong>Preferências de anúncios</strong>, no rodapé das lojas —
+                retirar é tão simples quanto dar, e não bloqueia nenhum recurso
+                da Plataforma. Também pode ajustar os anúncios que o Google exibe
+                a você na{' '}
+                <a
+                  href="https://myadcenter.google.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Minha Central de Anúncios
+                </a>{' '}
+                e bloquear cookies de terceiros nas configurações do navegador.
+              </p>
+            </>
+          )}
         </>
       ),
     },
@@ -307,6 +440,13 @@ export const politicaDePrivacidade: DocumentoLegal = {
               <strong>Mensagens de suporte:</strong> até dois anos após o
               encerramento do atendimento.
             </li>
+            {anunciosAtivos && (
+              <li>
+                <strong>Dados de anúncios:</strong> a Gefen não os guarda — ficam
+                com o Google, pelos prazos da política dele. Os relatórios
+                agregados que recebemos não identificam ninguém.
+              </li>
+            )}
           </ul>
           <p>
             Vencidos os prazos, os dados são eliminados ou anonimizados de modo
@@ -362,6 +502,10 @@ export const politicaDePrivacidade: DocumentoLegal = {
           </ul>
           <p>
             Nome e telefone você altera direto na tela de perfil, e a senha também.
+            {anunciosAtivos &&
+              ' O consentimento para anúncios personalizados você retira pelo ' +
+                'link "Preferências de anúncios", no rodapé das lojas, sem ' +
+                'precisar nos escrever.'}{' '}
             Para os demais pedidos, escreva para{' '}
             <a href={`mailto:${EMPRESA.emailEncarregado}`}>
               {EMPRESA.emailEncarregado}
@@ -413,8 +557,8 @@ export const politicaDePrivacidade: DocumentoLegal = {
       corpo: (
         <p>
           Alguns dos prestadores que sustentam a Plataforma — hospedagem, envio de
-          e-mail, fontes tipográficas — podem processar dados em servidores fora do
-          Brasil. Quando isso ocorre, a transferência observa os arts. 33 a 36 da
+          e-mail, fontes tipográficas{anunciosAtivos ? ', anúncios' : ''} — podem
+          processar dados em servidores fora do Brasil. Quando isso ocorre, a transferência observa os arts. 33 a 36 da
           LGPD, mediante cláusulas contratuais de proteção ou outro mecanismo
           admitido, de modo a manter o nível de proteção exigido pela lei
           brasileira.

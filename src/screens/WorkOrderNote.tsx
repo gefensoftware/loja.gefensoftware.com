@@ -9,6 +9,7 @@ import { lerMinhaOrdem } from '@/api/work-order';
 import type { WorkOrder } from '@/types/work-order';
 import type { Enterprise } from '@/types/catalog';
 import { formatarPreco } from '@/lib/price';
+import { fichaPreenchida, modeloDe } from '@/lib/modelos-os';
 import { Button } from '@/components/ui/button';
 
 // A nota da ordem de serviço, do lado do cliente.
@@ -117,6 +118,7 @@ const WorkOrderNote = () => {
   }
 
   const nomeDaLoja = loja?.tradeName || loja?.name || ordem.store?.name || '';
+  const ficha = fichaPreenchida(ordem.template, ordem.intake);
   const telefone = loja?.phones?.[0]?.phone ?? '';
   const endereco = loja?.address
     ? `${loja.address.street}, ${loja.address.number}${loja.address.complement ? ` ${loja.address.complement}` : ''} — ${loja.address.neighborhood}, ${loja.address.city}/${loja.address.state}`
@@ -191,6 +193,26 @@ const WorkOrderNote = () => {
           <Campo rotulo="Placa / nº de série">{ordem.equipment?.identifier}</Campo>
         </section>
 
+        {/* A ficha de entrada: como o equipamento chegou. É o que responde
+            "esse risco já estava?" no dia da retirada.
+
+            Os campos sensíveis não chegam até aqui — a API os remove da
+            resposta do cliente. */}
+        {ficha.length > 0 && (
+          <section className="mt-4 border-t border-neutral-200 pt-4">
+            <p className="mb-2 text-[10px] uppercase tracking-wide text-neutral-500">
+              {modeloDe(ordem.template).fichaTitulo}
+            </p>
+            <div className="grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-4">
+              {ficha.map((linha) => (
+                <div key={linha.key} className={linha.longo ? 'col-span-2 sm:col-span-4' : ''}>
+                  <Campo rotulo={linha.label}>{linha.valor}</Campo>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
         <section className="mt-5 border-t border-neutral-200 pt-4">
           <p className="text-[10px] uppercase tracking-wide text-neutral-500">
             Defeito relatado pelo cliente
@@ -208,7 +230,7 @@ const WorkOrderNote = () => {
 
         <section className="mt-5">
           <p className="mb-2 text-[10px] uppercase tracking-wide text-neutral-500">
-            Peças e serviços
+            Serviço e {modeloDe(ordem.template).pecas.toLowerCase()}
           </p>
           <table className="w-full border-collapse text-[13px]">
             <thead>
@@ -230,7 +252,9 @@ const WorkOrderNote = () => {
               ) : (
                 ordem.items.map((item, i) => (
                   <tr key={item.id ?? i} className="border-b border-neutral-200">
-                    <td className="py-1.5">{item.kind === 'part' ? 'Peça' : 'Mão de obra'}</td>
+                    <td className="py-1.5">
+                      {item.kind === 'part' ? modeloDe(ordem.template).pecas : 'Mão de obra'}
+                    </td>
                     <td className="py-1.5">{item.description}</td>
                     <td className="py-1.5 text-right">{item.quantity}</td>
                     <td className="py-1.5 text-right">{formatarPreco(item.unitAmount)}</td>
@@ -243,8 +267,20 @@ const WorkOrderNote = () => {
             </tbody>
             <tfoot>
               <tr>
+                <td colSpan={4} className="py-1 text-right">
+                  Valor dos serviços
+                </td>
+                <td className="py-1 text-right">{formatarPreco(ordem.laborTotal)}</td>
+              </tr>
+              <tr>
+                <td colSpan={4} className="py-1 text-right">
+                  Valor de {modeloDe(ordem.template).pecas.toLowerCase()}
+                </td>
+                <td className="py-1 text-right">{formatarPreco(ordem.partsTotal)}</td>
+              </tr>
+              <tr>
                 <td colSpan={4} className="py-2 text-right font-medium">
-                  Total
+                  Valor total
                 </td>
                 <td className="py-2 text-right text-base font-bold">
                   {formatarPreco(ordem.total)}

@@ -18,6 +18,7 @@ import {
   X,
 } from 'lucide-react';
 import { aprovarOrdem, listarMinhasOrdens, recusarOrdem } from '@/api/work-order';
+import { modeloDe } from '@/lib/modelos-os';
 import { aguardandoVoce, type WorkOrder, type WorkOrderStatus } from '@/types/work-order';
 import { formatarPreco } from '@/lib/price';
 import { authAtom } from '@/store/auth';
@@ -197,7 +198,10 @@ const WorkOrders = () => {
                             <li key={item.id ?? i} className="flex justify-between gap-4 px-3 py-2 text-sm">
                               <span className="min-w-0">
                                 <span className="text-gray-500">
-                                  {item.kind === 'part' ? 'Peça' : 'Mão de obra'}:{' '}
+                                  {item.kind === 'part'
+                                    ? modeloDe(ordem.template).pecas
+                                    : 'Mão de obra'}
+                                  :{' '}
                                 </span>
                                 {item.description}
                                 {item.quantity > 1 && (
@@ -210,8 +214,16 @@ const WorkOrders = () => {
                             </li>
                           ))}
                         </ul>
+                        <div className="flex justify-between px-3 py-1 text-xs text-gray-500">
+                          <span>Valor dos serviços</span>
+                          <span>{formatarPreco(ordem.laborTotal)}</span>
+                        </div>
+                        <div className="flex justify-between px-3 py-1 text-xs text-gray-500">
+                          <span>Valor de {modeloDe(ordem.template).pecas.toLowerCase()}</span>
+                          <span>{formatarPreco(ordem.partsTotal)}</span>
+                        </div>
                         <div className="flex justify-between px-3 py-2 text-sm font-semibold">
-                          <span>Total</span>
+                          <span>Valor total</span>
                           <span>{formatarPreco(ordem.total)}</span>
                         </div>
                       </div>

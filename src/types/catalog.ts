@@ -210,6 +210,15 @@ export interface Capabilities {
   workOrders: boolean;
 }
 
+// O que o plano da loja dá. Espelha `entitlementsDTO` em
+// internal/adapters/in/http/billing_dto.go, mas declara só o que a VITRINE
+// usa: os tetos e os módulos são assunto do portal e do painel, e um tipo que
+// os repetisse aqui teria de ser mantido em três lugares sem ninguém ler.
+export interface EnterprisePlan {
+  /** Plano sem publicidade: a vitrine desta loja não mostra anúncio. */
+  adsFree: boolean;
+}
+
 export interface Enterprise {
   id: string;
   name: string;
@@ -227,6 +236,7 @@ export interface Enterprise {
   hours: BusinessDay[];
   mode: OperationMode | null;
   capabilities: Capabilities;
+  plan: EnterprisePlan;
   // Só presente quando o chamador tem permissão para ver administradores
   // (a rota pública nunca inclui).
   admins?: AdminRef[];

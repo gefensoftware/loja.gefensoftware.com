@@ -1,5 +1,5 @@
 import { api } from '@/api';
-import type { WorkOrder } from '@/types/work-order';
+import type { WorkOrder, WorkOrderStatus } from '@/types/work-order';
 
 // O lado do cliente da ordem de serviço. Quem abre a ordem é a loja, no
 // balcão — aqui a pessoa acompanha o que deixou e responde ao orçamento.
@@ -31,5 +31,30 @@ export async function aprovarOrdem(id: string): Promise<WorkOrder> {
 
 export async function recusarOrdem(id: string, note: string): Promise<WorkOrder> {
   const { data } = await api.post<WorkOrder>(`/users/me/work-orders/${id}/decline`, { note });
+  return data;
+}
+
+// O link de acompanhamento que a oficina manda no WhatsApp.
+//
+// A prévia é PÚBLICA e mostra só o que faz a pessoa se reconhecer — loja,
+// número da ordem, equipamento. Nome, telefone, defeito e valor ficam do
+// outro lado do login: o link circula por mensagem e pode chegar a qualquer
+// um.
+export type PreviaDoLink = {
+  number: number;
+  storeName: string;
+  storeSlug: string;
+  equipment: string;
+  status: WorkOrderStatus;
+};
+
+export async function lerPreviaDoLink(token: string): Promise<PreviaDoLink> {
+  const { data } = await api.get<PreviaDoLink>(`/work-orders/claim/${token}`);
+  return data;
+}
+
+/** Vincula a ordem do link à conta de quem está logado. */
+export async function vincularOrdem(token: string): Promise<WorkOrder> {
+  const { data } = await api.post<WorkOrder>('/users/me/work-orders/claim', { token });
   return data;
 }

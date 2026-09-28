@@ -121,19 +121,40 @@ vêm **desligados**. Tudo depende de variáveis de ambiente, lidas no build:
 Código: `src/lib/anuncios.ts`, `src/components/anuncios/` e
 `src/app/ads.txt/route.ts`.
 
-### ⚠️ Antes de ligar
+### Consentimento
 
-A Política de Privacidade (`src/content/legal/privacidade.tsx`) diz hoje que
-a plataforma **não** usa cookies de publicidade nem rastreamento de terceiros.
-O AdSense usa os dois. Ligar os anúncios sem mudar isso deixa a política
-falsa. Antes de definir a variável em produção:
+A Política de Privacidade (`src/content/legal/privacidade.tsx`) tem dois
+textos, e a mesma variável escolhe qual vai ao ar: sem anúncios (versão
+`2026-09-19`) e com anúncios (versão `2026-09-21`, com o Google AdSense, os
+cookies de publicidade e o consentimento). Ligar a variável troca a política
+junto — e o que o texto com anúncios promete existe no código:
 
-1. Revisar a Política de Privacidade (e os Termos, se for o caso) e
-   subir a versão dos documentos.
-2. Colocar um aviso de consentimento de cookies (LGPD). No AdSense, a opção
-   é uma CMP certificada pelo Google (a "Mensagens de privacidade" do próprio
-   painel serve).
-3. Cadastrar e verificar o domínio `loja.gefensoftware.com` no AdSense.
+| Promessa da política | Onde vive |
+| --- | --- |
+| Aviso na primeira visita a uma loja | `components/anuncios/AvisoConsentimento.tsx`, montado no `StoreLayoutClient` |
+| Personalizado só depois do "aceito" | `marcarPreferenciaAnuncios` em `lib/anuncios.ts` (`requestNonPersonalizedAds = 1` até lá) |
+| A escolha fica no aparelho | `store/anuncios.ts`, chave `anuncios-consentimento` no `localStorage` |
+| Link "Preferências de anúncios" no rodapé | `components/anuncios/LinkPreferencias.tsx`, dentro do `StoreFooter` |
+
+Dois detalhes que não são óbvios no código:
+
+- **O nome do link é contratual.** A política cita "Preferências de anúncios"
+  ao pé da letra, duas vezes. Renomear só o botão deixa o documento apontando
+  para algo que não existe.
+- **Mudar a escolha recarrega a página.** Um bloco já pedido ao AdSense não
+  volta atrás, e a política promete que a retirada vale a qualquer momento —
+  não na próxima navegação. Na primeira resposta não há recarga: até ali o que
+  apareceu foi anúncio não personalizado.
+
+### ⚠️ Ainda pendente
+
+1. **Aviso aos usuários:** a política promete comunicar alterações relevantes
+   com antecedência razoável, por aviso na Plataforma ou por e-mail. A troca de
+   versão (`2026-09-19` → `2026-09-21`) é uma dessas alterações.
+2. Cadastrar e verificar o domínio `loja.gefensoftware.com` no AdSense.
+3. **Vigência:** `PRIVACIDADE_COM_ANUNCIOS.vigencia` em
+   `src/content/legal/empresa.ts` está em 27 de setembro de 2026. Se o deploy
+   que liga os anúncios sair em outra data, é essa data que vale.
 
 ## 🛠️ Como Executar
 
