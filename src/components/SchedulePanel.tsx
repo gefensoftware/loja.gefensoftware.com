@@ -134,7 +134,7 @@ export default function SchedulePanel({
   if (!autenticado) {
     return (
       <div className="space-y-4">
-        <p className="text-sm text-gray-700 dark:text-neutral-200">
+        <p className="text-sm text-foreground">
           Entre na sua conta para escolher um horário e acompanhar a confirmação da loja por aqui.
         </p>
         <Button onClick={onPrecisaEntrar} className="w-full">
@@ -147,11 +147,11 @@ export default function SchedulePanel({
   if (pedido) {
     return (
       <div className="space-y-3">
-        <div className="flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-neutral-100">
+        <div className="flex items-center gap-2 text-sm font-medium text-foreground">
           <Check className="w-4 h-4 flex-shrink-0" />
           Pedido enviado — aguardando a loja confirmar
         </div>
-        <p className="text-sm text-gray-700 dark:text-neutral-200">
+        <p className="text-sm text-foreground">
           {/* O cliente precisa saber que pedir não é ter a hora: a loja ainda
               confirma, e só então o horário é dele. */}
           Seu horário só fica garantido depois que a loja confirmar. Você acompanha em{' '}
@@ -178,7 +178,7 @@ export default function SchedulePanel({
   return (
     <div className="space-y-4">
       <div>
-        <p className="flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-neutral-100 mb-2">
+        <p className="flex items-center gap-2 text-sm font-medium text-foreground mb-2">
           <Calendar className="w-4 h-4" />
           Escolha o dia
         </p>
@@ -192,7 +192,7 @@ export default function SchedulePanel({
                 type="button"
                 onClick={() => setDia(valor)}
                 className={`shrink-0 rounded-lg border px-3 py-2 text-sm ${
-                  ativo ? 'border-primary bg-primary text-on-primary' : 'border-gray-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-gray-700 dark:text-neutral-200'
+                  ativo ? 'border-primary bg-primary text-on-primary' : 'border-border bg-card text-foreground'
                 }`}
                 aria-pressed={ativo}
               >
@@ -204,13 +204,13 @@ export default function SchedulePanel({
       </div>
 
       <div>
-        <p className="flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-neutral-100 mb-2">
+        <p className="flex items-center gap-2 text-sm font-medium text-foreground mb-2">
           <Clock className="w-4 h-4" />
           Horários livres
         </p>
 
         {carregando ? (
-          <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-neutral-300">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Loader2 className="w-4 h-4 animate-spin" />
             Carregando…
           </div>
@@ -222,7 +222,7 @@ export default function SchedulePanel({
         ) : slots.length === 0 ? (
           // Dia fechado e dia lotado dão o mesmo resultado para quem olha, e a
           // frase cobre os dois sem inventar qual foi.
-          <p className="text-sm text-gray-600 dark:text-neutral-300">Nenhum horário livre neste dia. Tente outro.</p>
+          <p className="text-sm text-muted-foreground">Nenhum horário livre neste dia. Tente outro.</p>
         ) : (
           <div className="flex flex-wrap gap-2">
             {slots.map((s) => (
@@ -233,7 +233,7 @@ export default function SchedulePanel({
                 className={`rounded-lg border px-3 py-2 text-sm ${
                   escolhido === s
                     ? 'border-primary bg-primary text-on-primary'
-                    : 'border-gray-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-gray-700 dark:text-neutral-200'
+                    : 'border-border bg-card text-foreground'
                 }`}
                 aria-pressed={escolhido === s}
               >
@@ -247,7 +247,7 @@ export default function SchedulePanel({
       {escolhido && (
         <div className="space-y-3">
           <div>
-            <label htmlFor="obs-agenda" className="block text-sm font-medium text-gray-900 dark:text-neutral-100 mb-2">
+            <label htmlFor="obs-agenda" className="block text-sm font-medium text-foreground mb-2">
               Alguma observação? (opcional)
             </label>
             <Textarea

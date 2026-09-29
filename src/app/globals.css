@@ -68,6 +68,40 @@
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
   }
+
+  /* O preto ANTES de a empresa chegar da rede.
+
+     Os dois blocos acima são o padrão do shadcn, e valem enquanto a paleta da
+     loja não foi aplicada — quem a aplica é `variaveisDoTema` (lib/tema-empresa.ts),
+     em variáveis inline no <html>, que ganham daqui por especificidade.
+
+     O preto precisa do bloco próprio porque o slate de `.dark` não é preto: no
+     primeiro quadro de quem escolheu Preto e recarregou a página, o script do
+     <head> já pôs as duas classes, mas a resposta da API ainda não voltou. Os
+     valores são os de domain.BlackPalette (#0a0a0a, #1c1c1e, #ffffff), que é
+     quem os manda de verdade. */
+  .dark.black {
+    --background: 0 0% 3.92%;
+    --foreground: 0 0% 100%;
+
+    --card: 240 3.45% 11.37%;
+    --card-foreground: 0 0% 100%;
+
+    --popover: 240 3.45% 11.37%;
+    --popover-foreground: 0 0% 100%;
+
+    --secondary: 240 3.45% 11.37%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 240 3.45% 18.43%;
+    --muted-foreground: 0 0% 63.92%;
+
+    --accent: 240 3.45% 21.57%;
+    --accent-foreground: 0 0% 100%;
+
+    --border: 240 3.45% 29.41%;
+    --input: 240 3.45% 29.41%;
+  }
 }
  
 @layer base {
@@ -168,9 +202,18 @@
    por especificidade, e não pela ordem em que os dois blocos calham de
    aparecer neste arquivo.
 
-   O que ele troca é a paleta da loja. Os cinzas do Tailwind que as variantes
-   `dark:` usam continuam os mesmos, e é por isso que o resultado fecha: o
-   `neutral-950` delas é exatamente #0a0a0a, o fundo daqui. */
+   O que ele troca é a paleta da loja — as quatro cores que as classes
+   utilitárias do fim deste arquivo (.bg-primary, .bg-background, .text-text)
+   leem. Os TOKENS do shadcn (--card, --muted, --border e afins) não saem
+   daqui: eles são derivados da paleta em tempo de execução, em
+   lib/tema-empresa.ts.
+
+   Até 2026-09 a vitrine pintava o escuro com `dark:bg-neutral-900` e
+   `dark:text-neutral-100` cravados no JSX, e o raciocínio escrito aqui era
+   que o `neutral-950` do Tailwind casa com o #0a0a0a deste bloco. Casava — e
+   por isso o ESCURO saía preto também: a paleta escura que o lojista desenha
+   não pintava tela nenhuma, e as duas opções do seletor davam na mesma
+   aparência. As classes cravadas viraram tokens. */
 .dark.black {
   --primary-color: var(--black-primary-color);
   --secondary-color: var(--black-secondary-color);
@@ -239,8 +282,19 @@
 }
 
 /* Background color utilities */
+
+/* Pelo TOKEN, e não por `--background-color`.
+
+   No claro os dois discordam de propósito: `--background-color` é a cor de
+   fundo que o lojista salvou, e `--background` é branco (o `:root` do topo
+   deste arquivo), porque a vitrine clara é branca — o fundo da paleta pinta a
+   vitrine só nos temas escuro e preto. No escuro e no preto os dois batem: é
+   `variaveisDoTema` quem escreve `--background`, a partir da mesma paleta.
+
+   Quem ainda quiser a cor crua da paleta, sem a correção de contraste, tem
+   `--background-color` intacta acima. */
 .bg-background {
-  background-color: var(--background-color);
+  background-color: hsl(var(--background));
 }
 
 .text-text {
@@ -324,29 +378,21 @@
   width: 6px;
 }
 
+/* Por token, e não por par de cinzas fixos com um override em `.dark`: assim
+   a barra acompanha a paleta da loja nos três temas, inclusive o preto — que
+   com os valores antigos ficava com um #171717 que não é nenhuma das cores
+   dele. */
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: hsl(var(--muted));
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: hsl(var(--border));
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
-
-.dark ::-webkit-scrollbar-track {
-  background: #171717;
-}
-
-.dark ::-webkit-scrollbar-thumb {
-  background: #404040;
-}
-
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: #525252;
+  background: hsl(var(--muted-foreground));
 }
 
 /* Line clamp utilities */

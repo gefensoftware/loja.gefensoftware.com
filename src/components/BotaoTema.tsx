@@ -42,7 +42,7 @@ export function BotaoTema({
       aria-checked={escuro}
       aria-label="Tema escuro"
       title={escuro ? 'Mudar para o tema claro' : 'Mudar para o tema escuro'}
-      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full md:h-9 md:w-9 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:text-neutral-300 dark:hover:bg-neutral-800 dark:hover:text-neutral-100 ${className}`}
+      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full md:h-9 md:w-9 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${className}`}
     >
       <Icone className="h-5 w-5" />
     </button>

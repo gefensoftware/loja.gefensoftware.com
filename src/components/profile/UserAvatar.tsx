@@ -28,7 +28,7 @@ export default function UserAvatar({ user, tamanho = 'h-32 w-32', className = ''
   const src = user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(nome)}&background=random&size=256&bold=true`
 
   return (
-    <Avatar className={`${tamanho} border-4 border-white dark:border-neutral-900 shadow-2xl ring-4 ring-primary ${className}`}>
+    <Avatar className={`${tamanho} border-4 border-card shadow-2xl ring-4 ring-primary ${className}`}>
       {/* A chave força o <img> a remontar quando a URL muda. Sem ela, o Radix
           mantém o estado "carregada" da imagem anterior e a foto recém-enviada
           só aparecia depois de recarregar a página. */}

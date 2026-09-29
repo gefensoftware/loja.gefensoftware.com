@@ -32,7 +32,7 @@ const ROTULOS: Record<BudgetStatus, { texto: string; icone: typeof Clock; classe
   accepted: { texto: 'Você aceitou', icone: Check, classe: 'text-emerald-700 dark:text-emerald-300' },
   declined: { texto: 'Você recusou', icone: X, classe: 'text-red-700 dark:text-red-300' },
   rejected: { texto: 'A loja não vai orçar', icone: X, classe: 'text-red-700 dark:text-red-300' },
-  canceled: { texto: 'Você cancelou', icone: X, classe: 'text-gray-600 dark:text-neutral-300' },
+  canceled: { texto: 'Você cancelou', icone: X, classe: 'text-muted-foreground' },
 };
 
 function formatarData(iso: string): string {
@@ -101,29 +101,29 @@ const BudgetRequests = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-neutral-900 mb-20">
+    <div className="min-h-screen bg-background mb-20">
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
 
       <div className="container mx-auto px-4 py-6 max-w-4xl">
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-white dark:bg-neutral-900 rounded-full shadow-sm">
+            <div className="p-2 bg-card rounded-full shadow-sm">
               <FileText className="h-5 w-5 text-primary" />
             </div>
             <h1 className="text-3xl font-bold text-primary">Meus orçamentos</h1>
           </div>
-          <p className="text-gray-600 dark:text-neutral-300 text-lg">Pedidos de preço e o que as lojas responderam</p>
+          <p className="text-muted-foreground text-lg">Pedidos de preço e o que as lojas responderam</p>
         </div>
 
         {!auth.isAuthenticated ? (
           <Card>
             <CardContent className="p-8 text-center space-y-4">
-              <p className="text-gray-700 dark:text-neutral-200">Entre na sua conta para ver seus orçamentos.</p>
+              <p className="text-foreground">Entre na sua conta para ver seus orçamentos.</p>
               <Button onClick={() => setIsAuthModalOpen(true)}>Entrar</Button>
             </CardContent>
           </Card>
         ) : carregando ? (
-          <div className="flex items-center gap-2 text-gray-600 dark:text-neutral-300">
+          <div className="flex items-center gap-2 text-muted-foreground">
             <Loader2 className="w-4 h-4 animate-spin" />
             Carregando…
           </div>
@@ -135,7 +135,7 @@ const BudgetRequests = () => {
               </div>
               {/* Nada de lista vazia num erro de rede: "você não tem pedidos"
                   e "não deu para carregar" são coisas diferentes. */}
-              <p className="text-gray-700 dark:text-neutral-200">Não foi possível carregar seus orçamentos.</p>
+              <p className="text-foreground">Não foi possível carregar seus orçamentos.</p>
               <Button variant="outline" onClick={carregar}>
                 Tentar de novo
               </Button>
@@ -144,12 +144,12 @@ const BudgetRequests = () => {
         ) : pedidos.length === 0 ? (
           <Card>
             <CardContent className="p-8 text-center space-y-2">
-              <p className="text-gray-900 dark:text-neutral-100 font-medium">Você ainda não pediu nenhum orçamento.</p>
-              <p className="text-gray-600 dark:text-neutral-300 text-sm">
+              <p className="text-foreground font-medium">Você ainda não pediu nenhum orçamento.</p>
+              <p className="text-muted-foreground text-sm">
                 Nos produtos vendidos sob orçamento, use o botão &quot;Pedir orçamento&quot; para
                 falar com a loja.
               </p>
-              <Link href={`/${nameStore}`} className="underline text-gray-700 dark:text-neutral-200 inline-block pt-2">
+              <Link href={`/${nameStore}`} className="underline text-foreground inline-block pt-2">
                 Voltar à loja
               </Link>
             </CardContent>
@@ -168,19 +168,19 @@ const BudgetRequests = () => {
                           <img
                             src={pedido.product.image.url}
                             alt=""
-                            className="w-16 h-16 rounded-lg object-cover shrink-0 bg-gray-100 dark:bg-neutral-800"
+                            className="w-16 h-16 rounded-lg object-cover shrink-0 bg-muted"
                           />
                         ) : (
-                          <div className="w-16 h-16 rounded-lg bg-gray-100 dark:bg-neutral-800 shrink-0" />
+                          <div className="w-16 h-16 rounded-lg bg-muted shrink-0" />
                         )}
                         <div className="min-w-0">
                           <Link
                             href={`/${nameStore}/product/${pedido.product.code}`}
-                            className="font-medium text-gray-900 dark:text-neutral-100 hover:underline"
+                            className="font-medium text-foreground hover:underline"
                           >
                             {pedido.product.title}
                           </Link>
-                          <p className="mt-1 text-sm text-gray-700 dark:text-neutral-200 whitespace-pre-wrap">
+                          <p className="mt-1 text-sm text-foreground whitespace-pre-wrap">
                             {pedido.message}
                           </p>
                         </div>
@@ -195,19 +195,19 @@ const BudgetRequests = () => {
                             {formatarPreco(pedido.quoteAmount)}
                           </p>
                         )}
-                        <p className="mt-1 text-xs text-gray-500 dark:text-neutral-400">
+                        <p className="mt-1 text-xs text-muted-foreground">
                           Pedido em {formatarData(pedido.createdAt)}
                         </p>
                       </div>
                     </div>
 
                     {pedido.quoteNote && (
-                      <p className="text-sm text-gray-700 dark:text-neutral-200 border-t pt-3 whitespace-pre-wrap">
+                      <p className="text-sm text-foreground border-t pt-3 whitespace-pre-wrap">
                         Resposta da loja: {pedido.quoteNote}
                       </p>
                     )}
                     {pedido.closedNote && (
-                      <p className="text-sm text-gray-700 dark:text-neutral-200 border-t pt-3">
+                      <p className="text-sm text-foreground border-t pt-3">
                         Motivo: {pedido.closedNote}
                       </p>
                     )}
@@ -233,7 +233,7 @@ const BudgetRequests = () => {
                         )}
                         <Button
                           variant="ghost"
-                          className="text-gray-600 dark:text-neutral-300"
+                          className="text-muted-foreground"
                           disabled={ocupado}
                           onClick={() => responder(pedido, 'cancelar')}
                         >

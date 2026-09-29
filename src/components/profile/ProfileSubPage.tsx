@@ -27,19 +27,19 @@ export default function ProfileSubPage({ titulo, descricao, children, aoPerderSe
 
   return (
     <RequireAuth aoPerderSessao={aoPerderSessao}>
-      <div className="min-h-screen bg-white dark:bg-neutral-900 mb-20">
+      <div className="min-h-screen bg-background mb-20">
         <div className="container mx-auto max-w-2xl px-4 py-6">
           <div className="mb-6 flex items-center gap-3">
             <Link
               href={`/${loja}/profile`}
               aria-label="Voltar para o perfil"
-              className="rounded-full p-2 text-gray-600 dark:text-neutral-300 transition-colors hover:bg-gray-100 dark:hover:bg-neutral-800"
+              className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-accent"
             >
               <ArrowLeft className="h-5 w-5" />
             </Link>
             <div>
               <h1 className="text-2xl font-bold text-primary">{titulo}</h1>
-              {descricao && <p className="text-sm text-gray-600 dark:text-neutral-300">{descricao}</p>}
+              {descricao && <p className="text-sm text-muted-foreground">{descricao}</p>}
             </div>
           </div>
           {children}

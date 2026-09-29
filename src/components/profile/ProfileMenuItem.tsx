@@ -40,7 +40,7 @@ type Props = Base &
  * seguinte que não existe.
  */
 export default function ProfileMenuItem({ icon: Icon, label, descricao, perigo, href, onClick, ligado }: Props) {
-  const cor = perigo ? 'text-red-600 dark:text-red-400' : 'text-gray-800 dark:text-neutral-100'
+  const cor = perigo ? 'text-red-600 dark:text-red-400' : 'text-foreground'
   const corIcone = perigo ? 'text-red-500 dark:text-red-400' : 'text-primary'
   const ehInterruptor = ligado !== undefined
 
@@ -51,14 +51,14 @@ export default function ProfileMenuItem({ icon: Icon, label, descricao, perigo, 
       </span>
       <span className="flex-1 text-left">
         <span className={`block text-sm font-medium ${cor}`}>{label}</span>
-        {descricao && <span className="block text-xs text-gray-500 dark:text-neutral-400">{descricao}</span>}
+        {descricao && <span className="block text-xs text-muted-foreground">{descricao}</span>}
       </span>
-      {href && <ChevronRight className="h-5 w-5 shrink-0 text-gray-400 dark:text-neutral-500" aria-hidden="true" />}
+      {href && <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground" aria-hidden="true" />}
       {ehInterruptor && (
         <span
           aria-hidden="true"
           className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${
-            ligado ? 'bg-primary' : 'bg-gray-300 dark:bg-neutral-700'
+            ligado ? 'bg-primary' : 'bg-muted'
           }`}
         >
           {/* Ligada, a chave é da cor primária da loja — que no tema escuro
@@ -76,7 +76,7 @@ export default function ProfileMenuItem({ icon: Icon, label, descricao, perigo, 
   )
 
   const classe =
-    'flex w-full items-center gap-4 px-4 py-4 transition-colors hover:bg-gray-50 dark:hover:bg-neutral-800 focus-visible:bg-gray-50 dark:focus-visible:bg-neutral-800 focus-visible:outline-none'
+    'flex w-full items-center gap-4 px-4 py-4 transition-colors hover:bg-accent focus-visible:bg-accent focus-visible:outline-none'
 
   if (href) {
     return (

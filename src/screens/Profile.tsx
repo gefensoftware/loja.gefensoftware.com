@@ -57,7 +57,7 @@ const Profile = () => {
 
   return (
     <RequireAuth>
-      <div className="min-h-screen bg-white dark:bg-neutral-950 mb-20">
+      <div className="min-h-screen bg-background mb-20">
         <div className="container mx-auto px-4 py-6 max-w-2xl">
           {/* Cabeçalho: foto, nome e e-mail */}
           <div className="mb-6 flex flex-col items-center">
@@ -74,12 +74,12 @@ const Profile = () => {
                 <Pencil className="h-4 w-4" />
               </Link>
             </div>
-            <h1 className="mt-4 text-2xl font-bold text-gray-800 dark:text-neutral-100">{user?.name}</h1>
-            {user?.email && <p className="text-sm text-gray-500 dark:text-neutral-400">{user.email}</p>}
+            <h1 className="mt-4 text-2xl font-bold text-foreground">{user?.name}</h1>
+            {user?.email && <p className="text-sm text-muted-foreground">{user.email}</p>}
           </div>
 
           <Card className="overflow-hidden border-0 shadow-lg">
-            <div className="divide-y divide-gray-100 dark:divide-neutral-800">
+            <div className="divide-y divide-border">
               <ProfileMenuItem
                 icon={User}
                 label="Dados Pessoais"

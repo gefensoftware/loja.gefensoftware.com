@@ -136,7 +136,7 @@ const ItemDoCarrinho: React.FC<{
     className={`flex gap-3 py-4 ${linha.foraDoCardapio ? 'opacity-60' : ''}`}
     data-testid="linha-do-carrinho"
   >
-    <div className="w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100 dark:bg-neutral-800 flex items-center justify-center">
+    <div className="w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden bg-muted flex items-center justify-center">
       {linha.product.image ? (
         <img
           src={linha.product.image.url}
@@ -144,16 +144,16 @@ const ItemDoCarrinho: React.FC<{
           className="w-full h-full object-cover"
         />
       ) : (
-        <Tag className="w-6 h-6 text-gray-400 dark:text-neutral-500" />
+        <Tag className="w-6 h-6 text-muted-foreground" />
       )}
     </div>
 
     <div className="flex-1 min-w-0">
-      <p className="font-medium text-gray-900 dark:text-neutral-100 truncate">{linha.product.title}</p>
+      <p className="font-medium text-foreground truncate">{linha.product.title}</p>
       {linha.price.name && (
-        <p className="text-xs text-gray-500 dark:text-neutral-400">{linha.price.name}</p>
+        <p className="text-xs text-muted-foreground">{linha.price.name}</p>
       )}
-      <p className="text-sm text-gray-600 dark:text-neutral-300">
+      <p className="text-sm text-muted-foreground">
         {formatarPreco(linha.effectiveValue)} cada
       </p>
 
@@ -193,13 +193,13 @@ const ItemDoCarrinho: React.FC<{
     <div className="flex flex-col items-end justify-between">
       {/* O valor de linha vem calculado do servidor. Enquanto anônimo ele não
           existe, e a tela mostra a quantidade em vez de inventar uma conta. */}
-      <span className="text-sm font-semibold text-gray-900 dark:text-neutral-100 whitespace-nowrap">
+      <span className="text-sm font-semibold text-foreground whitespace-nowrap">
         {linha.lineTotal ? formatarPreco(linha.lineTotal) : `${linha.quantity} un.`}
       </span>
       <Button
         variant="ghost"
         size="icon"
-        className="h-7 w-7 text-gray-400 dark:text-neutral-500 hover:text-red-600 dark:hover:text-red-400"
+        className="h-7 w-7 text-muted-foreground hover:text-red-600 dark:hover:text-red-400"
         aria-label="Remover item"
         disabled={ocupado}
         onClick={onRemover}
@@ -232,10 +232,10 @@ export const ListaDoCarrinho: React.FC<{ carrinho: EstadoDoCarrinho }> = ({ carr
       <div className="p-6 space-y-4">
         {[0, 1, 2].map((i) => (
           <div key={i} className="flex gap-3">
-            <div className="w-16 h-16 bg-gray-200 dark:bg-neutral-700 rounded-lg animate-pulse" />
+            <div className="w-16 h-16 bg-muted rounded-lg animate-pulse" />
             <div className="flex-1 space-y-2">
-              <div className="h-4 bg-gray-200 dark:bg-neutral-700 rounded animate-pulse w-2/3" />
-              <div className="h-3 bg-gray-200 dark:bg-neutral-700 rounded animate-pulse w-1/3" />
+              <div className="h-4 bg-muted rounded animate-pulse w-2/3" />
+              <div className="h-3 bg-muted rounded animate-pulse w-1/3" />
             </div>
           </div>
         ))}
@@ -249,10 +249,10 @@ export const ListaDoCarrinho: React.FC<{ carrinho: EstadoDoCarrinho }> = ({ carr
         <div className="w-16 h-16 bg-red-50 dark:bg-red-950/40 rounded-full flex items-center justify-center mb-4">
           <AlertTriangle className="w-8 h-8 text-red-500" />
         </div>
-        <h3 className="text-lg font-medium text-gray-900 dark:text-neutral-100 mb-2">
+        <h3 className="text-lg font-medium text-foreground mb-2">
           Não foi possível carregar o carrinho
         </h3>
-        <p className="text-gray-600 dark:text-neutral-300 max-w-sm mb-6">
+        <p className="text-muted-foreground max-w-sm mb-6">
           Houve uma falha ao falar com o servidor. Seus itens continuam na sua
           conta.
         </p>
@@ -275,11 +275,11 @@ export const ListaDoCarrinho: React.FC<{ carrinho: EstadoDoCarrinho }> = ({ carr
 
       {carrinho.linhas.length === 0 ? (
         <div className="flex flex-col items-center justify-center p-8 text-center">
-          <div className="w-16 h-16 bg-gray-100 dark:bg-neutral-800 rounded-full flex items-center justify-center mb-4">
-            <ShoppingCart className="w-8 h-8 text-gray-400 dark:text-neutral-500" />
+          <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+            <ShoppingCart className="w-8 h-8 text-muted-foreground" />
           </div>
-          <h3 className="text-lg font-medium text-gray-900 dark:text-neutral-100 mb-2">Carrinho vazio</h3>
-          <p className="text-gray-600 dark:text-neutral-300 max-w-sm">
+          <h3 className="text-lg font-medium text-foreground mb-2">Carrinho vazio</h3>
+          <p className="text-muted-foreground max-w-sm">
             Escolha um produto no cardápio para começar o seu pedido.
           </p>
         </div>
@@ -311,7 +311,7 @@ export const ListaDoCarrinho: React.FC<{ carrinho: EstadoDoCarrinho }> = ({ carr
 
           <div className="border-t pt-4 space-y-1">
             <div className="flex items-center justify-between">
-              <span className="text-base font-semibold text-gray-900 dark:text-neutral-100">Total</span>
+              <span className="text-base font-semibold text-foreground">Total</span>
               {/* Sempre o total do servidor, nunca a soma das linhas na tela:
                   produto fora do cardápio tem valor de linha e mesmo assim
                   não entra no total. */}
@@ -320,7 +320,7 @@ export const ListaDoCarrinho: React.FC<{ carrinho: EstadoDoCarrinho }> = ({ carr
               </span>
             </div>
             {!carrinho.total && (
-              <p className="text-xs text-gray-500 dark:text-neutral-400">
+              <p className="text-xs text-muted-foreground">
                 O total é calculado pela loja quando você entra na sua conta.
                 Até lá, o pedido vai com as quantidades e os valores unitários.
               </p>
@@ -379,13 +379,13 @@ export const EnviarPedido: React.FC<{
         {v.fechar} pelo WhatsApp
       </Button>
       {!aberta && (
-        <p className="text-xs text-gray-600 dark:text-neutral-300 text-center">
+        <p className="text-xs text-muted-foreground text-center">
           A loja está fechada agora. O envio fica disponível quando ela
           reabrir.
         </p>
       )}
       {aberta && !telefone && (
-        <p className="text-xs text-gray-600 dark:text-neutral-300 text-center">
+        <p className="text-xs text-muted-foreground text-center">
           Esta loja não cadastrou um número de WhatsApp.
         </p>
       )}

@@ -11,16 +11,17 @@ import LinkPreferencias from '@/components/anuncios/LinkPreferencias'
 // própria margem inferior (`mb-20`/`pb-20`/`pb-28`), então o respiro acima
 // daqui vem delas, não deste componente.
 //
-// O `bg-white` acompanha a Navbar (que também o crava): o rodapé não tem
-// fundo próprio, e sem ele herda o fundo escuro do body — as screens é que
-// pintam de branco a área delas, e o rodapé fica fora dessa área.
+// O `bg-background` é o mesmo fundo que as screens pintam: o rodapé não tem
+// fundo próprio e fica FORA da área delas, então sem isto ele aparecia como
+// uma faixa de outra cor no pé da página. Token, e não `bg-white`: assim ele
+// acompanha a paleta da loja nos três temas, como o resto da vitrine.
 //
 // `<a>` em vez de `<Link>` de propósito, como no Profile e no AuthModal: as
 // rotas legais são estáticas e ficam fora do shell da loja, e a navegação
 // dura é o que se quer ao sair da vitrine.
 export default function StoreFooter(): JSX.Element {
   return (
-    <footer className="bg-white dark:bg-neutral-900 flex items-center justify-center gap-3 pb-24 pt-6 text-xs text-gray-500 dark:text-neutral-400">
+    <footer className="bg-background flex items-center justify-center gap-3 pb-24 pt-6 text-xs text-muted-foreground">
       <a href="/termos-de-uso" className="hover:text-primary hover:underline">
         Termos de Uso
       </a>
