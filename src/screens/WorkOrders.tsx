@@ -36,13 +36,13 @@ import { Card, CardContent } from '@/components/ui/card';
 // ordens em outra oficina.
 
 const ROTULOS: Record<WorkOrderStatus, { texto: string; icone: typeof Clock; classe: string }> = {
-  received: { texto: 'Recebido pela loja', icone: ClipboardList, classe: 'text-gray-600 dark:text-neutral-300' },
+  received: { texto: 'Recebido pela loja', icone: ClipboardList, classe: 'text-muted-foreground' },
   quoted: { texto: 'Aguardando sua aprovação', icone: Clock, classe: 'text-amber-700 dark:text-amber-300' },
   approved: { texto: 'Aprovado, em execução', icone: Wrench, classe: 'text-blue-700 dark:text-blue-300' },
   ready: { texto: 'Pronto para retirada', icone: PackageCheck, classe: 'text-emerald-700 dark:text-emerald-300' },
-  delivered: { texto: 'Entregue', icone: Truck, classe: 'text-gray-600 dark:text-neutral-300' },
+  delivered: { texto: 'Entregue', icone: Truck, classe: 'text-muted-foreground' },
   declined: { texto: 'Você recusou o orçamento', icone: X, classe: 'text-red-700 dark:text-red-300' },
-  canceled: { texto: 'Cancelado pela loja', icone: X, classe: 'text-gray-600 dark:text-neutral-300' },
+  canceled: { texto: 'Cancelado pela loja', icone: X, classe: 'text-muted-foreground' },
 };
 
 function formatarData(iso: string | null): string {
@@ -106,13 +106,13 @@ const WorkOrders = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-neutral-900 mb-20">
+    <div className="min-h-screen bg-background mb-20">
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
 
       <div className="container mx-auto px-4 py-6 max-w-4xl">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-neutral-100">Minhas ordens de serviço</h1>
-          <p className="text-sm text-gray-600 dark:text-neutral-300 mt-1">
+          <h1 className="text-2xl font-bold text-foreground">Minhas ordens de serviço</h1>
+          <p className="text-sm text-muted-foreground mt-1">
             O que você deixou na loja, em que ponto está e quanto vai custar.
           </p>
         </div>
@@ -120,7 +120,7 @@ const WorkOrders = () => {
         {!auth.isAuthenticated ? (
           <Card>
             <CardContent className="py-10 text-center">
-              <p className="text-gray-700 dark:text-neutral-200">Entre na sua conta para ver suas ordens de serviço.</p>
+              <p className="text-foreground">Entre na sua conta para ver suas ordens de serviço.</p>
               <Button className="mt-4" onClick={() => setIsAuthModalOpen(true)}>
                 Entrar
               </Button>
@@ -128,13 +128,13 @@ const WorkOrders = () => {
           </Card>
         ) : carregando ? (
           <div className="flex justify-center py-16">
-            <Loader2 className="w-6 h-6 animate-spin text-gray-400 dark:text-neutral-500" />
+            <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
           </div>
         ) : erro ? (
           <Card>
             <CardContent className="py-10 text-center">
               <AlertTriangle className="w-8 h-8 text-red-500 mx-auto mb-3" />
-              <p className="text-gray-700 dark:text-neutral-200">Não foi possível carregar suas ordens.</p>
+              <p className="text-foreground">Não foi possível carregar suas ordens.</p>
               <Button variant="outline" className="mt-4" onClick={carregar}>
                 Tentar novamente
               </Button>
@@ -143,9 +143,9 @@ const WorkOrders = () => {
         ) : ordens.length === 0 ? (
           <Card>
             <CardContent className="py-10 text-center">
-              <Wrench className="w-8 h-8 text-gray-300 dark:text-neutral-600 mx-auto mb-3" />
-              <p className="text-gray-700 dark:text-neutral-200">Você ainda não tem nenhuma ordem de serviço.</p>
-              <p className="text-sm text-gray-500 dark:text-neutral-400 mt-1">
+              <Wrench className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
+              <p className="text-foreground">Você ainda não tem nenhuma ordem de serviço.</p>
+              <p className="text-sm text-muted-foreground mt-1">
                 Elas aparecem aqui quando a loja registra o que você deixou lá.
               </p>
               <Button variant="outline" className="mt-4" asChild>
@@ -165,10 +165,10 @@ const WorkOrders = () => {
                   <CardContent className="p-4">
                     <div className="flex flex-wrap items-start justify-between gap-2">
                       <div className="min-w-0">
-                        <p className="font-semibold text-gray-900 dark:text-neutral-100">
+                        <p className="font-semibold text-foreground">
                           {ordem.equipment?.label ?? 'Equipamento'}
                         </p>
-                        <p className="text-sm text-gray-600 dark:text-neutral-300">
+                        <p className="text-sm text-muted-foreground">
                           Ordem nº {ordem.number} · aberta em {formatarData(ordem.createdAt)}
                         </p>
                       </div>
@@ -178,13 +178,13 @@ const WorkOrders = () => {
                       </span>
                     </div>
 
-                    <p className="mt-3 text-sm text-gray-700 dark:text-neutral-200">
-                      <span className="text-gray-500 dark:text-neutral-400">O que você relatou: </span>
+                    <p className="mt-3 text-sm text-foreground">
+                      <span className="text-muted-foreground">O que você relatou: </span>
                       {ordem.reportedIssue}
                     </p>
                     {ordem.diagnosis && (
-                      <p className="mt-1 text-sm text-gray-700 dark:text-neutral-200">
-                        <span className="text-gray-500 dark:text-neutral-400">Laudo da loja: </span>
+                      <p className="mt-1 text-sm text-foreground">
+                        <span className="text-muted-foreground">Laudo da loja: </span>
                         {ordem.diagnosis}
                       </p>
                     )}
@@ -197,7 +197,7 @@ const WorkOrders = () => {
                           {ordem.items.map((item, i) => (
                             <li key={item.id ?? i} className="flex justify-between gap-4 px-3 py-2 text-sm">
                               <span className="min-w-0">
-                                <span className="text-gray-500 dark:text-neutral-400">
+                                <span className="text-muted-foreground">
                                   {item.kind === 'part'
                                     ? modeloDe(ordem.template).pecas
                                     : 'Mão de obra'}
@@ -205,20 +205,20 @@ const WorkOrders = () => {
                                 </span>
                                 {item.description}
                                 {item.quantity > 1 && (
-                                  <span className="text-gray-500 dark:text-neutral-400"> ({item.quantity}x)</span>
+                                  <span className="text-muted-foreground"> ({item.quantity}x)</span>
                                 )}
                               </span>
-                              <span className="shrink-0 text-gray-900 dark:text-neutral-100">
+                              <span className="shrink-0 text-foreground">
                                 {formatarPreco(item.total ?? item.unitAmount)}
                               </span>
                             </li>
                           ))}
                         </ul>
-                        <div className="flex justify-between px-3 py-1 text-xs text-gray-500 dark:text-neutral-400">
+                        <div className="flex justify-between px-3 py-1 text-xs text-muted-foreground">
                           <span>Valor dos serviços</span>
                           <span>{formatarPreco(ordem.laborTotal)}</span>
                         </div>
-                        <div className="flex justify-between px-3 py-1 text-xs text-gray-500 dark:text-neutral-400">
+                        <div className="flex justify-between px-3 py-1 text-xs text-muted-foreground">
                           <span>Valor de {modeloDe(ordem.template).pecas.toLowerCase()}</span>
                           <span>{formatarPreco(ordem.partsTotal)}</span>
                         </div>
@@ -267,7 +267,7 @@ const WorkOrders = () => {
                       </p>
                     )}
                     {ordem.closedNote && (
-                      <p className="mt-3 border-t pt-2 text-sm text-gray-600 dark:text-neutral-300">
+                      <p className="mt-3 border-t pt-2 text-sm text-muted-foreground">
                         Observação: {ordem.closedNote}
                       </p>
                     )}

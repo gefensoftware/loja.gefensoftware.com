@@ -91,13 +91,13 @@ export default function WorkOrderClaim() {
       <div className="container mx-auto max-w-lg px-4 py-10">
         {carregando ? (
           <div className="flex justify-center py-16">
-            <Loader2 className="h-6 w-6 animate-spin text-gray-400 dark:text-neutral-500" />
+            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
           </div>
         ) : erro ? (
           <Card>
             <CardContent className="py-10 text-center">
               <AlertTriangle className="mx-auto mb-3 h-8 w-8 text-red-500" />
-              <p className="text-gray-700 dark:text-neutral-200">{erro}</p>
+              <p className="text-foreground">{erro}</p>
               <Button variant="outline" className="mt-4" onClick={carregar}>
                 Tentar novamente
               </Button>
@@ -106,17 +106,17 @@ export default function WorkOrderClaim() {
         ) : previa ? (
           <Card>
             <CardContent className="py-8 text-center">
-              <Wrench className="mx-auto mb-3 h-8 w-8 text-gray-400 dark:text-neutral-500" />
-              <p className="text-sm text-gray-600 dark:text-neutral-300">{previa.storeName} abriu a</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-neutral-100">
+              <Wrench className="mx-auto mb-3 h-8 w-8 text-muted-foreground" />
+              <p className="text-sm text-muted-foreground">{previa.storeName} abriu a</p>
+              <p className="text-2xl font-bold text-foreground">
                 Ordem de serviço nº {previa.number}
               </p>
               {previa.equipment && (
-                <p className="mt-1 text-sm text-gray-600 dark:text-neutral-300">{previa.equipment}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{previa.equipment}</p>
               )}
 
               {auth.isAuthenticated ? (
-                <p className="mt-6 flex items-center justify-center gap-2 text-sm text-gray-600 dark:text-neutral-300">
+                <p className="mt-6 flex items-center justify-center gap-2 text-sm text-muted-foreground">
                   {vinculando ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -131,7 +131,7 @@ export default function WorkOrderClaim() {
                 </p>
               ) : (
                 <>
-                  <p className="mt-6 text-sm text-gray-700 dark:text-neutral-200">
+                  <p className="mt-6 text-sm text-foreground">
                     Entre ou crie sua conta para acompanhar o serviço, aprovar o orçamento
                     e guardar a nota.
                   </p>

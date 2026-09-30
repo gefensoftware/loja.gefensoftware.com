@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { useEmpresa } from '@/store/enterprise'
 import { useTema } from '@/store/tema'
 import { contrastarCom } from '@/lib/tema'
+import { TOKENS_DO_TEMA, variaveisDoTema } from '@/lib/tema-empresa'
 import LoadingScreen from '@/components/LoadingScreen'
 import Navbar from '@/components/Navbar'
 import StoreFooter from '@/components/StoreFooter'
@@ -27,7 +28,44 @@ export default function StoreLayoutClient({
   // (globals.css), e quem as escreve é este gancho — num lugar só, para a
   // vitrine inteira. O `mode` do lojista entra como PADRÃO: vale enquanto
   // o visitante não escolheu no Perfil, e perde para ele quando escolheu.
-  useTema(empresa?.theme?.mode)
+  const { tema } = useTema(empresa?.theme?.mode)
+
+  // A paleta do tema EM VIGOR traduzida nos tokens do shadcn, do mesmo jeito
+  // que o portal faz com o painel. É isto que faz o escuro da loja ser o
+  // escuro DELA: sem esta parte, `.dark` fica com o slate padrão do
+  // globals.css e as três opções do seletor de tema pintam duas telas.
+  //
+  // O CLARO fica de fora: a vitrine clara é branca, e sempre foi. Sem tokens
+  // inline valem os do `:root` (branco, cinzas do shadcn), que é o que as
+  // classes cravadas pintavam antes desta mudança — `bg-white`,
+  // `border-gray-200`, `text-gray-500`. O que o lojista escolhe continua
+  // aparecendo no claro pelo mesmo caminho de sempre: a primária, nos botões,
+  // links e destaques (`--primary-color`, escrita no efeito abaixo).
+  //
+  // As variáveis entram inline no <html>, e portanto ganham de `:root`, `.dark`
+  // e `.dark.black` por especificidade. Recalcular a cada troca de tema é o que
+  // mantém isso correto: uma vez escritas, elas não voltam a ouvir as classes —
+  // e é também o que devolve o branco ao voltar do escuro para o claro, pelo
+  // ramo de limpeza abaixo.
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const raiz = document.documentElement
+    const paleta = empresa?.theme
+      ? tema === 'black'
+        ? empresa.theme.black
+        : tema === 'dark'
+          ? empresa.theme.dark
+          : null
+      : null
+    // `black` pode faltar enquanto a vitrine estiver à frente da API — mesmo
+    // motivo do guarda mais abaixo.
+    const vars = paleta ? variaveisDoTema(paleta) : null
+    if (!vars) {
+      TOKENS_DO_TEMA.forEach((nome) => raiz.style.removeProperty(nome))
+      return
+    }
+    Object.entries(vars).forEach(([nome, valor]) => raiz.style.setProperty(nome, valor))
+  }, [empresa?.theme, tema])
 
   useEffect(() => {
     // Tema (enterprise_dto.go): { mode, light, dark, black }, cada paleta com

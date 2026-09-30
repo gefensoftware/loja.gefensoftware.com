@@ -94,7 +94,7 @@ export default function EspacoAnuncio({ posicao, className = '' }: EspacoAnuncio
       aria-label="Publicidade"
       className={`w-full ${preenchimento === 'nao' ? 'hidden' : className}`}
     >
-      <p className="text-[10px] uppercase tracking-wide text-gray-400 dark:text-neutral-500 mb-1 text-center">
+      <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1 text-center">
         Publicidade
       </p>
       <ins

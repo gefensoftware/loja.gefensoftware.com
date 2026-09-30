@@ -13,8 +13,8 @@ import type { DocumentoLegal } from '@/content/legal/tipos';
  */
 export default function PaginaLegal({ documento }: { documento: DocumentoLegal }) {
   return (
-    <main className="min-h-screen bg-gray-50 dark:bg-neutral-900">
-      <header className="border-b bg-white dark:bg-neutral-900">
+    <main className="min-h-screen bg-background">
+      <header className="border-b bg-card">
         <div className="mx-auto max-w-3xl px-5 py-8 md:py-12">
           <Link
             href="/"
@@ -23,26 +23,26 @@ export default function PaginaLegal({ documento }: { documento: DocumentoLegal }
             ← Voltar
           </Link>
 
-          <h1 className="mt-4 text-2xl font-bold text-gray-900 dark:text-neutral-100 md:text-3xl">
+          <h1 className="mt-4 text-2xl font-bold text-foreground md:text-3xl">
             {documento.titulo}
           </h1>
 
-          <p className="mt-3 leading-relaxed text-gray-600 dark:text-neutral-300">{documento.resumo}</p>
+          <p className="mt-3 leading-relaxed text-muted-foreground">{documento.resumo}</p>
 
-          <dl className="mt-6 flex flex-wrap gap-x-8 gap-y-2 text-sm text-gray-500 dark:text-neutral-400">
+          <dl className="mt-6 flex flex-wrap gap-x-8 gap-y-2 text-sm text-muted-foreground">
             <div className="flex gap-1.5">
-              <dt className="font-medium text-gray-700 dark:text-neutral-200">Em vigor desde:</dt>
+              <dt className="font-medium text-foreground">Em vigor desde:</dt>
               <dd>{documento.vigencia}</dd>
             </div>
             <div className="flex gap-1.5">
-              <dt className="font-medium text-gray-700 dark:text-neutral-200">Última atualização:</dt>
+              <dt className="font-medium text-foreground">Última atualização:</dt>
               <dd>{documento.atualizadoEm}</dd>
             </div>
             {/* A versão fica visível porque é o que se grava no aceite: quem
                 quiser conferir o que aceitou precisa conseguir comparar o
                 identificador com o que está no ar. */}
             <div className="flex gap-1.5">
-              <dt className="font-medium text-gray-700 dark:text-neutral-200">Versão:</dt>
+              <dt className="font-medium text-foreground">Versão:</dt>
               <dd>{documento.versao}</dd>
             </div>
           </dl>
@@ -50,8 +50,8 @@ export default function PaginaLegal({ documento }: { documento: DocumentoLegal }
       </header>
 
       <div className="mx-auto max-w-3xl px-5 py-8 md:py-12">
-        <nav aria-label="Sumário" className="rounded-xl border bg-white dark:bg-neutral-900 p-5 shadow-sm">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-neutral-400">
+        <nav aria-label="Sumário" className="rounded-xl border bg-card p-5 shadow-sm">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
             Sumário
           </h2>
           <ol className="mt-3 space-y-1.5">
@@ -59,9 +59,9 @@ export default function PaginaLegal({ documento }: { documento: DocumentoLegal }
               <li key={secao.id} className="text-sm leading-relaxed">
                 <a
                   href={`#${secao.id}`}
-                  className="text-gray-700 dark:text-neutral-200 hover:text-primary hover:underline"
+                  className="text-foreground hover:text-primary hover:underline"
                 >
-                  <span className="mr-1.5 tabular-nums text-gray-400 dark:text-neutral-500">
+                  <span className="mr-1.5 tabular-nums text-muted-foreground">
                     {indice + 1}.
                   </span>
                   {secao.titulo}
@@ -81,13 +81,13 @@ export default function PaginaLegal({ documento }: { documento: DocumentoLegal }
               // seção parece começar no meio.
               className="scroll-mt-6"
             >
-              <h2 className="text-lg font-bold text-gray-900 dark:text-neutral-100 md:text-xl">
-                <span className="mr-2 tabular-nums font-semibold text-gray-400 dark:text-neutral-500">
+              <h2 className="text-lg font-bold text-foreground md:text-xl">
+                <span className="mr-2 tabular-nums font-semibold text-muted-foreground">
                   {indice + 1}.
                 </span>
                 {secao.titulo}
               </h2>
-              <div className="mt-3 space-y-3 leading-relaxed text-gray-700 dark:text-neutral-200 [&_a]:text-primary [&_a]:underline [&_li]:leading-relaxed [&_ul]:list-disc [&_ul]:space-y-2 [&_ul]:pl-5 [&_strong]:font-semibold [&_strong]:text-gray-900">
+              <div className="mt-3 space-y-3 leading-relaxed text-foreground [&_a]:text-primary [&_a]:underline [&_li]:leading-relaxed [&_ul]:list-disc [&_ul]:space-y-2 [&_ul]:pl-5 [&_strong]:font-semibold [&_strong]:text-gray-900">
                 {secao.corpo}
               </div>
             </section>

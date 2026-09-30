@@ -30,8 +30,8 @@ export default function SeletorDeTema({
 }) {
   return (
     <div className="px-4 py-4">
-      <span className="block text-sm font-medium text-gray-800 dark:text-neutral-100">Aparência</span>
-      <span className="mt-0.5 block text-xs text-gray-500 dark:text-neutral-400">
+      <span className="block text-sm font-medium text-foreground">Aparência</span>
+      <span className="mt-0.5 block text-xs text-muted-foreground">
         Vale para esta loja neste aparelho
       </span>
       <div role="radiogroup" aria-label="Aparência" className="mt-3 flex gap-2">
@@ -50,7 +50,7 @@ export default function SeletorDeTema({
                     // pinta o botão de comprar, e é o que diz "escolhido" sem
                     // precisar de um preenchimento que competiria com ela.
                     'border-primary text-primary'
-                  : 'border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800'
+                  : 'border-border text-muted-foreground hover:bg-accent'
               }`}
             >
               <Icone className={`h-4 w-4 ${valor === 'black' && ativo ? 'fill-current' : ''}`} aria-hidden="true" />

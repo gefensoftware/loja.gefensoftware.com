@@ -72,11 +72,11 @@ const ProfilePhoto = () => {
 
   return (
     <ProfileSubPage titulo="Foto de Perfil" descricao="Escolha uma foto ou remova a atual">
-      <Card className="border-0 shadow-xl bg-white/80 dark:bg-neutral-900/80 backdrop-blur-sm">
+      <Card className="border-0 shadow-xl bg-card/80 backdrop-blur-sm">
         <CardContent className="flex flex-col items-center gap-6 pt-8">
           <UserAvatar user={user} />
 
-          <p className="max-w-sm text-center text-sm text-gray-600 dark:text-neutral-300">
+          <p className="max-w-sm text-center text-sm text-muted-foreground">
             A imagem é recortada no centro e reduzida antes do envio, então uma
             foto tirada pelo celular serve sem preparo.
           </p>

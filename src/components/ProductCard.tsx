@@ -29,16 +29,16 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   };
 
   return (
-    <Card onClick={handleClick} className=" group overflow-hidden hover:shadow-lg transition-all duration-300 border-gray-200 dark:border-neutral-700 hover:border-primary/50">
+    <Card onClick={handleClick} className=" group overflow-hidden hover:shadow-lg transition-all duration-300 border-border hover:border-primary/50">
       <CardContent className="p-0 w-full  flex flex-col">
         <div className='flex flex-row w-full  p-4 justify-between'>
           <div className="w-2/3">
-            <h3 className="font-semibold text-gray-900 dark:text-neutral-100 text-lg mb-2 line-clamp-2 group-hover:text-primary transition-colors">
+            <h3 className="font-semibold text-foreground text-lg mb-2 line-clamp-2 group-hover:text-primary transition-colors">
               {product.title}
             </h3>
 
             {product.description && (
-              <p className="text-gray-600 dark:text-neutral-300 text-sm mb-4 line-clamp-2">
+              <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
                 {product.description}
               </p>
             )}
@@ -53,11 +53,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                   {/* Sem o nome do preço o cliente vê um valor solto — ainda
                       mais quando há várias opções e esta é só a primeira. */}
                   {price.name && (
-                    <span className="block text-xs text-gray-500 dark:text-neutral-400">{price.name}</span>
+                    <span className="block text-xs text-muted-foreground">{price.name}</span>
                   )}
                   <div className="flex items-baseline gap-2">
                     {temPromocaoVigente(price) && (
-                      <span className="text-sm text-gray-400 dark:text-neutral-500 line-through">
+                      <span className="text-sm text-muted-foreground line-through">
                         {formatarPreco(price.value)}
                       </span>
                     )}
@@ -65,7 +65,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                       {formatarPreco(valorEfetivo(price))}
                     </span>
                     {product.prices.length > 1 && (
-                      <span className="text-xs text-gray-500 dark:text-neutral-400">
+                      <span className="text-xs text-muted-foreground">
                         +{product.prices.length - 1}{' '}
                         {product.prices.length - 1 === 1 ? 'opção' : 'opções'}
                       </span>
@@ -85,13 +85,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 className="w-32 h-full rounded-lg object-cover group-hover:scale-105 transition-transform duration-300"
               />
             ) : (
-              <div className="w-32 h-full bg-gradient-to-br from-gray-100 to-gray-200 dark:from-neutral-800 dark:to-neutral-700 flex items-center justify-center rounded-lg">
-                <Tag className="w-12 h-12 text-gray-400 dark:text-neutral-500" />
+              <div className="w-32 h-full bg-muted flex items-center justify-center rounded-lg">
+                <Tag className="w-12 h-12 text-muted-foreground" />
               </div>
             )}
 
             <div className="absolute top-0 right-0">
-              <Badge variant={product.type === 'service' ? 'default' : 'secondary'} className={`text-xs ${product.type === 'service' ? 'bg-primary text-on-primary' : 'bg-gray-200 dark:bg-neutral-700 text-gray-800 dark:text-neutral-100'}`}>
+              <Badge variant={product.type === 'service' ? 'default' : 'secondary'} className={`text-xs ${product.type === 'service' ? 'bg-primary text-on-primary' : 'bg-muted text-foreground'}`}>
                 {product.type === 'service' ? 'Serviço' : 'Produto'}
               </Badge>
             </div>
