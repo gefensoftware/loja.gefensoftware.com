@@ -22,7 +22,19 @@ export const metadata: Metadata = {
   authors: [{ name: 'Gefen Software' }],
   creator: 'Gefen Software',
   publisher: 'Gefen Software',
-  
+
+  // O favicon. Sem isto a aba da loja abre com o globo cinza do Chrome
+  // enquanto portal e painel mostram a marca — eles declaram o mesmo arquivo
+  // no <link rel="icon"> do index.html, e aqui, no App Router, o caminho é a
+  // chave `icons` (um `<link>` escrito à mão no <head> abaixo o Next remove).
+  // As rotas de loja herdam este valor: o generateMetadata de
+  // [name_store]/layout.tsx não devolve `icons`, e o que ele não devolve o
+  // Next mantém do layout pai.
+  icons: {
+    icon: [{ url: '/assets/logo-asset.png', type: 'image/png' }],
+    apple: '/assets/logo-asset.png',
+  },
+
   // Open Graph / Facebook
   openGraph: {
     type: 'website',
