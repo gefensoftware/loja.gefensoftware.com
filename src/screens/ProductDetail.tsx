@@ -349,7 +349,13 @@ const ProductDetail = () => {
 
             <div>
               <h2 className="text-2xl font-semibold text-foreground mb-4">
-                {product && product.prices.length === 1 ? 'Opção de preço' : 'Opções de preço'}
+                {/* Item sob orçamento não tem preço a listar — o valor é o
+                    que a loja vai responder ao pedido. */}
+                {sobOrcamento
+                  ? 'Orçamento'
+                  : product && product.prices.length === 1
+                    ? 'Opção de preço'
+                    : 'Opções de preço'}
               </h2>
               <div className="bg-muted rounded-lg p-6 space-y-4">
                 {
@@ -439,7 +445,11 @@ const ProductDetail = () => {
                       </>
                     ) : (
                       <>
-                        {product && product.prices.length === 1 ? (
+                        {/* `<= 1` e não `=== 1`: um item sem preço nenhum
+                            (marcado como orçamento numa loja que depois
+                            desligou o módulo) caía no <Select> abaixo e
+                            ganhava uma lista de opções vazia. */}
+                        {product && product.prices.length <= 1 ? (
                           <div className="text-2xl font-semibold text-foreground mb-4">
                             {product.prices[0] ? (
                               <>
@@ -508,7 +518,10 @@ const ProductDetail = () => {
                                   // adição seria recusada: o botão espera em
                                   // vez de prometer o que não pode cumprir.
                                   !carrinho.pronto ||
-                                  (!selectedPrice && !!product && product.prices.length > 1)
+                                  // Vale para a lista de opções sem escolha
+                                  // feita E para o item sem preço nenhum: nos
+                                  // dois casos não há priceId a enviar.
+                                  !selectedPrice
                                 }
                               >
                                 <ShoppingCart className="w-5 h-5 mr-2" />
