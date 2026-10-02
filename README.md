@@ -117,8 +117,16 @@ vêm **desligados**. Tudo depende de variáveis de ambiente, lidas no build:
   pular. Sem isso a loja mostra um vão em branco — durante a análise do site no
   AdSense, quando nada é servido, e depois dela em qualquer página sem anúncio
   disponível.
-- O script só carrega nas páginas das lojas (`/[name_store]`), nunca nas
-  páginas legais.
+- O script só carrega em DUAS rotas: a vitrine (`/{loja}`) e a página de
+  produto (`/{loja}/product/{código}`) — as únicas com conteúdo do lojista, e
+  as únicas que têm `<EspacoAnuncio>`. Nunca nas páginas legais, na raiz do
+  domínio, nem no carrinho, perfil, pedidos, agendamentos e orçamentos: a
+  política do AdSense proíbe anúncio em tela "usada para alertas, navegação ou
+  outros fins comportamentais", e só carregar a biblioteca já basta para o
+  anúncio automático aparecer lá. A lista de permissão é `rotaAceitaAnuncio`
+  (`src/lib/anuncios.ts`); a metade dela que fala com o rastreador é
+  `CAMINHOS_SEM_RASTREAMENTO` (`src/app/robots.ts`), e as duas descrevem a
+  mesma decisão — mudar uma pede olhar a outra.
 - `/ads.txt` é gerado a partir de `NEXT_PUBLIC_ADSENSE_CLIENT`; sem ela, 404.
 - Um `NEXT_PUBLIC_ADSENSE_CLIENT` fora do formato `ca-pub-<dígitos>` faz o
   build de produção falhar.

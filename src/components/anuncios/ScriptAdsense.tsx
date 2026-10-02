@@ -2,8 +2,9 @@
 
 import { useEffect } from 'react'
 import Script from 'next/script'
+import { usePathname } from 'next/navigation'
 import { useAtomValue } from 'jotai'
-import { adsenseClient, marcarPreferenciaAnuncios } from '@/lib/anuncios'
+import { adsenseClient, marcarPreferenciaAnuncios, rotaAceitaAnuncio } from '@/lib/anuncios'
 import { escolhaAnunciosAtom, lojaSemAnunciosAtom } from '@/store/anuncios'
 
 // Carrega a biblioteca do AdSense uma única vez por página. Vive no shell da
@@ -17,17 +18,22 @@ import { escolhaAnunciosAtom, lojaSemAnunciosAtom } from '@/store/anuncios'
 export default function ScriptAdsense() {
   const escolha = useAtomValue(escolhaAnunciosAtom)
   const semAnuncios = useAtomValue(lojaSemAnunciosAtom)
+  // Este componente vive no shell da loja, que embrulha TODAS as rotas de
+  // `/{loja}` — inclusive carrinho, perfil e pedidos. Só a vitrine e a página
+  // de produto podem servir anúncio, e carregar a biblioteca nas outras já é
+  // o bastante para o Google pôr anúncio automático nelas.
+  const anuncioPermitido = rotaAceitaAnuncio(usePathname() ?? '')
 
   // A fila nasce marcada, antes de a biblioteca chegar. O `<EspacoAnuncio>`
   // remarca junto de cada `push`, e é ele quem de fato garante a ordem — isto
   // aqui cobre o resto: um pedido que não venha de um bloco nosso (anúncios
   // automáticos, por exemplo) encontraria a fila já configurada.
   useEffect(() => {
-    if (!adsenseClient || semAnuncios) return
+    if (!adsenseClient || semAnuncios || !anuncioPermitido) return
     marcarPreferenciaAnuncios(escolha)
-  }, [escolha, semAnuncios])
+  }, [escolha, semAnuncios, anuncioPermitido])
 
-  if (!adsenseClient || semAnuncios) return null
+  if (!adsenseClient || semAnuncios || !anuncioPermitido) return null
 
   return (
     <Script

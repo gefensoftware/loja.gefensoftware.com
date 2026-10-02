@@ -1,10 +1,12 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { usePathname } from 'next/navigation'
 import { useAtomValue } from 'jotai'
 import {
   adsenseClient,
   marcarPreferenciaAnuncios,
+  rotaAceitaAnuncio,
   slotDaPosicao,
   type PosicaoAnuncio,
 } from '@/lib/anuncios'
@@ -30,6 +32,11 @@ export default function EspacoAnuncio({ posicao, className = '' }: EspacoAnuncio
   const slot = slotDaPosicao(posicao)
   const escolha = useAtomValue(escolhaAnunciosAtom)
   const semAnuncios = useAtomValue(lojaSemAnunciosAtom)
+  // A mesma lista de permissão do <ScriptAdsense>. Aqui ela evita o caso em
+  // que um espaço fosse posto numa rota sem a biblioteca carregada: o `push`
+  // ficaria na fila sem resposta, e a tela guardaria para sempre a altura
+  // reservada de um anúncio que nunca chega.
+  const anuncioPermitido = rotaAceitaAnuncio(usePathname() ?? '')
   // O StrictMode do desenvolvimento monta o efeito duas vezes; um segundo
   // `push` para o mesmo <ins> faz o AdSense lançar "already have ads".
   const enviado = useRef(false)
@@ -43,7 +50,7 @@ export default function EspacoAnuncio({ posicao, className = '' }: EspacoAnuncio
   )
 
   useEffect(() => {
-    if (!slot || semAnuncios || enviado.current) return
+    if (!slot || semAnuncios || !anuncioPermitido || enviado.current) return
     enviado.current = true
     try {
       // A marcação vem imediatamente antes do `push`, no mesmo bloco
@@ -57,7 +64,7 @@ export default function EspacoAnuncio({ posicao, className = '' }: EspacoAnuncio
       // aparece, a vitrine segue normal. Não é erro para o cliente ver.
       console.warn('[anuncios] não foi possível preencher o espaço', posicao, erro)
     }
-  }, [slot, posicao, escolha, semAnuncios])
+  }, [slot, posicao, escolha, semAnuncios, anuncioPermitido])
 
   // O AdSense escreve `data-ad-status` no <ins> quando a resposta chega:
   // "filled" com anúncio, "unfilled" sem. Sem anúncio o bloco precisa sumir —
@@ -84,7 +91,7 @@ export default function EspacoAnuncio({ posicao, className = '' }: EspacoAnuncio
     return () => observador.disconnect()
   }, [slot])
 
-  if (!slot || !adsenseClient || semAnuncios) return null
+  if (!slot || !adsenseClient || semAnuncios || !anuncioPermitido) return null
 
   // `hidden` em vez de desmontar: tirar o <ins> do DOM deixaria o AdSense com
   // uma referência a um elemento que não existe mais, e um `push` futuro para
