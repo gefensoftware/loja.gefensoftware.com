@@ -105,3 +105,34 @@ export function marcarPreferenciaAnuncios(escolha: EscolhaAnuncios | null): void
   fila.requestNonPersonalizedAds = escolha === 'aceito' ? 0 : 1;
   window.adsbygoogle = fila;
 }
+
+// --- Onde o anúncio pode aparecer ------------------------------------------
+
+/**
+ * A rota atual pode exibir anúncio?
+ *
+ * Só duas podem: a vitrine (`/{loja}`) e a página de produto
+ * (`/{loja}/product/{código}`) — as únicas telas da loja com conteúdo do
+ * lojista, e as únicas onde há `<EspacoAnuncio>`.
+ *
+ * O resto do caminho de uma loja é carrinho, perfil, pedidos, agendamentos e
+ * orçamentos: telas de navegação e de estado do visitante, que a política do
+ * AdSense põe fora do alcance da publicidade ("telas usadas para alertas,
+ * navegação ou outros fins comportamentais"). A raiz do domínio (`/`) também
+ * fica fora.
+ *
+ * É uma LISTA DE PERMISSÃO de propósito: rota nova nasce sem anúncio, e quem
+ * a criar precisa decidir o contrário por escrito. O contrário — enumerar as
+ * proibidas — deixaria a próxima tela comportamental servindo anúncio por
+ * esquecimento, que é exatamente o que a política pune.
+ *
+ * O gêmeo desta função no rastreamento é `CAMINHOS_SEM_RASTREAMENTO`
+ * (`app/robots.ts`); as duas descrevem a mesma decisão.
+ */
+export function rotaAceitaAnuncio(pathname: string): boolean {
+  const partes = pathname.split('/').filter(Boolean)
+  // `/{loja}`
+  if (partes.length === 1) return true
+  // `/{loja}/product/{código}`
+  return partes.length === 3 && partes[1] === 'product'
+}
