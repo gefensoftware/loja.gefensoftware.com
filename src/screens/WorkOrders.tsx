@@ -13,6 +13,7 @@ import {
   Loader2,
   PackageCheck,
   Printer,
+  RotateCcw,
   Truck,
   Wrench,
   X,
@@ -41,6 +42,14 @@ const ROTULOS: Record<WorkOrderStatus, { texto: string; icone: typeof Clock; cla
   approved: { texto: 'Aprovado, em execução', icone: Wrench, classe: 'text-blue-700 dark:text-blue-300' },
   ready: { texto: 'Pronto para retirada', icone: PackageCheck, classe: 'text-emerald-700 dark:text-emerald-300' },
   delivered: { texto: 'Entregue', icone: Truck, classe: 'text-muted-foreground' },
+  // Dito como ele é, sem rodeio: a loja está mexendo na nota, e o valor pode
+  // mudar. Esconder isso atrás de "Entregue" deixaria o cliente sem entender
+  // a cobrança que chega depois.
+  reopened: {
+    texto: 'Entregue · nota reaberta pela loja',
+    icone: RotateCcw,
+    classe: 'text-amber-700 dark:text-amber-300',
+  },
   declined: { texto: 'Você recusou o orçamento', icone: X, classe: 'text-red-700 dark:text-red-300' },
   canceled: { texto: 'Cancelado pela loja', icone: X, classe: 'text-muted-foreground' },
 };
