@@ -11,6 +11,9 @@ export type WorkOrderStatus =
   | 'approved'
   | 'ready'
   | 'delivered'
+  // A loja reabriu a nota para corrigi-la. O equipamento continua com o
+  // cliente — não é serviço voltando para a bancada.
+  | 'reopened'
   | 'declined'
   | 'canceled';
 
