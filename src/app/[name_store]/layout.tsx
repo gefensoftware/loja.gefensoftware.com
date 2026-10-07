@@ -1,57 +1,9 @@
-import { Suspense, cache } from 'react'
+import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
-import { serverApi } from '@/api'
 import LoadingScreen from '@/components/LoadingScreen'
-import Navbar from '@/components/Navbar'
 import StoreLayoutClient from './StoreLayoutClient'
+import { buscarLoja } from './dados-do-servidor'
 import { Metadata } from 'next'
-
-/** O que esta rota usa da resposta da loja. Não é o DTO inteiro: aqui só se
- *  montam metadados, e declarar só o que se lê deixa claro o que uma mudança
- *  no `enterprise_dto.go` pode quebrar deste lado. */
-interface LojaDoServidor {
-  name: string
-  tradeName?: string
-  description?: string
-  logoUrl?: string
-  bannerUrl?: string
-  address?: { city?: string; state?: string }
-}
-
-/** O desfecho da busca da loja no servidor.
- *
- *  `nao-encontrada` e `indisponivel` são desfechos DIFERENTES, e a diferença
- *  decide se o caminho devolve 404: slug que não existe tem de devolver 404,
- *  mas API fora do ar não pode fazer a loja de um cliente desaparecer do
- *  Google. É a mesma distinção que `useEmpresa` faz no cliente. */
-type BuscaDaLoja =
-  | { situacao: 'encontrada'; loja: LojaDoServidor }
-  | { situacao: 'nao-encontrada' }
-  | { situacao: 'indisponivel' }
-
-/**
- * A loja do slug, buscada no servidor.
- *
- * `cache` do React: `generateMetadata` e o layout pedem a mesma loja no mesmo
- * pedido, e sem isso seriam duas idas à API por carregamento de página.
- *
- * GET /enterprises/by-slug/{slug} (enterprise_handler.go): rota pública nova.
- * `/enterprise/{slug}` (singular) é do contrato anterior e não existe mais.
- */
-const buscarLoja = cache(async (slug: string): Promise<BuscaDaLoja> => {
-  try {
-    const { data } = await serverApi.get<LojaDoServidor | null>(
-      `/enterprises/by-slug/${slug}`,
-    )
-    if (!data) return { situacao: 'nao-encontrada' }
-    return { situacao: 'encontrada', loja: data }
-  } catch (erro) {
-    const status = (erro as { response?: { status?: number } })?.response?.status
-    if (status === 404) return { situacao: 'nao-encontrada' }
-    console.error('Erro ao buscar a loja:', erro)
-    return { situacao: 'indisponivel' }
-  }
-})
 
 // Função para gerar metadados dinâmicos
 export async function generateMetadata({ 
