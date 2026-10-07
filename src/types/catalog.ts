@@ -117,6 +117,39 @@ export interface MergeResult {
   dropped: DroppedLine[];
 }
 
+// --- Pedido encaminhado ao WhatsApp (order_dto.go) ---
+
+export interface OrderItem {
+  id: string;
+  productId: string | null;
+  title: string;
+  priceName: string;
+  unitAmount: string;
+  quantity: number;
+  lineTotal: string;
+}
+
+/**
+ * O pedido gravado no instante em que foi encaminhado.
+ *
+ * Não tem cliente, e não é omissão do contrato: o carrinho da vitrine é
+ * anônimo, e quem comprou está do outro lado da conversa do WhatsApp. `number`
+ * é o que liga as duas pontas — a mensagem diz "Pedido nº 42" e a tela do
+ * lojista lista o pedido 42.
+ */
+export interface Order {
+  id: string;
+  number: number;
+  status: 'pending' | 'confirmed' | 'canceled';
+  total: string;
+  items: OrderItem[];
+  confirmedAt: string | null;
+  canceledAt: string | null;
+  closedNote: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // --- Empresa (enterprise_dto.go) ---
 
 export interface Address {
