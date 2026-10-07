@@ -30,7 +30,8 @@ import {
   type LinhaDoCarrinho,
 } from '@/store/cart';
 import { vocabularioDe } from '@/lib/vocabulario';
-import type { Enterprise } from '@/types/catalog';
+import { encaminharPedido } from '@/api/order';
+import type { CartLine, Enterprise } from '@/types/catalog';
 
 /**
  * A moldura dos avisos do carrinho: faixa âmbar, ícone, título, corpo e o X
@@ -339,6 +340,16 @@ export const ListaDoCarrinho: React.FC<{ carrinho: EstadoDoCarrinho }> = ({ carr
  * para abrir uma conversa era atrito sem contrapartida. Continua bloqueado
  * com a loja fechada — aí o pedido não teria para onde ir.
  */
+/** As referências que a API precisa para somar o pedido: produto, preço e
+ *  quantidade. Valor nenhum — é o servidor que resolve o preço no catálogo. */
+function referenciasDoPedido(linhas: LinhaDoCarrinho[]): CartLine[] {
+  return linhasDoPedido(linhas).map((l) => ({
+    productId: l.product.id,
+    priceId: l.price.id,
+    quantity: l.quantity,
+  }));
+}
+
 export const EnviarPedido: React.FC<{
   carrinho: EstadoDoCarrinho;
   enterprise: Enterprise | null;
@@ -350,10 +361,52 @@ export const EnviarPedido: React.FC<{
   // "Enviar pedido" numa oficina vira "Enviar solicitação": é a mesma ação,
   // com o nome que aquele negócio usa.
   const v = vocabularioDe(enterprise?.mode);
-  const bloqueado = !aberta || itens.length === 0 || !telefone;
+  const [enviando, setEnviando] = useState(false);
+  // O pedido já gravado nesta tela, e a assinatura do carrinho que o gerou.
+  //
+  // Quem volta do WhatsApp e clica de novo manda a MESMA mensagem: sem isto,
+  // cada clique abriria um pedido novo e o lojista veria os números 1 e 2 para
+  // uma conversa só, sem como saber que são o mesmo pedido. Mudar o carrinho
+  // muda a assinatura, e aí um pedido novo é o certo — é outro pedido.
+  const [jaGravado, setJaGravado] = useState<{ assinatura: string; numero: number } | null>(
+    null,
+  );
+  const bloqueado = !aberta || itens.length === 0 || !telefone || enviando;
 
-  const enviar = () => {
+  /**
+   * Grava o pedido e abre a conversa.
+   *
+   * A aba é aberta VAZIA antes do `await`, e só depois recebe o endereço. É o
+   * que mantém o gesto do clique: aberta depois da resposta da API, o
+   * navegador a trataria como janela não solicitada e a bloquearia — o cliente
+   * clicaria em "finalizar" e nada aconteceria.
+   *
+   * A falha ao gravar NÃO interrompe o envio. A mensagem vai sem o número, o
+   * lojista recebe o pedido como sempre recebeu, e o que se perde é só a linha
+   * que ele ia confirmar depois. Perder a venda porque a nossa API piscou
+   * seria o pior dos dois.
+   */
+  const enviar = async () => {
     if (!telefone) return;
+    const aba = typeof window !== 'undefined' ? window.open('', '_blank') : null;
+    const referencias = referenciasDoPedido(carrinho.linhas);
+    const assinatura = JSON.stringify(referencias);
+    let numero: number | null =
+      jaGravado?.assinatura === assinatura ? jaGravado.numero : null;
+    if (numero === null) {
+      setEnviando(true);
+      try {
+        if (enterprise) {
+          const pedido = await encaminharPedido(enterprise.id, referencias);
+          numero = pedido.number;
+          setJaGravado({ assinatura, numero });
+        }
+      } catch (erro) {
+        console.error('Não foi possível gravar o pedido:', erro);
+      } finally {
+        setEnviando(false);
+      }
+    }
     const mensagem = montarMensagemDoPedido({
       linhas: carrinho.linhas,
       total: carrinho.total,
@@ -362,9 +415,15 @@ export const EnviarPedido: React.FC<{
       // de quem mandou, que não abre para mais ninguém.
       urlDaLoja:
         typeof window !== 'undefined' ? `${window.location.origin}/${name_store}` : '',
+      numero,
     });
-    if (typeof window !== 'undefined') {
-      window.open(linkDoWhatsApp(telefone, mensagem), '_blank');
+    const link = linkDoWhatsApp(telefone, mensagem);
+    if (aba) {
+      aba.location.href = link;
+    } else if (typeof window !== 'undefined') {
+      // Bloqueador de pop-up: a conversa abre nesta aba mesmo. Ficar sem
+      // abrir seria um botão que não faz nada.
+      window.location.href = link;
     }
   };
 
@@ -376,7 +435,7 @@ export const EnviarPedido: React.FC<{
         className="w-full text-on-primary"
       >
         <MessageCircle className="w-5 h-5 mr-2" />
-        {v.fechar} pelo WhatsApp
+        {enviando ? 'Abrindo o WhatsApp...' : `${v.fechar} pelo WhatsApp`}
       </Button>
       {!aberta && (
         <p className="text-xs text-muted-foreground text-center">
