@@ -7,6 +7,7 @@ import { ArrowLeft, X, MessageCircle, ChevronLeft, ChevronRight, ShoppingCart, A
 import type { Price, Product } from '@/types/catalog';
 import { valorEfetivo, temPromocaoVigente, formatarPreco } from '@/lib/price';
 import { api } from '@/api';
+import { encaminharPedido } from '@/api/order';
 import { useAtom } from 'jotai';
 import { authAtom } from '@/store/auth';
 import { CarrinhoNaoCarregado, useCarrinho } from '@/store/cart';
@@ -46,6 +47,13 @@ const ProductDetail = () => {
   const [includeService, setIncludeService] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
+  // O pedido já gravado nesta visita, para o segundo clique não abrir um
+  // pedido novo. A assinatura é produto+preço: trocar a opção de preço é
+  // pedir outra coisa, e aí um pedido novo é o certo. Mesmo critério do
+  // carrinho (ver components/Cart.tsx).
+  const [pedidoGravado, setPedidoGravado] = useState<
+    { assinatura: string; numero: number } | null
+  >(null);
   const [auth] = useAtom(authAtom);
   // A empresa é pré-requisito do carrinho e do WhatsApp: sem ela o botão
   // ficava habilitado e o clique não fazia nada (a guarda retornava em
@@ -127,9 +135,49 @@ const ProductDetail = () => {
       return;
     }
 
-    // Orçamento e agendamento são subsistemas próprios, sem rota nenhuma
-    // nesta API (confira registerEnterpriseRoutes/registerProductRoutes no
-    // repositório Go): não há requisição a fazer aqui, só o WhatsApp abaixo.
+    // A aba é aberta VAZIA antes do `await`, e só depois recebe o endereço.
+    // É o que mantém o gesto do clique: aberta depois da resposta da API, o
+    // navegador a trataria como janela não solicitada e a bloquearia — o
+    // cliente clicaria e nada aconteceria. Mesmo cuidado do carrinho.
+    const aba = typeof window !== 'undefined' ? window.open('', '_blank') : null;
+
+    // Orçamento e agendamento são subsistemas próprios, com painel e rotas
+    // deles nesta tela: ali o WhatsApp é conversa, não venda, e gravar um
+    // pedido poria em "Aguardando você" algo que o lojista responde noutro
+    // lugar. Produto de venda, sim: até aqui este botão abria a conversa e
+    // acabava ali, e o lojista recebia um pedido que não existia em lugar
+    // nenhum — o mesmo buraco que a fatia de pedidos fechou para o carrinho.
+    //
+    // `caps.cart` porque é a loja que precisa vender pelo carrinho para a
+    // rota aceitar (OrderService.Forward recusa com CART_DISABLED): na loja
+    // sem carrinho este botão é o único caminho, e continua sendo só a
+    // conversa.
+    const ehVenda = !!product && !sobOrcamento && !agendavel;
+    const podeGravar = ehVenda && caps.cart && !!selectedPrice;
+
+    const assinatura = `${product?.id ?? ''}:${selectedPrice?.id ?? ''}`;
+    let numero: number | null =
+      pedidoGravado?.assinatura === assinatura ? pedidoGravado.numero : null;
+
+    if (podeGravar && numero === null) {
+      try {
+        const pedido = await encaminharPedido(enterprise.id, [
+          // Quantidade 1: este botão não tem seletor de quantidade, e
+          // inventar outro número seria pedir o que o cliente não pediu.
+          // Quem quer mais de um passa pelo carrinho.
+          { productId: product!.id, priceId: selectedPrice!.id, quantity: 1 },
+        ]);
+        numero = pedido.number;
+        setPedidoGravado({ assinatura, numero });
+      } catch (erro) {
+        // A falha ao gravar NÃO interrompe o envio. A mensagem vai sem o
+        // número, o lojista recebe o pedido como sempre recebeu, e o que se
+        // perde é só a linha que ele ia confirmar depois. Perder a venda
+        // porque a nossa API piscou seria o pior dos dois. Mesma decisão do
+        // carrinho.
+        console.error('Não foi possível gravar o pedido:', erro);
+      }
+    }
 
     // Só usar window se estivermos no cliente
     const productUrl = typeof window !== 'undefined' ? window.location.href : '';
@@ -138,13 +186,26 @@ const ProductDetail = () => {
     const contact = enterprise.phones.find(p => p.isWhatsapp)?.phone;
 
     if (product?.service && includeService) {
+      // O serviço vinculado entra na CONVERSA, não no pedido: ele tem preço
+      // e regra próprios, e lançá-lo como linha aqui cobraria um valor que
+      // esta tela não resolveu.
       message += `\nGostaria de incluir o serviço: *${product.service.title}*.`;
     }
 
     message += `\n\nLink do produto:\n${productUrl}`;
+    // O número é o que liga esta conversa à linha que o lojista vai
+    // confirmar no portal — é por ele que os dois lados falam do mesmo
+    // pedido.
+    if (numero !== null) {
+      message += `\nPedido nº ${numero}`;
+    }
     const whatsappUrl = `https://wa.me/${contact}?text=${encodeURIComponent(message)}`;
-    if (typeof window !== 'undefined') {
-      window.open(whatsappUrl, '_blank');
+    if (aba) {
+      aba.location.href = whatsappUrl;
+    } else if (typeof window !== 'undefined') {
+      // Bloqueador de pop-up: a conversa abre nesta aba mesmo. Ficar sem
+      // abrir seria um botão que não faz nada.
+      window.location.href = whatsappUrl;
     }
   };
 
