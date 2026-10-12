@@ -85,6 +85,6 @@ export function telefoneDeWhatsApp(
   return phones?.find((p) => p.isWhatsapp)?.phone ?? null;
 }
 
-export function linkDoWhatsApp(telefone: string, mensagem: string): string {
-  return `https://wa.me/${telefone}?text=${encodeURIComponent(mensagem)}`;
-}
+// O link em si mora em `@/lib/whatsapp`, que põe o 55 quando o lojista
+// cadastrou o número sem ele; reexportado para o carrinho não mudar.
+export { linkDoWhatsApp } from '@/lib/whatsapp';

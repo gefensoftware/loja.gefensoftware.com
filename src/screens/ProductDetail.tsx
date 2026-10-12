@@ -8,6 +8,7 @@ import type { Price, Product } from '@/types/catalog';
 import { valorEfetivo, temPromocaoVigente, formatarPreco } from '@/lib/price';
 import { api } from '@/api';
 import { encaminharPedido } from '@/api/order';
+import { linkDoWhatsApp } from '@/lib/whatsapp';
 import { useAtom } from 'jotai';
 import { authAtom } from '@/store/auth';
 import { CarrinhoNaoCarregado, useCarrinho } from '@/store/cart';
@@ -202,7 +203,7 @@ const ProductDetail = () => {
     if (numero !== null) {
       message += `\nPedido nº ${numero}`;
     }
-    const whatsappUrl = `https://wa.me/${contact}?text=${encodeURIComponent(message)}`;
+    const whatsappUrl = linkDoWhatsApp(contact ?? '', message);
     if (aba) {
       aba.location.href = whatsappUrl;
     } else if (typeof window !== 'undefined') {
