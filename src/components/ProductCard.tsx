@@ -31,8 +31,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   return (
     <Card onClick={handleClick} className=" group overflow-hidden hover:shadow-lg transition-all duration-300 border-border hover:border-primary/50">
       <CardContent className="p-0 w-full  flex flex-col">
-        <div className='flex flex-row w-full  p-4 justify-between'>
-          <div className="w-2/3">
+        <div className='flex flex-row w-full gap-4 p-4 sm:p-5 justify-between'>
+          <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-foreground text-lg mb-2 line-clamp-2 group-hover:text-primary transition-colors">
               {product.title}
             </h3>
@@ -77,20 +77,22 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               )}
             </div>
           </div>
-          <div className=" relative  flex justify-center items-center overflow-hidden ">
+          {/* Foto quadrada e de tamanho fixo: com h-full ela esticava até a
+              altura do texto e cada card ficava com uma proporção. */}
+          <div className="relative shrink-0 self-start w-28 sm:w-32 aspect-square overflow-hidden rounded-lg">
             {image ? (
               <img
                 src={image.url}
                 alt={product?.title || 'Produto'}
-                className="w-32 h-full rounded-lg object-cover group-hover:scale-105 transition-transform duration-300"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               />
             ) : (
-              <div className="w-32 h-full bg-muted flex items-center justify-center rounded-lg">
+              <div className="w-full h-full bg-muted flex items-center justify-center">
                 <Tag className="w-12 h-12 text-muted-foreground" />
               </div>
             )}
 
-            <div className="absolute top-0 right-0">
+            <div className="absolute top-1 right-1">
               <Badge variant={product.type === 'service' ? 'default' : 'secondary'} className={`text-xs ${product.type === 'service' ? 'bg-primary text-on-primary' : 'bg-muted text-foreground'}`}>
                 {product.type === 'service' ? 'Serviço' : 'Produto'}
               </Badge>
