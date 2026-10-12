@@ -123,6 +123,9 @@ const ProductDetail = () => {
   // A categoria vem embutida no produto (categoryRefDTO); não há mais
   // requisição própria para ela.
   const allImages = [...(product?.images ?? [])].sort((a, b) => a.position - b.position);
+  // Linhas em branco não contam: sem nenhuma característica de fato, a seção
+  // inteira some em vez de aparecer só com o título.
+  const caracteristicas = (product?.detailsPoint ?? []).filter(point => point?.trim());
 
   const handleWhatsAppOrder = async () => {
     if (!auth.isAuthenticated) {
@@ -387,17 +390,19 @@ const ProductDetail = () => {
               </div>
             ) : null}
 
-            <div className="bg-muted rounded-lg p-6 ">
-              <h3 className="text-lg font-semibold text-foreground mb-4">Características do produto</h3>
-              <ul className="space-y-3">
-                {product?.detailsPoint.map((point, index) => (
-                  <li key={index} className="flex items-start">
-                    <span className="text-primary mr-2">•</span>
-                    <span className="text-foreground">{point}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            {caracteristicas.length > 0 && (
+              <div className="bg-muted rounded-lg p-6 ">
+                <h3 className="text-lg font-semibold text-foreground mb-4">Características do produto</h3>
+                <ul className="space-y-3">
+                  {caracteristicas.map((point, index) => (
+                    <li key={index} className="flex items-start">
+                      <span className="text-primary mr-2">•</span>
+                      <span className="text-foreground">{point}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
 
           <div className="space-y-6">
