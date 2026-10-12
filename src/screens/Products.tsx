@@ -289,7 +289,7 @@ const Products = () => {
             </div>
           </div>
         </div>
-        <ProductSkeletonGrid count={8} />
+        <ProductSkeletonGrid count={6} />
       </div>
     );
   }
@@ -598,11 +598,11 @@ const Products = () => {
                   {/* Título da Categoria */}
                   <h2 className="text-2xl font-bold text-foreground mb-4">{category.name}</h2>
                   {/* Grid de Produtos */}
-                  {/* Mesma grade do esqueleto e do grupo "Outros Produtos":
-                      parando em duas colunas, a tela de 1440px mostrava cards
-                      de 608px, e o esqueleto de quatro colunas virava
-                      conteúdo de duas. */}
-                  <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  {/* Mesma grade do esqueleto e do grupo "Outros Produtos".
+                      O card é horizontal (texto ao lado da foto): com quatro
+                      colunas ele ficava com ~286px e espremia o texto; três
+                      colunas no máximo dão ~384px. */}
+                  <div className="grid gap-6 lg:gap-8 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
                     {categoryProducts.map((product) => (
                       <ProductCard key={product.id} product={product} />
                     ))}
@@ -619,7 +619,7 @@ const Products = () => {
                   <EspacoAnuncio posicao="vitrine" className="mb-10" />
                 )}
                 <h2 className="text-2xl font-bold text-foreground mb-4">Outros Produtos</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div className="grid gap-6 lg:gap-8 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
                   {uncategorizedProducts.map((product) => (
                     <ProductCard key={product.id} product={product} />
                   ))}
