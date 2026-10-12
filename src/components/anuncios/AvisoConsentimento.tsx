@@ -125,22 +125,27 @@ export default function AvisoConsentimento() {
 
         {/* Os dois botões com o mesmo peso visual de propósito: a política diz
             que retirar é tão simples quanto dar, e um "recusar" escondido num
-            link cinza faria dela letra morta. */}
-        <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+            link cinza faria dela letra morta.
+
+            `size="lg"` (h-11) em vez de `sm`: no celular eles empilham em
+            largura cheia e, com h-9, viravam duas faixas finas difíceis de
+            acertar com o dedo. `h-auto min-h-11` + `whitespace-normal` deixam o
+            rótulo quebrar em vez de vazar quando a tela é estreita. */}
+        <div className="mt-4 flex flex-col gap-3 sm:flex-row">
           <Button
             type="button"
-            size="sm"
+            size="lg"
             onClick={() => responder('aceito')}
-            className="flex-1"
+            className="h-auto min-h-11 flex-1 whitespace-normal px-4 py-2.5"
           >
             Permitir anúncios personalizados
           </Button>
           <Button
             type="button"
-            size="sm"
+            size="lg"
             variant="outline"
             onClick={() => responder('recusado')}
-            className="flex-1"
+            className="h-auto min-h-11 flex-1 whitespace-normal px-4 py-2.5"
           >
             Apenas não personalizados
           </Button>

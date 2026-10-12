@@ -19,16 +19,22 @@ import LinkPreferencias from '@/components/anuncios/LinkPreferencias'
 // `<a>` em vez de `<Link>` de propósito, como no Profile e no AuthModal: as
 // rotas legais são estáticas e ficam fora do shell da loja, e a navegação
 // dura é o que se quer ao sair da vitrine.
+//
+// No celular os três links não cabem numa linha: sem `flex-wrap` cada um
+// encolhia e quebrava o próprio texto ("Termos de / Uso"). Agora quem quebra
+// é a linha, e cada link fica inteiro (`whitespace-nowrap`). Os pontos só
+// aparecem do `sm` em diante — numa linha quebrada eles sobravam soltos na
+// ponta, separando nada.
 export default function StoreFooter(): JSX.Element {
   return (
-    <footer className="bg-background flex items-center justify-center gap-3 pb-24 pt-6 text-xs text-muted-foreground">
-      <a href="/termos-de-uso" className="hover:text-primary hover:underline">
+    <footer className="bg-background flex flex-wrap items-center justify-center gap-x-4 gap-y-2 px-4 pb-24 pt-6 text-xs text-muted-foreground sm:gap-x-3">
+      <a href="/termos-de-uso" className="whitespace-nowrap hover:text-primary hover:underline">
         Termos de Uso
       </a>
-      <span aria-hidden="true">·</span>
+      <span aria-hidden="true" className="hidden sm:inline">·</span>
       <a
         href="/politica-de-privacidade"
-        className="hover:text-primary hover:underline"
+        className="whitespace-nowrap hover:text-primary hover:underline"
       >
         Política de Privacidade
       </a>
