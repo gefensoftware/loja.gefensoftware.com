@@ -22,11 +22,11 @@ export default function LinkPreferencias() {
 
   return (
     <>
-      <span aria-hidden="true">·</span>
+      <span aria-hidden="true" className="hidden sm:inline">·</span>
       <button
         type="button"
         onClick={() => abrir(true)}
-        className="hover:text-primary hover:underline"
+        className="whitespace-nowrap hover:text-primary hover:underline"
       >
         Preferências de anúncios
       </button>
