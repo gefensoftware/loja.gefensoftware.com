@@ -15,7 +15,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { api, apiError } from '@/api';
+import { api, apiError, MUITAS_TENTATIVAS } from '@/api';
 import { TERMOS_VERSAO, PRIVACIDADE_VERSAO } from '@/content/legal/empresa';
 import { entrar, mensagemDeErroDeEntrada } from '@/api/auth';
 import { useAtom } from 'jotai';
@@ -133,6 +133,10 @@ const AuthModal = (props: AuthModalProps) => {
         toast.error('Este email já está cadastrado')
       } else if (code === 'VALIDATION_ERROR') {
         toast.error('Confira os dados informados')
+      } else if (code === MUITAS_TENTATIVAS) {
+        // 20 cadastros por IP por hora, numa janela fixa: a espera pode ser
+        // menor, mas não passa disso.
+        toast.error('Muitos cadastros seguidos desta rede. Aguarde até uma hora e tente de novo.')
       } else {
         toast.error('Erro ao fazer cadastro')
       }
