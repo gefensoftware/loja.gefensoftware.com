@@ -118,12 +118,12 @@ export default function SchedulePanel({
     setEmail(c.email);
   }, []);
 
-  // A equipe é carregada uma vez. Falha aqui — inclusive a API anterior a
+  // A equipe deste serviço é carregada uma vez. Falha aqui — inclusive a API anterior a
   // esta rota, que responde 404 — vira lista vazia: o painel volta a ser o
   // de quem atende sozinha, que continua funcionando inteiro.
   useEffect(() => {
     let vivo = true;
-    profissionaisDaLoja(nameStore)
+    profissionaisDaLoja(nameStore, productCode)
       .then((lista) => {
         if (vivo) setEquipe(lista);
       })
@@ -131,7 +131,7 @@ export default function SchedulePanel({
     return () => {
       vivo = false;
     };
-  }, [nameStore]);
+  }, [nameStore, productCode]);
 
   const carregar = useCallback(async () => {
     setCarregando(true);
