@@ -28,11 +28,17 @@ export async function horariosLivres(
 
 export type Profissional = { id: string; name: string };
 
-// Com quem o cliente pode marcar. Pública como a disponibilidade, e pelo
-// mesmo motivo devolve só id e nome. Lista vazia é a loja que atende sozinha
-// ou não pôs ninguém à escolha — e então o painel nem pergunta.
-export async function profissionaisDaLoja(nameStore: string): Promise<Profissional[]> {
-  const { data } = await api.get<Profissional[]>(`/enterprises/by-slug/${nameStore}/technicians`);
+// Com quem o cliente pode marcar ESTE serviço. Pública como a
+// disponibilidade, e pelo mesmo motivo devolve só id e nome. Lista vazia é a
+// loja que atende sozinha, ou que não pôs à escolha ninguém que faça o
+// serviço — e então o painel nem pergunta.
+export async function profissionaisDaLoja(
+  nameStore: string,
+  productCode: number
+): Promise<Profissional[]> {
+  const { data } = await api.get<Profissional[]>(`/enterprises/by-slug/${nameStore}/technicians`, {
+    params: { productCode },
+  });
   return data;
 }
 
