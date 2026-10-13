@@ -137,14 +137,21 @@ const ProductDetail = () => {
   // inteira some em vez de aparecer só com o título.
   const caracteristicas = (product?.detailsPoint ?? []).filter(point => point?.trim());
 
+  // Sem login, como o carrinho: falar com a loja não pede conta. A exigência
+  // antiga mandava para o cadastro quem só queria perguntar o preço — e
+  // quem desiste ali vai perguntar a outra loja. Nada aqui depende de quem
+  // é o cliente: o pedido gravado abaixo vai pela rota pública do carrinho.
   const handleWhatsAppOrder = async () => {
-    if (!auth.isAuthenticated) {
-      setIsAuthModalOpen(true);
+    if (!enterprise) {
+      toast.error('Não foi possível carregar os dados da loja. Tente novamente.');
       return;
     }
 
-    if (!enterprise) {
-      toast.error('Não foi possível carregar os dados da loja. Tente novamente.');
+    // Conferido ANTES de abrir a aba: sem número, wa.me abre uma tela de
+    // erro, e a aba vazia ficaria para trás sem explicação.
+    const contact = enterprise.phones.find(p => p.isWhatsapp)?.phone;
+    if (!contact) {
+      toast.error('Esta loja ainda não cadastrou um WhatsApp.');
       return;
     }
 
@@ -196,8 +203,6 @@ const ProductDetail = () => {
     const productUrl = typeof window !== 'undefined' ? window.location.href : '';
     let message = `Olá! Gostaria de saber mais sobre o ${nomeDoItem}: *${product?.title}*.`;
 
-    const contact = enterprise.phones.find(p => p.isWhatsapp)?.phone;
-
     if (product?.service && includeService) {
       // O serviço vinculado entra na CONVERSA, não no pedido: ele tem preço
       // e regra próprios, e lançá-lo como linha aqui cobraria um valor que
@@ -212,7 +217,7 @@ const ProductDetail = () => {
     if (numero !== null) {
       message += `\nPedido nº ${numero}`;
     }
-    const whatsappUrl = linkDoWhatsApp(contact ?? '', message);
+    const whatsappUrl = linkDoWhatsApp(contact, message);
     if (aba) {
       aba.location.href = whatsappUrl;
     } else if (typeof window !== 'undefined') {
