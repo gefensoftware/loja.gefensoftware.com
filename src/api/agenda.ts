@@ -58,3 +58,66 @@ export async function desmarcar(id: string, note: string): Promise<Appointment> 
   const { data } = await api.post<Appointment>(`/users/me/appointments/${id}/cancel`, { note });
   return data;
 }
+
+// ---------------------------------------------------------------------------
+// O pedido sem conta.
+//
+// Nome e telefone bastam. A resposta traz o `token` do link de acompanhamento
+// — é a única vez que ele aparece, e quem chamou precisa guardá-lo (ver
+// lib/agendamentos-sem-conta.ts).
+
+/** O que o link de acompanhamento mostra. Sem telefone nem e-mail: o link pode
+ *  ser encaminhado, e o contato não precisa ir junto. */
+export type AgendamentoSemConta = {
+  token: string;
+  status: Appointment['status'];
+  title: string;
+  notes: string;
+  startsAt: string;
+  endsAt: string;
+  closedNote: string;
+  customerName: string;
+  technicianName?: string;
+  productCode: number | null;
+};
+
+export async function pedirSemConta(
+  nameStore: string,
+  body: {
+    productId: string;
+    startsAt: string;
+    notes: string;
+    technicianId?: string;
+    customerName: string;
+    customerPhone: string;
+    customerEmail?: string;
+  }
+): Promise<AgendamentoSemConta> {
+  const { data } = await api.post<AgendamentoSemConta>(
+    `/enterprises/by-slug/${nameStore}/appointments`,
+    body
+  );
+  return data;
+}
+
+export async function agendamentoPeloLink(
+  nameStore: string,
+  token: string
+): Promise<AgendamentoSemConta> {
+  const { data } = await api.get<AgendamentoSemConta>(
+    `/enterprises/by-slug/${nameStore}/appointments/${encodeURIComponent(token)}`
+  );
+  return data;
+}
+
+export async function desmarcarPeloLink(
+  nameStore: string,
+  token: string,
+  note: string
+): Promise<AgendamentoSemConta> {
+  const { data } = await api.post<AgendamentoSemConta>(
+    `/enterprises/by-slug/${nameStore}/appointments/${encodeURIComponent(token)}/cancel`,
+    { note }
+  );
+  return data;
+}
