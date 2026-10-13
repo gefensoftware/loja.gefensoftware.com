@@ -11,16 +11,29 @@ import type { Appointment } from '@/types/agenda';
 
 type Disponibilidade = { date: string; slots: string[] };
 
+// `technicianId` recorta os horários de uma profissional; ausente é "sem
+// preferência", e o servidor devolve o horário se ALGUMA estiver livre.
 export async function horariosLivres(
   nameStore: string,
   code: number,
-  data: string
+  data: string,
+  technicianId?: string
 ): Promise<string[]> {
   const { data: resposta } = await api.get<Disponibilidade>(
     `/enterprises/by-slug/${nameStore}/products/${code}/availability`,
-    { params: { date: data } }
+    { params: { date: data, technicianId } }
   );
   return resposta.slots;
+}
+
+export type Profissional = { id: string; name: string };
+
+// Com quem o cliente pode marcar. Pública como a disponibilidade, e pelo
+// mesmo motivo devolve só id e nome. Lista vazia é a loja que atende sozinha
+// ou não pôs ninguém à escolha — e então o painel nem pergunta.
+export async function profissionaisDaLoja(nameStore: string): Promise<Profissional[]> {
+  const { data } = await api.get<Profissional[]>(`/enterprises/by-slug/${nameStore}/technicians`);
+  return data;
 }
 
 type Pagina = { data: Appointment[]; page: number; pageSize: number; total: number };
@@ -30,6 +43,7 @@ export async function pedirHorario(body: {
   productId: string;
   startsAt: string;
   notes: string;
+  technicianId?: string;
 }): Promise<Appointment> {
   const { data } = await api.post<Appointment>('/users/me/appointments', body);
   return data;
