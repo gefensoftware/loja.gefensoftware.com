@@ -4,8 +4,16 @@ import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { AlertTriangle, Calendar, Check, Clock, Loader2, User } from 'lucide-react';
 import { toast } from 'react-toastify';
-import { horariosLivres, pedirHorario, profissionaisDaLoja, type Profissional } from '@/api/agenda';
+import {
+  horariosLivres,
+  pedirHorario,
+  pedirSemConta,
+  profissionaisDaLoja,
+  type Profissional,
+} from '@/api/agenda';
+import { contatoGuardado, guardarContato, guardarToken } from '@/lib/agendamentos-sem-conta';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 
 // O pedido de horário na tela do produto.
@@ -17,6 +25,12 @@ import { Textarea } from '@/components/ui/textarea';
 //
 // Os horários vêm calculados do servidor. Esta tela nunca vê a agenda da loja:
 // recebe uma lista de começos livres, e é só.
+//
+// Conta é opcional. Quem entrou pede pela conta e acompanha em "Meus
+// agendamentos"; quem não entrou deixa nome e telefone, e acompanha pelo link
+// que o pedido devolve — guardado neste navegador para aparecer em "Agenda".
+// Exigir cadastro para marcar uma manicure era a barreira que o balcão nunca
+// teve.
 
 type Props = {
   enterpriseId?: string;
@@ -60,6 +74,10 @@ function hora(iso: string): string {
 const MENSAGENS_DE_ERRO: Record<string, string> = {
   APPOINTMENT_OVERLAP: 'Esse horário acabou de ser ocupado. Escolha outro.',
   TECHNICIAN_NOT_FOUND: 'Essa pessoa não está mais atendendo pela vitrine. Escolha outra.',
+  GUEST_REQUESTS_LIMIT:
+    'Este telefone já tem pedidos demais esperando a loja. Aguarde a confirmação ou desmarque um deles.',
+  TOO_MANY_REQUESTS: 'Muitos pedidos seguidos. Aguarde um minuto e tente de novo.',
+  APPOINTMENTS_DISABLED: 'Esta loja não está recebendo agendamentos agora.',
   PRODUCT_WITHOUT_DURATION: 'A loja ainda não configurou a duração deste serviço.',
   PRODUCT_NOT_SCHEDULABLE: 'Este produto não aceita agendamento.',
   VALIDATION_ERROR: 'Esse horário não está mais disponível. Escolha outro.',
@@ -86,6 +104,19 @@ export default function SchedulePanel({
   // estiver livre, e a loja decide ao confirmar.
   const [equipe, setEquipe] = useState<Profissional[]>([]);
   const [profissional, setProfissional] = useState('');
+  // Quem pede sem conta. Começa com o último contato digitado neste
+  // navegador: a segunda marcação não precisa pedir tudo de novo.
+  const [nome, setNome] = useState('');
+  const [telefone, setTelefone] = useState('');
+  const [email, setEmail] = useState('');
+  const [linkDoPedido, setLinkDoPedido] = useState<string | null>(null);
+
+  useEffect(() => {
+    const c = contatoGuardado();
+    setNome(c.nome);
+    setTelefone(c.telefone);
+    setEmail(c.email);
+  }, []);
 
   // A equipe é carregada uma vez. Falha aqui — inclusive a API anterior a
   // esta rota, que responde 404 — vira lista vazia: o painel volta a ser o
@@ -127,23 +158,60 @@ export default function SchedulePanel({
     carregar();
   }, [carregar]);
 
+  // O telefone é o único contato garantido de quem pede sem conta: a loja
+  // precisa conseguir ligar ou chamar no WhatsApp. A conta de dígitos é a
+  // mesma da API (10 a 13: DDD e número, com ou sem o 55).
+  const digitos = telefone.replace(/\D/g, '').length;
+  const contatoOk = autenticado || (nome.trim() !== '' && digitos >= 10 && digitos <= 13);
+
   const enviar = async () => {
-    if (!enterpriseId || !escolhido) return;
+    if (!escolhido || (autenticado && !enterpriseId) || !contatoOk) return;
     setEnviando(true);
     try {
-      await pedirHorario({
-        enterpriseId,
-        productId,
-        startsAt: escolhido,
-        notes: observacao.trim(),
-        technicianId: profissional || undefined,
-      });
+      if (autenticado && enterpriseId) {
+        await pedirHorario({
+          enterpriseId,
+          productId,
+          startsAt: escolhido,
+          notes: observacao.trim(),
+          technicianId: profissional || undefined,
+        });
+        setLinkDoPedido(null);
+      } else {
+        const feito = await pedirSemConta(nameStore, {
+          productId,
+          startsAt: escolhido,
+          notes: observacao.trim(),
+          technicianId: profissional || undefined,
+          customerName: nome.trim(),
+          customerPhone: telefone.trim(),
+          customerEmail: email.trim() || undefined,
+        });
+        guardarToken(nameStore, feito.token);
+        guardarContato({ nome: nome.trim(), telefone: telefone.trim(), email: email.trim() });
+        setLinkDoPedido(`/${nameStore}/agendamentos/${feito.token}`);
+      }
       setPedido(true);
       toast.success('Pedido enviado. A loja confirma por aqui.');
     } catch (e) {
-      const codigo = (e as { response?: { data?: { error?: { code?: string } } } })?.response?.data
-        ?.error?.code;
-      toast.error((codigo && MENSAGENS_DE_ERRO[codigo]) || 'Não foi possível pedir o horário.');
+      const erro = (
+        e as {
+          response?: { data?: { error?: { code?: string; details?: { field?: string }[] } } };
+        }
+      )?.response?.data?.error;
+      const campo = erro?.details?.[0]?.field;
+      // Um 422 no contato não é "horário indisponível": dizer isso mandaria a
+      // cliente trocar de horário quando o problema é o telefone.
+      const mensagem =
+        campo === 'customerPhone'
+          ? 'Confira o telefone: com DDD, só números.'
+          : campo === 'customerName'
+            ? 'Diga seu nome para a loja saber quem pediu.'
+            : campo === 'customerEmail'
+              ? 'Confira o e-mail, ou deixe em branco.'
+              : (erro?.code && MENSAGENS_DE_ERRO[erro.code]) || 'Não foi possível pedir o horário.';
+      toast.error(mensagem);
+      if (campo?.startsWith('customer')) return;
       // O horário pode ter sido ocupado entre a lista e o clique; recarregar
       // mostra a realidade em vez de deixar na tela um botão que já não vale.
       carregar();
@@ -151,19 +219,6 @@ export default function SchedulePanel({
       setEnviando(false);
     }
   };
-
-  if (!autenticado) {
-    return (
-      <div className="space-y-4">
-        <p className="text-sm text-foreground">
-          Entre na sua conta para escolher um horário e acompanhar a confirmação da loja por aqui.
-        </p>
-        <Button onClick={onPrecisaEntrar} className="w-full">
-          Entrar e agendar
-        </Button>
-      </div>
-    );
-  }
 
   if (pedido) {
     return (
@@ -175,11 +230,28 @@ export default function SchedulePanel({
         <p className="text-sm text-foreground">
           {/* O cliente precisa saber que pedir não é ter a hora: a loja ainda
               confirma, e só então o horário é dele. */}
-          Seu horário só fica garantido depois que a loja confirmar. Você acompanha em{' '}
-          <Link href={`/${nameStore}/agendamentos`} className="underline">
-            Meus agendamentos
-          </Link>
-          .
+          Seu horário só fica garantido depois que a loja confirmar.{' '}
+          {linkDoPedido ? (
+            <>
+              Acompanhe e, se precisar, desmarque por{' '}
+              <Link href={linkDoPedido} className="underline">
+                este link
+              </Link>
+              . Ele também fica guardado neste aparelho, em{' '}
+              <Link href={`/${nameStore}/agendamentos`} className="underline">
+                Agenda
+              </Link>
+              .
+            </>
+          ) : (
+            <>
+              Você acompanha em{' '}
+              <Link href={`/${nameStore}/agendamentos`} className="underline">
+                Meus agendamentos
+              </Link>
+              .
+            </>
+          )}
         </p>
         <Button
           variant="outline"
@@ -296,6 +368,54 @@ export default function SchedulePanel({
 
       {escolhido && (
         <div className="space-y-3">
+          {!autenticado && (
+            <div className="space-y-3 rounded-lg border border-border p-3">
+              <div className="flex items-baseline justify-between gap-2">
+                <p className="text-sm font-medium text-foreground">Seu contato</p>
+                <button type="button" onClick={onPrecisaEntrar} className="text-sm underline text-foreground">
+                  Já tenho conta
+                </button>
+              </div>
+              <div>
+                <label htmlFor="nome-agenda" className="block text-sm text-foreground mb-1">
+                  Nome
+                </label>
+                <Input
+                  id="nome-agenda"
+                  autoComplete="name"
+                  value={nome}
+                  onChange={(e) => setNome(e.target.value)}
+                />
+              </div>
+              <div>
+                <label htmlFor="telefone-agenda" className="block text-sm text-foreground mb-1">
+                  Telefone (WhatsApp)
+                </label>
+                <Input
+                  id="telefone-agenda"
+                  type="tel"
+                  inputMode="tel"
+                  autoComplete="tel"
+                  placeholder="(21) 99999-8888"
+                  value={telefone}
+                  onChange={(e) => setTelefone(e.target.value)}
+                />
+                <p className="mt-1 text-xs text-muted-foreground">É por ele que a loja confirma com você.</p>
+              </div>
+              <div>
+                <label htmlFor="email-agenda" className="block text-sm text-foreground mb-1">
+                  E-mail (opcional)
+                </label>
+                <Input
+                  id="email-agenda"
+                  type="email"
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+            </div>
+          )}
           <div>
             <label htmlFor="obs-agenda" className="block text-sm font-medium text-foreground mb-2">
               Alguma observação? (opcional)
@@ -307,7 +427,11 @@ export default function SchedulePanel({
               className="min-h-[72px]"
             />
           </div>
-          <Button onClick={enviar} disabled={enviando || !enterpriseId} className="w-full">
+          <Button
+            onClick={enviar}
+            disabled={enviando || !contatoOk || (autenticado && !enterpriseId)}
+            className="w-full"
+          >
             {enviando
               ? 'Enviando…'
               : `Pedir horário das ${hora(escolhido)}${

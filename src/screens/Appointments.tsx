@@ -5,36 +5,25 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useAtom } from 'jotai';
 import { toast } from 'react-toastify';
-import { AlertTriangle, Ban, Calendar, Check, CheckCheck, Loader2, UserX } from 'lucide-react';
+import { AlertTriangle, Calendar, Loader2 } from 'lucide-react';
 import { desmarcar, listarMeusAgendamentos } from '@/api/agenda';
-import { agendaEmAberto, type Appointment, type AppointmentStatus } from '@/types/agenda';
+import { agendaEmAberto, type Appointment } from '@/types/agenda';
+import { ROTULOS, formatarQuando } from '@/lib/agenda-rotulos';
+import { tokensGuardados } from '@/lib/agendamentos-sem-conta';
+import AgendamentoSemContaCard from '@/components/AgendamentoSemContaCard';
 import { authAtom } from '@/store/auth';
 import AuthModal from '@/components/AuthModal';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 
 // "Meus agendamentos": as horas do cliente em todas as lojas, com o estado de
-// cada uma e o botão de desmarcar.
+// cada uma e o botão de desmarcar — e, abaixo, os pedidos feitos SEM conta
+// neste aparelho, lidos pelos tokens guardados (lib/agendamentos-sem-conta).
+// Quem só pediu sem conta vê os seus sem precisar entrar.
 //
 // `requested` e `confirmed` são estados diferentes e a tela diz isso em texto:
 // pedir não é ter a hora, e um cliente que achasse o contrário apareceria na
 // loja num horário que ela nunca aceitou.
-
-const ROTULOS: Record<AppointmentStatus, { texto: string; icone: typeof Check; classe: string }> = {
-  requested: { texto: 'Aguardando a loja confirmar', icone: Calendar, classe: 'text-amber-700 dark:text-amber-300' },
-  confirmed: { texto: 'Confirmado', icone: Check, classe: 'text-blue-700 dark:text-blue-300' },
-  completed: { texto: 'Atendimento realizado', icone: CheckCheck, classe: 'text-emerald-700 dark:text-emerald-300' },
-  canceled: { texto: 'Desmarcado', icone: Ban, classe: 'text-muted-foreground' },
-  no_show: { texto: 'Você não compareceu', icone: UserX, classe: 'text-red-700 dark:text-red-300' },
-};
-
-function formatarQuando(inicio: string, fim: string): string {
-  const i = new Date(inicio);
-  const f = new Date(fim);
-  const dia = i.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' });
-  const hora = (d: Date) => d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-  return `${dia}, ${hora(i)} às ${hora(f)}`;
-}
 
 const Appointments = () => {
   const params = useParams();
@@ -46,6 +35,17 @@ const Appointments = () => {
   const [erro, setErro] = useState(false);
   const [agindo, setAgindo] = useState<string | null>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  // Lido depois de montar: o localStorage não existe no servidor.
+  const [tokens, setTokens] = useState<string[] | null>(null);
+
+  useEffect(() => {
+    setTokens(tokensGuardados(nameStore));
+  }, [nameStore]);
+
+  const esquecer = useCallback(
+    (token: string) => setTokens((atuais) => (atuais ?? []).filter((t) => t !== token)),
+    []
+  );
 
   const carregar = useCallback(async () => {
     if (!auth.isAuthenticated) {
@@ -67,9 +67,26 @@ const Appointments = () => {
     carregar();
   }, [carregar]);
 
+  // Sem conta e sem nada pedido neste aparelho, entrar é o único caminho, e o
+  // modal abre sozinho. Com pedidos sem conta guardados, abrir o modal por
+  // cima deles esconderia justamente o que a cliente veio ver.
   useEffect(() => {
-    if (!auth.isAuthenticated) setIsAuthModalOpen(true);
-  }, [auth.isAuthenticated]);
+    if (tokens !== null && !auth.isAuthenticated && tokens.length === 0) setIsAuthModalOpen(true);
+  }, [auth.isAuthenticated, tokens]);
+
+  const semConta = tokens && tokens.length > 0 && (
+    <div className="mt-8 space-y-4">
+      <div>
+        <h2 className="text-lg font-semibold text-foreground">Pedidos sem conta neste aparelho</h2>
+        <p className="text-sm text-muted-foreground">
+          Os horários que você pediu só com nome e telefone.
+        </p>
+      </div>
+      {tokens.map((t) => (
+        <AgendamentoSemContaCard key={t} nameStore={nameStore} token={t} onSumiu={() => esquecer(t)} />
+      ))}
+    </div>
+  );
 
   const cancelar = async (a: Appointment) => {
     setAgindo(a.id);
@@ -102,7 +119,11 @@ const Appointments = () => {
         {!auth.isAuthenticated ? (
           <Card>
             <CardContent className="p-8 text-center space-y-4">
-              <p className="text-foreground">Entre na sua conta para ver seus agendamentos.</p>
+              <p className="text-foreground">
+                {tokens && tokens.length > 0
+                  ? 'Tem conta? Entre para ver também os horários pedidos por ela.'
+                  : 'Entre na sua conta para ver seus agendamentos.'}
+              </p>
               <Button onClick={() => setIsAuthModalOpen(true)}>Entrar</Button>
             </CardContent>
           </Card>
@@ -198,6 +219,7 @@ const Appointments = () => {
             })}
           </div>
         )}
+        {semConta}
       </div>
     </div>
   );
