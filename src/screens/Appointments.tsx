@@ -163,6 +163,7 @@ const Appointments = () => {
                         )}
                         <p className="mt-1 text-sm text-foreground">
                           {formatarQuando(a.startsAt, a.endsAt)}
+                          {a.technicianName && ` · com ${a.technicianName}`}
                         </p>
                         {a.notes && (
                           <p className="mt-1 text-sm text-muted-foreground whitespace-pre-wrap">{a.notes}</p>

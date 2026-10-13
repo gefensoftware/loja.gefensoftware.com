@@ -2,9 +2,9 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { AlertTriangle, Calendar, Check, Clock, Loader2 } from 'lucide-react';
+import { AlertTriangle, Calendar, Check, Clock, Loader2, User } from 'lucide-react';
 import { toast } from 'react-toastify';
-import { horariosLivres, pedirHorario } from '@/api/agenda';
+import { horariosLivres, pedirHorario, profissionaisDaLoja, type Profissional } from '@/api/agenda';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 
@@ -59,6 +59,7 @@ function hora(iso: string): string {
 
 const MENSAGENS_DE_ERRO: Record<string, string> = {
   APPOINTMENT_OVERLAP: 'Esse horário acabou de ser ocupado. Escolha outro.',
+  TECHNICIAN_NOT_FOUND: 'Essa pessoa não está mais atendendo pela vitrine. Escolha outra.',
   PRODUCT_WITHOUT_DURATION: 'A loja ainda não configurou a duração deste serviço.',
   PRODUCT_NOT_SCHEDULABLE: 'Este produto não aceita agendamento.',
   VALIDATION_ERROR: 'Esse horário não está mais disponível. Escolha outro.',
@@ -81,13 +82,32 @@ export default function SchedulePanel({
   const [observacao, setObservacao] = useState('');
   const [enviando, setEnviando] = useState(false);
   const [pedido, setPedido] = useState(false);
+  // Com quem. '' é "sem preferência": o servidor oferece o horário se alguém
+  // estiver livre, e a loja decide ao confirmar.
+  const [equipe, setEquipe] = useState<Profissional[]>([]);
+  const [profissional, setProfissional] = useState('');
+
+  // A equipe é carregada uma vez. Falha aqui — inclusive a API anterior a
+  // esta rota, que responde 404 — vira lista vazia: o painel volta a ser o
+  // de quem atende sozinha, que continua funcionando inteiro.
+  useEffect(() => {
+    let vivo = true;
+    profissionaisDaLoja(nameStore)
+      .then((lista) => {
+        if (vivo) setEquipe(lista);
+      })
+      .catch(() => undefined);
+    return () => {
+      vivo = false;
+    };
+  }, [nameStore]);
 
   const carregar = useCallback(async () => {
     setCarregando(true);
     setErro(null);
     setEscolhido(null);
     try {
-      setSlots(await horariosLivres(nameStore, productCode, dia));
+      setSlots(await horariosLivres(nameStore, productCode, dia, profissional || undefined));
     } catch (e) {
       const codigo = (e as { response?: { data?: { error?: { code?: string } } } })?.response?.data
         ?.error?.code;
@@ -101,7 +121,7 @@ export default function SchedulePanel({
     } finally {
       setCarregando(false);
     }
-  }, [nameStore, productCode, dia]);
+  }, [nameStore, productCode, dia, profissional]);
 
   useEffect(() => {
     carregar();
@@ -116,6 +136,7 @@ export default function SchedulePanel({
         productId,
         startsAt: escolhido,
         notes: observacao.trim(),
+        technicianId: profissional || undefined,
       });
       setPedido(true);
       toast.success('Pedido enviado. A loja confirma por aqui.');
@@ -175,8 +196,37 @@ export default function SchedulePanel({
     );
   }
 
+  const opcoesDeEquipe = [{ id: '', name: 'Sem preferência' }, ...equipe];
+
   return (
     <div className="space-y-4">
+      {equipe.length > 0 && (
+        <div>
+          <p className="flex items-center gap-2 text-sm font-medium text-foreground mb-2">
+            <User className="w-4 h-4" />
+            Com quem?
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {opcoesDeEquipe.map((p) => {
+              const ativo = p.id === profissional;
+              return (
+                <button
+                  key={p.id || 'qualquer'}
+                  type="button"
+                  onClick={() => setProfissional(p.id)}
+                  className={`rounded-lg border px-3 py-2 text-sm ${
+                    ativo ? 'border-primary bg-primary text-on-primary' : 'border-border bg-card text-foreground'
+                  }`}
+                  aria-pressed={ativo}
+                >
+                  {p.name}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       <div>
         <p className="flex items-center gap-2 text-sm font-medium text-foreground mb-2">
           <Calendar className="w-4 h-4" />
@@ -258,7 +308,11 @@ export default function SchedulePanel({
             />
           </div>
           <Button onClick={enviar} disabled={enviando || !enterpriseId} className="w-full">
-            {enviando ? 'Enviando…' : `Pedir horário das ${hora(escolhido)}`}
+            {enviando
+              ? 'Enviando…'
+              : `Pedir horário das ${hora(escolhido)}${
+                  profissional ? ` com ${equipe.find((p) => p.id === profissional)?.name ?? ''}` : ''
+                }`}
           </Button>
         </div>
       )}
