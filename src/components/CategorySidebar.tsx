@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button';
 import { AlertTriangle, X } from 'lucide-react';
 
 interface CategorySidebarProps {
+  /** "Todos os produtos" / "Todos os serviços": o primeiro item da lista. */
+  rotuloDeTodos: string;
   // As categorias vêm de quem já as buscou (a grade). Antes esta barra
   // repetia `GET /enterprises/by-slug/{slug}/categories` a cada carregamento,
   // em estado próprio, e as duas listas podiam divergir.
@@ -21,6 +23,7 @@ interface CategorySidebarProps {
 }
 
 export const CategorySidebar: React.FC<CategorySidebarProps> = ({
+  rotuloDeTodos,
   categories,
   loading,
   error,
@@ -68,7 +71,7 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
                   : 'text-foreground hover:bg-primary/10'
               }`}
             >
-              Todos os produtos
+              {rotuloDeTodos}
             </button>
 
             {loading && (

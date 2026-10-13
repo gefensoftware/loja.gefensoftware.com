@@ -32,6 +32,10 @@ type Props = {
   nameStore: string;
   autenticado: boolean;
   onPrecisaEntrar: () => void;
+  /** "serviço" ou "produto", como a página chama este item. */
+  nomeDoItem?: string;
+  /** O exemplo na caixa do pedido, no vocabulário do perfil da loja. */
+  exemploDePedido?: string;
 };
 
 const ROTULOS: Record<BudgetRequest['status'], { texto: string; icone: typeof Clock }> = {
@@ -49,6 +53,8 @@ export default function BudgetRequestPanel({
   nameStore,
   autenticado,
   onPrecisaEntrar,
+  nomeDoItem = 'item',
+  exemploDePedido = 'Conte o que você precisa…',
 }: Props) {
   const [pedido, setPedido] = useState<BudgetRequest | null>(null);
   const [mensagem, setMensagem] = useState('');
@@ -90,7 +96,7 @@ export default function BudgetRequestPanel({
         // Aconteceu em outra aba ou antes de esta tela carregar: recarregar
         // mostra o pedido que já existe, em vez de repetir um erro que a
         // pessoa não tem como resolver.
-        toast.info('Você já tem um pedido em aberto para este produto.');
+        toast.info(`Você já tem um pedido em aberto para este ${nomeDoItem}.`);
         carregar();
       } else {
         toast.error('Não foi possível enviar seu pedido. Tente de novo.');
@@ -178,7 +184,7 @@ export default function BudgetRequestPanel({
             id="mensagem-orcamento"
             value={mensagem}
             onChange={(e) => setMensagem(e.target.value)}
-            placeholder="Medidas, material, prazo, quantidade…"
+            placeholder={exemploDePedido}
             className="min-h-[96px]"
           />
         </div>
