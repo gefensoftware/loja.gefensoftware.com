@@ -146,8 +146,8 @@ const BudgetRequests = () => {
             <CardContent className="p-8 text-center space-y-2">
               <p className="text-foreground font-medium">Você ainda não pediu nenhum orçamento.</p>
               <p className="text-muted-foreground text-sm">
-                Nos produtos vendidos sob orçamento, use o botão &quot;Pedir orçamento&quot; para
-                falar com a loja.
+                Na página de um item sob orçamento, peça o preço por lá: a loja responde com o
+                valor, e ele aparece aqui.
               </p>
               <Link href={`/${nameStore}`} className="underline text-foreground inline-block pt-2">
                 Voltar à loja

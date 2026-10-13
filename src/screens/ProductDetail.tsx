@@ -78,6 +78,15 @@ const ProductDetail = () => {
   // O que esta loja tem ligado, e como ela chama as coisas.
   const caps = capacidadesDe(enterprise?.capabilities);
   const v = vocabularioDe(enterprise?.mode);
+  // Como ESTE item se chama: pelo tipo dele, e não pelo perfil da loja — a
+  // oficina vende peça e serviço no mesmo catálogo, e "o produto" na página
+  // de uma troca de óleo diz a coisa errada. Antes de o item chegar, vale o
+  // vocabulário da loja.
+  const nomeDoItem = product
+    ? product.type === 'service'
+      ? 'serviço'
+      : 'produto'
+    : v.item.toLowerCase();
 
   // As marcações do produto só valem DENTRO do que a loja ligou. Um produto
   // marcado "sob orçamento" numa loja que desligou o módulo mantém a
@@ -185,7 +194,7 @@ const ProductDetail = () => {
 
     // Só usar window se estivermos no cliente
     const productUrl = typeof window !== 'undefined' ? window.location.href : '';
-    let message = `Olá! Gostaria de saber mais sobre o produto: *${product?.title}*.`;
+    let message = `Olá! Gostaria de saber mais sobre o ${nomeDoItem}: *${product?.title}*.`;
 
     const contact = enterprise.phones.find(p => p.isWhatsapp)?.phone;
 
@@ -196,7 +205,7 @@ const ProductDetail = () => {
       message += `\nGostaria de incluir o serviço: *${product.service.title}*.`;
     }
 
-    message += `\n\nLink do produto:\n${productUrl}`;
+    message += `\n\nLink do ${nomeDoItem}:\n${productUrl}`;
     // O número é o que liga esta conversa à linha que o lojista vai
     // confirmar no portal — é por ele que os dois lados falam do mesmo
     // pedido.
@@ -279,10 +288,10 @@ const ProductDetail = () => {
   if (!isLoading && productNotFound) {
     return (
       <div className="text-center py-12">
-        <h2 className="text-2xl font-bold text-foreground mb-4">Produto não encontrado</h2>
+        <h2 className="text-2xl font-bold text-foreground mb-4">{`${v.item} não encontrado`}</h2>
         <Link href={`/${name_store}`} className="text-primary hover:text-primary/90 flex items-center justify-center">
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Voltar para a lista de produtos
+          {`Voltar para a lista de ${v.itens.toLowerCase()}`}
         </Link>
       </div>
     );
@@ -294,15 +303,17 @@ const ProductDetail = () => {
         <div className="w-16 h-16 bg-red-50 dark:bg-red-950/40 rounded-full flex items-center justify-center mx-auto mb-4">
           <AlertTriangle className="w-8 h-8 text-red-500" />
         </div>
-        <h2 className="text-2xl font-bold text-foreground mb-2">Não foi possível carregar o produto</h2>
+        <h2 className="text-2xl font-bold text-foreground mb-2">
+          {`Não foi possível carregar o ${v.item.toLowerCase()}`}
+        </h2>
         <p className="text-muted-foreground mb-6">
-          Houve uma falha ao falar com o servidor. O produto pode continuar disponível.
+          {`Houve uma falha ao falar com o servidor. O ${v.item.toLowerCase()} pode continuar disponível.`}
         </p>
         <div className="flex items-center justify-center gap-4">
           <Button onClick={() => setTentativa((n) => n + 1)}>Tentar novamente</Button>
           <Link href={`/${name_store}`} className="text-primary hover:text-primary/90 flex items-center">
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Voltar para a lista de produtos
+            {`Voltar para a lista de ${v.itens.toLowerCase()}`}
           </Link>
         </div>
       </div>
@@ -315,7 +326,7 @@ const ProductDetail = () => {
         <div className="p-6  border-b ">
           <Link href={`/${name_store}`} className="text-primary hover:text-primary/90 flex items-center mb-4">
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Voltar para a lista de produtos
+            {`Voltar para a lista de ${v.itens.toLowerCase()}`}
           </Link>
           <h1 className="text-3xl font-bold text-foreground">{product?.title || 'Loading...'}</h1>
         </div>
@@ -393,7 +404,7 @@ const ProductDetail = () => {
 
             {caracteristicas.length > 0 && (
               <div className="bg-muted rounded-lg p-6 ">
-                <h3 className="text-lg font-semibold text-foreground mb-4">Características do produto</h3>
+                <h3 className="text-lg font-semibold text-foreground mb-4">{`Características do ${nomeDoItem}`}</h3>
                 <ul className="space-y-3">
                   {caracteristicas.map((point, index) => (
                     <li key={index} className="flex items-start">
@@ -478,6 +489,8 @@ const ProductDetail = () => {
                           nameStore={name_store}
                           autenticado={auth.isAuthenticated}
                           onPrecisaEntrar={() => setIsAuthModalOpen(true)}
+                          nomeDoItem={nomeDoItem}
+                          exemploDePedido={v.exemploDePedido}
                         />
                         <div className="flex gap-4">
                           <Button
@@ -492,7 +505,7 @@ const ProductDetail = () => {
                         </div>
                         {product.service && (
                           <div className="mt-6 border-t pt-6">
-                            <h3 className="text-lg font-semibold text-foreground mb-4">Serviço Vinculado</h3>
+                            <h3 className="text-lg font-semibold text-foreground mb-4">Serviço opcional</h3>
                             <div className="bg-card rounded-lg p-4 border">
                               <div className="flex items-center gap-4">
                                 <div className="flex-grow">
@@ -611,7 +624,7 @@ const ProductDetail = () => {
                         }
                         {product?.service && (
                           <div className="mt-6 border-t pt-6">
-                            <h3 className="text-lg font-semibold text-foreground mb-4">Serviço Vinculado</h3>
+                            <h3 className="text-lg font-semibold text-foreground mb-4">Serviço opcional</h3>
                             <div className="bg-card rounded-lg p-4 border">
                               <div className="flex items-center gap-4">
                                 <div className="flex-grow">
@@ -634,7 +647,7 @@ const ProductDetail = () => {
             </div>
 
             <div className="bg-muted rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-foreground mb-2">Detalhes do produto</h3>
+              <h3 className="text-lg font-semibold text-foreground mb-2">{`Detalhes do ${nomeDoItem}`}</h3>
               <dl className="space-y-3">
                 <div className="flex justify-between">
                   <dt className="text-muted-foreground">Categoria</dt>

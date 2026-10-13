@@ -152,7 +152,7 @@ const Appointments = () => {
             <CardContent className="p-8 text-center space-y-2">
               <p className="text-foreground font-medium">Você ainda não tem agendamentos.</p>
               <p className="text-muted-foreground text-sm">
-                Nos serviços com agendamento, escolha um horário livre na página do produto.
+                Nos serviços com agendamento, escolha um horário livre na página do serviço.
               </p>
               <Link href={`/${nameStore}`} className="underline text-foreground inline-block pt-2">
                 Voltar à loja

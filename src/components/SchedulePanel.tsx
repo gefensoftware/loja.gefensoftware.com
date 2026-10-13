@@ -79,7 +79,7 @@ const MENSAGENS_DE_ERRO: Record<string, string> = {
   TOO_MANY_REQUESTS: 'Muitos pedidos seguidos. Aguarde um minuto e tente de novo.',
   APPOINTMENTS_DISABLED: 'Esta loja não está recebendo agendamentos agora.',
   PRODUCT_WITHOUT_DURATION: 'A loja ainda não configurou a duração deste serviço.',
-  PRODUCT_NOT_SCHEDULABLE: 'Este produto não aceita agendamento.',
+  PRODUCT_NOT_SCHEDULABLE: 'Este serviço não aceita agendamento.',
   VALIDATION_ERROR: 'Esse horário não está mais disponível. Escolha outro.',
 };
 

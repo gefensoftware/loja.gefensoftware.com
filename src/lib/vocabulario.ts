@@ -36,6 +36,16 @@ export interface Vocabulario {
   pedirPreco: string;
   /** O que o cliente deixa na loja. Só existe em manutenção. */
   objeto: string | null;
+  /** O título da página da loja, acima da grade. */
+  vitrine: string;
+  /** A linha abaixo do título. */
+  vitrineResumo: string;
+  /**
+   * O exemplo dentro da caixa do pedido de orçamento. É o texto que mais
+   * vazava de um perfil para outro: "medidas, material, quantidade" é a
+   * pergunta da serralheria, e a cliente do salão não tem o que responder.
+   */
+  exemploDePedido: string;
 }
 
 const VOCABULARIOS: Record<OperationMode, Vocabulario> = {
@@ -49,6 +59,11 @@ const VOCABULARIOS: Record<OperationMode, Vocabulario> = {
     itens: 'Produtos',
     pedirPreco: 'Pedir orçamento',
     objeto: null,
+    // O texto que toda loja mostrava antes do perfil existir — e que a loja
+    // sem perfil (`null`, que cai aqui) continua mostrando.
+    vitrine: 'Cardápio',
+    vitrineResumo: 'Explore nossos produtos e serviços',
+    exemploDePedido: 'Medidas, material, prazo, quantidade…',
   },
   services: {
     lista: 'Orçamento',
@@ -60,6 +75,9 @@ const VOCABULARIOS: Record<OperationMode, Vocabulario> = {
     itens: 'Serviços',
     pedirPreco: 'Pedir orçamento',
     objeto: null,
+    vitrine: 'Serviços',
+    vitrineResumo: 'Conheça nossos serviços',
+    exemploDePedido: 'O que você precisa, para quando, alguma preferência…',
   },
   maintenance: {
     lista: 'Solicitação',
@@ -71,6 +89,9 @@ const VOCABULARIOS: Record<OperationMode, Vocabulario> = {
     itens: 'Serviços',
     pedirPreco: 'Solicitar atendimento',
     objeto: 'Equipamento',
+    vitrine: 'Serviços',
+    vitrineResumo: 'Conheça nossos serviços',
+    exemploDePedido: 'O que está acontecendo com o equipamento? Desde quando?',
   },
   // A oficina fala igual à manutenção, com uma palavra trocada: quem entra
   // na vitrine dela chegou com um VEÍCULO, não com um "equipamento". O resto
@@ -85,6 +106,9 @@ const VOCABULARIOS: Record<OperationMode, Vocabulario> = {
     itens: 'Serviços',
     pedirPreco: 'Solicitar atendimento',
     objeto: 'Veículo',
+    vitrine: 'Serviços',
+    vitrineResumo: 'Conheça nossos serviços',
+    exemploDePedido: 'O que está acontecendo com o veículo? Desde quando?',
   },
 };
 
