@@ -4,7 +4,7 @@
 // sair da conta em três manipuladores que só mexiam no estado de interface,
 // deixando o par de tokens no armazenamento e o refresh token vivo no
 // servidor.
-import { api, apiError, getAuth, setAuth, clearAuth, type Auth } from '@/api';
+import { api, apiError, getAuth, setAuth, clearAuth, MUITAS_TENTATIVAS, type Auth } from '@/api';
 import { fromMeResponse, type UserType } from '@/store/user';
 
 export interface Credenciais {
@@ -47,6 +47,9 @@ export function mensagemDeErroDeEntrada(e: unknown): string {
       return 'Email ou senha incorretos.';
     case 'USER_INACTIVE':
       return 'Sua conta está inativa. Fale com o suporte.';
+    // 10 senhas erradas do mesmo IP em 5 minutos.
+    case MUITAS_TENTATIVAS:
+      return 'Muitas tentativas com senha errada. Aguarde 5 minutos e tente de novo.';
     default:
       return 'Não foi possível entrar. Tente novamente.';
   }

@@ -201,6 +201,12 @@ export function apiError(e: unknown): string {
   return axiosLike?.response?.data?.error?.code ?? '';
 }
 
+// TOO_MANY_REQUESTS é a recusa do limite por IP da API (rateLimit, em
+// internal/adapters/in/http/middleware.go), que cobre login e cadastro. Cada
+// rota tem a sua janela, e o Retry-After não chega até aqui (o CORS da API
+// não o expõe), então cada tela diz a espera da própria rota.
+export const MUITAS_TENTATIVAS = 'TOO_MANY_REQUESTS';
+
 export function apiErrorDetails(e: unknown): { field: string; rule: string }[] {
   const axiosLike = e as { response?: { data?: { error?: { details?: { field: string; rule: string }[] } } } };
   return axiosLike?.response?.data?.error?.details ?? [];

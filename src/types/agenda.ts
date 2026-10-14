@@ -21,6 +21,10 @@ export type Appointment = {
   startsAt: string;
   endsAt: string;
   closedNote: string;
+  // Com quem. Nulo quando a loja atende sozinha, ou quando o cliente deixou
+  // a escolha com ela e ela ainda não confirmou.
+  technicianId: string | null;
+  technicianName?: string;
   // Nulo quando a loja marcou um horário LIVRE, fora do catálogo — "traga o
   // carro que eu vejo o que está acontecendo". Não há página de produto para
   // onde apontar, e quem nomeia a marcação é o `title`.

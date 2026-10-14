@@ -89,6 +89,10 @@ const Products = () => {
   // ainda sem modo escolhido fala a língua de hoje: "Carrinho".
   const caps = capacidadesDe(loja?.capabilities);
   const v = vocabularioDe(loja?.mode);
+  // "produtos" / "serviços" no meio da frase. Os rótulos do perfil de
+  // produtos ficam exatamente como eram antes do perfil existir.
+  const itens = v.itens.toLowerCase();
+  const item = v.item.toLowerCase();
 
   useEffect(() => {
     // Só adicionar event listeners se estivermos no cliente
@@ -283,10 +287,19 @@ const Products = () => {
       <div className="space-y-6">
         <div className="bg-card rounded-lg shadow-sm border p-6">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">Cardápio</h1>
-              <p className="text-muted-foreground mt-1">Explore nossos produtos e serviços</p>
-            </div>
+            {/* Antes de a loja chegar não se sabe o perfil: barras neutras em
+                vez de um "Cardápio" que piscaria na vitrine do salão. */}
+            {loja ? (
+              <div>
+                <h1 className="text-2xl font-bold text-foreground">{v.vitrine}</h1>
+                <p className="text-muted-foreground mt-1">{v.vitrineResumo}</p>
+              </div>
+            ) : (
+              <div className="space-y-2" aria-hidden>
+                <div className="h-7 w-40 rounded bg-muted animate-pulse" />
+                <div className="h-4 w-64 rounded bg-muted animate-pulse" />
+              </div>
+            )}
           </div>
         </div>
         <ProductSkeletonGrid count={6} />
@@ -354,7 +367,7 @@ const Products = () => {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   type="text"
-                  placeholder="Buscar produtos..."
+                  placeholder={`Buscar ${itens}...`}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10 pr-4 py-2 text-sm"
@@ -540,7 +553,7 @@ const Products = () => {
               Não foi possível carregar as categorias.
             </p>
             <p className="text-sm text-amber-800 dark:text-amber-200">
-              Os produtos continuam abaixo, sem a separação por categoria.
+              {`Os ${itens} continuam abaixo, sem a separação por categoria.`}
             </p>
           </div>
           <Button variant="outline" size="sm" onClick={fetchCategories}>
@@ -559,11 +572,10 @@ const Products = () => {
                 <AlertTriangle className="w-8 h-8 text-red-500" />
               </div>
               <h3 className="text-lg font-medium text-foreground mb-2">
-                Não foi possível carregar os produtos
+                {`Não foi possível carregar os ${itens}`}
               </h3>
               <p className="text-muted-foreground mb-6">
-                Houve uma falha ao falar com o servidor. A loja pode ter produtos
-                disponíveis.
+                {`Houve uma falha ao falar com o servidor. A loja pode ter ${itens} disponíveis.`}
               </p>
               <Button onClick={fetchProducts}>Tentar novamente</Button>
             </div>
@@ -575,12 +587,12 @@ const Products = () => {
                 <Tag className="w-8 h-8 text-muted-foreground" />
               </div>
               <h3 className="text-lg font-medium text-foreground mb-2">
-                {searchTerm ? 'Nenhum produto encontrado' : 'Nenhum produto disponível'}
+                {searchTerm ? `Nenhum ${item} encontrado` : `Nenhum ${item} disponível`}
               </h3>
               <p className="text-muted-foreground">
                 {searchTerm
-                  ? `Não encontramos produtos para "${searchTerm}"`
-                  : 'Não há produtos disponíveis no momento'
+                  ? `Não encontramos ${itens} para "${searchTerm}"`
+                  : `Não há ${itens} disponíveis no momento`
                 }
               </p>
             </div>
@@ -618,7 +630,7 @@ const Products = () => {
                 {Object.keys(productsByCategory).length === 1 && (
                   <EspacoAnuncio posicao="vitrine" className="mb-10" />
                 )}
-                <h2 className="text-2xl font-bold text-foreground mb-4">Outros Produtos</h2>
+                <h2 className="text-2xl font-bold text-foreground mb-4">{`Outros ${v.itens}`}</h2>
                 <div className="grid gap-6 lg:gap-8 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
                   {uncategorizedProducts.map((product) => (
                     <ProductCard key={product.id} product={product} />
@@ -633,13 +645,12 @@ const Products = () => {
             {temMaisProdutos && (
               <div className="flex flex-col items-center gap-3 pt-4">
                 <p className="text-sm text-muted-foreground">
-                  Exibindo {produtosExibidos} de {totalDeProdutos} produtos
+                  Exibindo {produtosExibidos} de {totalDeProdutos} {itens}
                 </p>
                 {erroCarregarMais && (
                   <p className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1.5">
                     <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-                    Não foi possível carregar mais produtos. Os que já estão na
-                    tela continuam aqui.
+                    {`Não foi possível carregar mais ${itens}. Os que já estão na tela continuam aqui.`}
                   </p>
                 )}
                 <Button variant="outline" onClick={carregarMais} disabled={carregandoMais}>
@@ -647,7 +658,7 @@ const Products = () => {
                     ? 'Carregando...'
                     : erroCarregarMais
                       ? 'Tentar novamente'
-                      : 'Carregar mais produtos'}
+                      : `Carregar mais ${itens}`}
                 </Button>
               </div>
             )}
@@ -657,6 +668,7 @@ const Products = () => {
 
       {/* Mobile Category Sidebar */}
       <CategorySidebar
+        rotuloDeTodos={`Todos os ${itens}`}
         categories={categories}
         loading={categoriesLoading}
         error={categoriesError}
