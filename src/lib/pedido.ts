@@ -73,7 +73,16 @@ export function montarMensagemDoPedido({
       : '*Total: a confirmar com a loja*',
   );
   if (urlDaLoja) {
-    partes.push('', `Cardápio: ${urlDaLoja}`);
+    partes.push('');
+    // O link do primeiro item vem ANTES do cardápio porque o WhatsApp monta o
+    // cartão de prévia a partir do primeiro link da mensagem: com o do
+    // cardápio na frente, todo pedido saía com o logo da loja. A página do
+    // produto tem o seu próprio `og:image`, a foto dele.
+    const primeiro = itens[0];
+    if (primeiro) {
+      partes.push(`${primeiro.product.title}: ${urlDaLoja}/product/${primeiro.product.code}`);
+    }
+    partes.push(`Cardápio: ${urlDaLoja}`);
   }
   return partes.join('\n');
 }
