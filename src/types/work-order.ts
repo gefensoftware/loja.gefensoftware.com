@@ -19,7 +19,9 @@ export type WorkOrderStatus =
 
 export type WorkOrderItem = {
   id?: string;
-  kind: 'part' | 'labor';
+  /** 'diagnosis' é o pré-diagnóstico: valor fixo da loja, cobrado mesmo
+   *  quando o orçamento é recusado. */
+  kind: 'part' | 'labor' | 'diagnosis';
   description: string;
   quantity: number;
   // Texto decimal, nunca number: o valor que o cliente vai aprovar não passa
@@ -75,7 +77,14 @@ export type WorkOrder = {
   /** Os três números do orçamento, somados pelo servidor. */
   laborTotal: string;
   partsTotal: string;
+  /** O pré-diagnóstico, fora dos descontos. */
+  diagnosisTotal: string;
   total: string;
+  /** O que a loja cobra: igual a total, menos no orçamento recusado, que
+   *  cobra só o pré-diagnóstico. */
+  chargedTotal: string;
+  /** O cliente recusou o orçamento — continua verdadeiro depois da entrega. */
+  declined: boolean;
   /**
    * O valor combinado na aprovação, congelado. Vazio se ninguém aprovou.
    *

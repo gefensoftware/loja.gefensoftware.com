@@ -209,7 +209,9 @@ const WorkOrders = () => {
                                 <span className="text-muted-foreground">
                                   {item.kind === 'part'
                                     ? modeloDe(ordem.template).pecas
-                                    : 'Mão de obra'}
+                                    : item.kind === 'diagnosis'
+                                      ? 'Pré-diagnóstico'
+                                      : 'Mão de obra'}
                                   :{' '}
                                 </span>
                                 {item.description}
@@ -231,10 +233,25 @@ const WorkOrders = () => {
                           <span>Valor de {modeloDe(ordem.template).pecas.toLowerCase()}</span>
                           <span>{formatarPreco(ordem.partsTotal)}</span>
                         </div>
+                        {Number(ordem.diagnosisTotal) > 0 && (
+                          <div className="flex justify-between px-3 py-1 text-xs text-muted-foreground">
+                            <span>Pré-diagnóstico</span>
+                            <span>{formatarPreco(ordem.diagnosisTotal)}</span>
+                          </div>
+                        )}
                         <div className="flex justify-between px-3 py-2 text-sm font-semibold">
                           <span>Valor total</span>
                           <span>{formatarPreco(ordem.total)}</span>
                         </div>
+                        {/* Na recusada, o que fica para pagar é só o
+                            pré-diagnóstico: o cliente precisa ler esse número,
+                            e não o do orçamento que ele não aceitou. */}
+                        {ordem.declined && (
+                          <div className="flex justify-between border-t px-3 py-2 text-sm font-semibold">
+                            <span>A pagar (orçamento recusado)</span>
+                            <span>{formatarPreco(ordem.chargedTotal)}</span>
+                          </div>
+                        )}
                       </div>
                     )}
 
@@ -250,6 +267,14 @@ const WorkOrders = () => {
                       </Button>
                     </div>
 
+                    {/* Antes de decidir, o cliente sabe o que a recusa custa:
+                        o pré-diagnóstico é cobrado nos dois casos. */}
+                    {decidir && Number(ordem.diagnosisTotal) > 0 && (
+                      <p className="mt-3 text-sm text-muted-foreground">
+                        Se recusar, você paga só o pré-diagnóstico, de{' '}
+                        {formatarPreco(ordem.diagnosisTotal)}.
+                      </p>
+                    )}
                     {decidir && (
                       <div className="mt-2 flex flex-wrap gap-2">
                         <Button
