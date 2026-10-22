@@ -25,9 +25,13 @@ export async function criarPedidoDeOrcamento(
 // listarMeusPedidos aceita o filtro por produto porque a tela de um produto
 // só quer saber do pedido DAQUELE item: sem ele, ela baixaria o histórico
 // inteiro da pessoa para achar uma linha.
+//
+// `enterpriseId` recorta a uma loja: a vitrine mostra só os pedidos feitos
+// nela, e o perfil, sem o filtro, mostra os de todas.
 export async function listarMeusPedidos(params: {
   productId?: string;
   status?: BudgetStatus;
+  enterpriseId?: string;
   pageSize?: number;
 } = {}): Promise<BudgetRequest[]> {
   const { data } = await api.get<Pagina>('/users/me/budget-requests', { params });

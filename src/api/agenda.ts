@@ -55,8 +55,12 @@ export async function pedirHorario(body: {
   return data;
 }
 
-export async function listarMeusAgendamentos(pageSize = 100): Promise<Appointment[]> {
-  const { data } = await api.get<Pagina>('/users/me/appointments', { params: { pageSize } });
+// Sem `enterpriseId`, as horas do cliente em todas as lojas (o perfil); com
+// ele, só as desta vitrine.
+export async function listarMeusAgendamentos(enterpriseId?: string): Promise<Appointment[]> {
+  const { data } = await api.get<Pagina>('/users/me/appointments', {
+    params: { pageSize: 100, enterpriseId },
+  });
   return data.data;
 }
 

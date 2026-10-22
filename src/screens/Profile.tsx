@@ -4,7 +4,7 @@ import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { useAtom } from 'jotai'
 import { useState } from 'react'
-import { Pencil, User, KeyRound, Camera, FileText, Calendar, Wrench, LogOut } from 'lucide-react'
+import { Pencil, User, KeyRound, Camera, FileText, Calendar, Wrench, LogOut, History } from 'lucide-react'
 import { toast } from 'react-toastify'
 import { sair } from '@/api/auth'
 import { userAtom } from '@/store/user'
@@ -99,14 +99,25 @@ const Profile = () => {
                 href={`/${loja}/profile/foto`}
               />
 
-              {/* Atalhos para o histórico do cliente. Aparecem pela mesma
+              {/* O histórico em todas as lojas, sem depender das
+                  capacidades desta: ele é da pessoa, e o orçamento que ela
+                  pediu em outra loja existe mesmo que esta não orce. As
+                  telas da barra inferior mostram só o desta loja. */}
+              <ProfileMenuItem
+                icon={History}
+                label="Meu histórico"
+                descricao="Orçamentos e agendamentos em todas as lojas"
+                href={`/${loja}/profile/historico`}
+              />
+
+              {/* Atalhos para o que foi feito nesta loja. Aparecem pela mesma
                   regra da barra inferior: só onde a loja tem a capacidade
                   ligada, para não levar a uma tela que nunca terá nada. */}
               {caps.budgets && (
                 <ProfileMenuItem
                   icon={FileText}
                   label="Orçamentos"
-                  descricao="Seus pedidos de orçamento"
+                  descricao="Seus pedidos de orçamento nesta loja"
                   href={`/${loja}/orcamentos`}
                 />
               )}
@@ -114,7 +125,7 @@ const Profile = () => {
                 <ProfileMenuItem
                   icon={Calendar}
                   label="Agenda"
-                  descricao="Seus agendamentos"
+                  descricao="Seus agendamentos nesta loja"
                   href={`/${loja}/agendamentos`}
                 />
               )}
