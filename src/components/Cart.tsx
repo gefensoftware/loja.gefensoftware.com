@@ -368,9 +368,15 @@ export const EnviarPedido: React.FC<{
   // cada clique abriria um pedido novo e o lojista veria os números 1 e 2 para
   // uma conversa só, sem como saber que são o mesmo pedido. Mudar o carrinho
   // muda a assinatura, e aí um pedido novo é o certo — é outro pedido.
-  const [jaGravado, setJaGravado] = useState<{ assinatura: string; numero: number } | null>(
-    null,
-  );
+  //
+  // Guarda também o total que a API calculou ao gravar: no carrinho anônimo é
+  // o único total do servidor que existe, e o clique repetido tem de mandar o
+  // mesmo valor que o primeiro.
+  const [jaGravado, setJaGravado] = useState<{
+    assinatura: string;
+    numero: number;
+    total: string;
+  } | null>(null);
   const bloqueado = !aberta || itens.length === 0 || !telefone || enviando;
 
   /**
@@ -391,15 +397,17 @@ export const EnviarPedido: React.FC<{
     const aba = typeof window !== 'undefined' ? window.open('', '_blank') : null;
     const referencias = referenciasDoPedido(carrinho.linhas);
     const assinatura = JSON.stringify(referencias);
-    let numero: number | null =
-      jaGravado?.assinatura === assinatura ? jaGravado.numero : null;
+    const repetido = jaGravado?.assinatura === assinatura ? jaGravado : null;
+    let numero: number | null = repetido?.numero ?? null;
+    let totalGravado: string | null = repetido?.total ?? null;
     if (numero === null) {
       setEnviando(true);
       try {
         if (enterprise) {
           const pedido = await encaminharPedido(enterprise.id, referencias);
           numero = pedido.number;
-          setJaGravado({ assinatura, numero });
+          totalGravado = pedido.total;
+          setJaGravado({ assinatura, numero, total: pedido.total });
         }
       } catch (erro) {
         console.error('Não foi possível gravar o pedido:', erro);
@@ -409,7 +417,10 @@ export const EnviarPedido: React.FC<{
     }
     const mensagem = montarMensagemDoPedido({
       linhas: carrinho.linhas,
-      total: carrinho.total,
+      // O carrinho anônimo não tem total; o pedido gravado tem, resolvido no
+      // servidor contra o catálogo. Sem nenhum dos dois (a gravação falhou),
+      // a mensagem volta a dizer "a confirmar com a loja".
+      total: carrinho.total ?? totalGravado,
       // O cardápio da loja, não a página de onde o cliente mandou: enviada
       // da tela do carrinho, `window.location.href` apontava para o carrinho
       // de quem mandou, que não abre para mais ninguém.
