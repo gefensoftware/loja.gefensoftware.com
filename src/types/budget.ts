@@ -32,6 +32,10 @@ export type BudgetRequest = {
     image: { id: string; url: string; position: number } | null;
   };
   customer: { id: string; name: string; email: string; phone: string };
+  // A loja do pedido: o perfil lista várias, e cada linha precisa dizer de
+  // qual é e levar de volta à vitrine dela. Nula só na resposta de uma
+  // escrita, que a API devolve antes de reler as junções.
+  store: { name: string; slug: string } | null;
   createdAt: string;
   updatedAt: string;
 };

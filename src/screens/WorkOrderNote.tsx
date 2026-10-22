@@ -257,7 +257,11 @@ const WorkOrderNote = () => {
                 ordem.items.map((item, i) => (
                   <tr key={item.id ?? i} className="border-b border-neutral-200">
                     <td className="py-1.5">
-                      {item.kind === 'part' ? modeloDe(ordem.template).pecas : 'Mão de obra'}
+                      {item.kind === 'part'
+                        ? modeloDe(ordem.template).pecas
+                        : item.kind === 'diagnosis'
+                          ? 'Pré-diagnóstico'
+                          : 'Mão de obra'}
                     </td>
                     <td className="py-1.5">{item.description}</td>
                     <td className="py-1.5 text-right">{item.quantity}</td>
@@ -282,14 +286,44 @@ const WorkOrderNote = () => {
                 </td>
                 <td className="py-1 text-right">{formatarPreco(ordem.partsTotal)}</td>
               </tr>
-              <tr>
-                <td colSpan={4} className="py-2 text-right font-medium">
-                  Valor total
-                </td>
-                <td className="py-2 text-right text-base font-bold">
-                  {formatarPreco(ordem.total)}
-                </td>
-              </tr>
+              {Number(ordem.diagnosisTotal) > 0 && (
+                <tr>
+                  <td colSpan={4} className="py-1 text-right">
+                    Valor do pré-diagnóstico
+                  </td>
+                  <td className="py-1 text-right">{formatarPreco(ordem.diagnosisTotal)}</td>
+                </tr>
+              )}
+              {/* Na recusada, o orçamento continua impresso — é o que o
+                  cliente leu e recusou —, mas o número em negrito é o que ele
+                  paga: só o pré-diagnóstico. */}
+              {ordem.declined ? (
+                <>
+                  <tr>
+                    <td colSpan={4} className="py-1 text-right">
+                      Orçamento (recusado)
+                    </td>
+                    <td className="py-1 text-right line-through">{formatarPreco(ordem.total)}</td>
+                  </tr>
+                  <tr>
+                    <td colSpan={4} className="py-2 text-right font-medium">
+                      Valor a pagar
+                    </td>
+                    <td className="py-2 text-right text-base font-bold">
+                      {formatarPreco(ordem.chargedTotal)}
+                    </td>
+                  </tr>
+                </>
+              ) : (
+                <tr>
+                  <td colSpan={4} className="py-2 text-right font-medium">
+                    Valor total
+                  </td>
+                  <td className="py-2 text-right text-base font-bold">
+                    {formatarPreco(ordem.total)}
+                  </td>
+                </tr>
+              )}
             </tfoot>
           </table>
         </section>
