@@ -49,6 +49,28 @@ const TIPO_EQUIPAMENTO: Record<string, string> = {
   other: 'Equipamento',
 };
 
+// Os nomes das cores, espelho de domain.EquipmentColors na API. Os termos
+// são os do CRLV — "grená" e "fantasia" soam estranhos fora do documento do
+// carro, e é justamente nele que o dono vai conferir.
+const COR_DO_EQUIPAMENTO: Record<string, string> = {
+  white: 'Branca',
+  silver: 'Prata',
+  black: 'Preta',
+  gray: 'Cinza',
+  red: 'Vermelha',
+  blue: 'Azul',
+  green: 'Verde',
+  yellow: 'Amarela',
+  orange: 'Laranja',
+  brown: 'Marrom',
+  beige: 'Bege',
+  gold: 'Dourada',
+  maroon: 'Grená',
+  pink: 'Rosa',
+  purple: 'Roxa',
+  other: 'Fantasia',
+};
+
 function Campo({ rotulo, children }: { rotulo: string; children: React.ReactNode }) {
   return (
     <div className="min-w-0">
@@ -195,6 +217,13 @@ const WorkOrderNote = () => {
           <Campo rotulo="Marca">{ordem.equipment?.brand}</Campo>
           <Campo rotulo="Modelo">{ordem.equipment?.model}</Campo>
           <Campo rotulo="Placa / nº de série">{ordem.equipment?.identifier}</Campo>
+          {/* A cor só vira campo quando a loja a anotou: coluna com
+              travessão não informa nada e ainda empurra a grade. */}
+          {ordem.equipment?.color && (
+            <Campo rotulo="Cor">
+              {COR_DO_EQUIPAMENTO[ordem.equipment.color] ?? ordem.equipment.color}
+            </Campo>
+          )}
         </section>
 
         {/* A ficha de entrada: como o equipamento chegou. É o que responde
