@@ -273,59 +273,52 @@ const WorkOrderNote = () => {
                 ))
               )}
             </tbody>
-            <tfoot>
-              <tr>
-                <td colSpan={4} className="py-1 text-right">
-                  Valor dos serviços
-                </td>
-                <td className="py-1 text-right">{formatarPreco(ordem.laborTotal)}</td>
-              </tr>
-              <tr>
-                <td colSpan={4} className="py-1 text-right">
-                  Valor de {modeloDe(ordem.template).pecas.toLowerCase()}
-                </td>
-                <td className="py-1 text-right">{formatarPreco(ordem.partsTotal)}</td>
-              </tr>
+          </table>
+
+          {/* Os totais ficam FORA da tabela, de propósito. Dentro de <tfoot>
+              o navegador os reimprime no rodapé de cada página sempre que a
+              lista de itens transborda para a página seguinte — o cliente via
+              o "Valor total" duas vezes. Como bloco à parte depois da tabela,
+              a soma sai uma vez só, ao fim; `break-inside-avoid` a mantém
+              inteira numa mesma página. */}
+          <div className="mt-2 flex break-inside-avoid justify-end">
+            <dl className="w-full space-y-1 text-[13px] sm:w-1/2">
+              <div className="flex justify-between gap-6">
+                <dt>Valor dos serviços</dt>
+                <dd>{formatarPreco(ordem.laborTotal)}</dd>
+              </div>
+              <div className="flex justify-between gap-6">
+                <dt>Valor de {modeloDe(ordem.template).pecas.toLowerCase()}</dt>
+                <dd>{formatarPreco(ordem.partsTotal)}</dd>
+              </div>
               {Number(ordem.diagnosisTotal) > 0 && (
-                <tr>
-                  <td colSpan={4} className="py-1 text-right">
-                    Valor do pré-diagnóstico
-                  </td>
-                  <td className="py-1 text-right">{formatarPreco(ordem.diagnosisTotal)}</td>
-                </tr>
+                <div className="flex justify-between gap-6">
+                  <dt>Valor do pré-diagnóstico</dt>
+                  <dd>{formatarPreco(ordem.diagnosisTotal)}</dd>
+                </div>
               )}
               {/* Na recusada, o orçamento continua impresso — é o que o
                   cliente leu e recusou —, mas o número em negrito é o que ele
                   paga: só o pré-diagnóstico. */}
               {ordem.declined ? (
                 <>
-                  <tr>
-                    <td colSpan={4} className="py-1 text-right">
-                      Orçamento (recusado)
-                    </td>
-                    <td className="py-1 text-right line-through">{formatarPreco(ordem.total)}</td>
-                  </tr>
-                  <tr>
-                    <td colSpan={4} className="py-2 text-right font-medium">
-                      Valor a pagar
-                    </td>
-                    <td className="py-2 text-right text-base font-bold">
-                      {formatarPreco(ordem.chargedTotal)}
-                    </td>
-                  </tr>
+                  <div className="flex justify-between gap-6">
+                    <dt>Orçamento (recusado)</dt>
+                    <dd className="line-through">{formatarPreco(ordem.total)}</dd>
+                  </div>
+                  <div className="flex justify-between gap-6 pt-1 font-medium">
+                    <dt>Valor a pagar</dt>
+                    <dd className="text-base font-bold">{formatarPreco(ordem.chargedTotal)}</dd>
+                  </div>
                 </>
               ) : (
-                <tr>
-                  <td colSpan={4} className="py-2 text-right font-medium">
-                    Valor total
-                  </td>
-                  <td className="py-2 text-right text-base font-bold">
-                    {formatarPreco(ordem.total)}
-                  </td>
-                </tr>
+                <div className="flex justify-between gap-6 pt-1 font-medium">
+                  <dt>Valor total</dt>
+                  <dd className="text-base font-bold">{formatarPreco(ordem.total)}</dd>
+                </div>
               )}
-            </tfoot>
-          </table>
+            </dl>
+          </div>
         </section>
 
         <section className="mt-5 grid grid-cols-2 gap-x-6 gap-y-3 border-t border-neutral-200 pt-4 sm:grid-cols-4">
