@@ -68,6 +68,9 @@ export type WorkOrder = {
     brand: string;
     model: string;
     identifier: string;
+    /** A cor do cadastro, da lista fechada do CRLV (domain.EquipmentColors
+     *  na API). Vazia é a cor que a loja não anotou. */
+    color: string;
     label: string;
   } | null;
   reportedIssue: string;
