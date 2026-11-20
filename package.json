@@ -10,7 +10,9 @@
     "clean": "rimraf .next",
     "type-check": "tsc --noEmit",
     "check:env-guard": "node scripts/check-env-guard.mjs",
-    "verify": "npm run type-check && npm run lint && npm run build && npm run check:env-guard"
+    "verify": "npm run type-check && npm run lint && npm run build && npm run check:env-guard",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -50,6 +52,7 @@
     "postcss": "^8.4.35",
     "rimraf": "^5.0.5",
     "tailwindcss": "^3.4.1",
-    "typescript": "^5.5.3"
+    "typescript": "^5.5.3",
+    "vitest": "^3.2.4"
   }
 }
